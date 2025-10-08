@@ -1,17 +1,21 @@
 "use strict";
 
-export function initGame(app, homeHTML) {
+export async function initTournament() {
+  return new Promise((resolve) => {
+
   let board = document.getElementById("board");
   let ctx = board.getContext("2d");
   resizeBoard();
 
   let paddle1 = { width: board.width * 0.02, height: board.height * 0.15, x: 0, y: board.height / 2 - board.height * 0.075 };
   let paddle2 = { width: board.width * 0.02, height: board.height * 0.15, x: board.width - board.width * 0.02, y: board.height / 2 - board.height * 0.075 };
-  let paddle1Score = 0, paddle2Score = 0;
+  let paddle1Score = 4, paddle2Score = 4;
+
   let ballRadius = board.width * 0.0125;
   let ballSpeed, ballX, ballY, ballXDirection, ballYDirection;
   let IntervallID;
   let paddleSpeed = board.height / 7;
+  let gameOver = false;
 
   const paddle1Color = "lightblue";
   const paddle2Color = "red";
@@ -24,9 +28,48 @@ export function initGame(app, homeHTML) {
     board.height = window.innerHeight * 0.7;
 }
 
+function showWinnerOverlay(winner) {
+  if (document.getElementById("winnerOverlay")) return;
+
+  const overlay = document.createElement("div");
+  overlay.id = "winnerOverlay";
+  overlay.className = `
+    fixed inset-0 flex flex-col items-center justify-center 
+    bg-black bg-opacity-70 text-white z-50
+  `;
+
+  const title = document.createElement("h1");
+  title.textContent = `${winner} a gagné ! 🏆`;
+  title.className = "text-4xl font-bold mb-6";
+
+
+  const quitBtn = document.createElement("button");
+  quitBtn.textContent = "Retour menu";
+  quitBtn.className =
+    "px-4 py-2 bg-gray-500 rounded-lg hover:bg-gray-600 transition-all";
+
+  quitBtn.addEventListener("click", () => {
+    overlay.remove();
+    window.removeEventListener("keydown", keyHandler);
+    resolve(winner);
+  });
+
+  overlay.append(title, quitBtn);
+  document.body.appendChild(overlay);
+}
+
+function checkWinner() {
+  if (paddle1Score === 5 || paddle2Score === 5) {
+    gameOver = true;
+    clearTimeout(IntervallID);
+    window.removeEventListener("keydown", keyHandler);
+    let winner = paddle1Score === 5 ? `${document.getElementById("player1").innerHTML}` : `${document.getElementById("player2").innerHTML}`;
+    showWinnerOverlay(winner);
+  }
+}
 
 function resizepaddle(paddle) {
-    paddleSpeed = board.height / 7;
+	paddleSpeed = 5 * board.height
     paddle.width  = board.width * 0.02;   
     paddle.height = board.height * 0.15;  
 }
@@ -67,6 +110,7 @@ function resizepaddle(paddle) {
 
   function drawScore() {
     document.getElementById("score").textContent = `${paddle1Score} : ${paddle2Score}`;
+    checkWinner();
   }
 
   function moveBall() {
@@ -105,6 +149,7 @@ function resizepaddle(paddle) {
   }
 
   function nextTick() {
+    if (gameOver) return;
     IntervallID = setTimeout(() => {
       clearBoard();
       drawPaddles();
@@ -136,15 +181,11 @@ function resizepaddle(paddle) {
     paddle2Score = 0;
     resetBall();
   }
-
-  // Bouton reset et retour
   document.getElementById("rst").addEventListener("click", resetGame);
   document.getElementById("backBtn").addEventListener("click", () => {
     clearTimeout(IntervallID);
     window.removeEventListener("keydown", keyHandler);
     app.innerHTML = homeHTML;
-
-    // Réattacher le listener du bouton start
     document.getElementById("startBtn").addEventListener("click", async () => {
       const resp = await fetch("game.html");
       const gameHTML = await resp.text();
@@ -154,17 +195,16 @@ function resizepaddle(paddle) {
     });
   });
   window.addEventListener("resize", () => {
-    resizeBoard(); // initial
+    resizeBoard(); 
     ballRadius = board.width * 0.0125;
     resizepaddle(paddle1);
     resizepaddle(paddle2);
     paddle2.x = board.width - paddle2.width;   
     paddle2.y = board.height - paddle2.height;
 });
-
-  // Démarrage
   createBall();
   drawScore();
   nextTick();
   window.addEventListener("keydown", keyHandler);
+});
 }

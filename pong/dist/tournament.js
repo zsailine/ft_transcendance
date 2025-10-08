@@ -14,29 +14,44 @@ async function match(i, aliases)
   const response = await fetch("game.html");
   const gameHTML = await response.text();
   app.innerHTML = gameHTML;
-  const gameModule = await import("./game.js");
+  const gameModule = await import("./tournamentGame.js");
   document.getElementById("rst").style.display = "none";
   document.getElementById("backBtn").style.display = "none";
-  document.getElementById("player1").value = aliases[i];
-  document.getElementById("player2").value = aliases[i + 1];
-  const winner = gameModule.initGame();
+  document.getElementById("player1").innerHTML = aliases[i * 2];
+  document.getElementById("player2").innerHTML = aliases[i * 2 + 1];
+  console.log(`${aliases[i * 2]} vs ${aliases[i * 2 + 1]}`);
+  const winner = await gameModule.initTournament();
   console.log("the winner is " , winner);
   return (winner);
 }
 
-function startMatches(aliases)
+async function startMatches(aliases)
 {
   let newAliases= [];
   const numMatches = Math.floor(aliases.length / 2);
-
+  console.log("number of match ", numMatches);
   for (let i = 0; i < numMatches; i++)
   {
-      newAliases.push(match(i, aliases));
+    const winner = await match(i, aliases);
+    newAliases.push(winner);
   }
+  console.log("newAliases ", newAliases);
   return newAliases;
 }
 
-function generateQualificationPhase(aliases)
+async function tournament(aliases) {
+  console.log("aliases are ", aliases.length);
+
+  while (aliases.length > 1) {
+    let newAliases = await generateQualificationPhase(aliases);
+    console.log("mivoaka");
+    aliases = newAliases;
+  }
+
+  console.log("vita");
+}
+
+async function generateQualificationPhase(aliases)
 {
   const numMatches = Math.floor(aliases.length / 2);
   if (numMatches === 0)
@@ -52,7 +67,7 @@ function generateQualificationPhase(aliases)
   phaseContainer.className = "flex flex-col items-center space-y-6 w-full";
 
   const title = document.createElement("h2");
-  title.textContent = "Match Listing";
+  // title.textContent = "Match Listing";
   title.className = "text-2xl font-bold text-yellow-400 mb-4";
   phaseContainer.appendChild(title);
 
@@ -85,19 +100,13 @@ function generateQualificationPhase(aliases)
   phaseContainer.append(startButton);
   app.appendChild(phaseContainer);
 
-  startButton.addEventListener("click", () => {
-      return (startMatches(aliases));
+  return new Promise((resolve) => {
+    startButton.addEventListener("click", async () => {
+      const newAliases = await startMatches(aliases);
+      console.log("yo");
+      resolve(newAliases);
+    });
   });
-}
-
-function tournament(aliases)
-{
-  console.log("aloiases are ", aliases.length);
-  while (aliases.length > 1)
-  {
-    aliases = generateQualificationPhase(aliases);
-  }
-  console.log("vita");
 }
 
 export function initTournament() {
