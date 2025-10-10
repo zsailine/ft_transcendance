@@ -7,6 +7,7 @@ import fastifyJwt from "fastify-jwt";
 dotenv.config();
 const fastify = Fastify({ logger: true });
 
+
 const axiosInstance = axios.create({
 baseURL: "http://localhost:3001",
 timeout: 1000,

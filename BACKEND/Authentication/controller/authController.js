@@ -5,7 +5,6 @@ const loggedUser = async (req , rep) => {
     if (!username || !password)
         return rep.code(400).send({ error: "username and password are required" });
     const user = await req.server.axios.get(`/users/${username}`)
-    console.log(user);
     if (!user.data)
         return rep.code(404).send({ error: "user not found" });
     const validMdp = await bcrypt.compare(password , user.data.password);
