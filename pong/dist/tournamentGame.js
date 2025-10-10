@@ -1,6 +1,7 @@
 "use strict";
 
-export async function initTournament() {
+export async function initTournament()
+{
   return new Promise((resolve) => {
 
   let board = document.getElementById("board");
@@ -39,14 +40,14 @@ function showWinnerOverlay(winner) {
   `;
 
   const title = document.createElement("h1");
-  title.textContent = `${winner} a gagné ! 🏆`;
+  title.textContent = `${winner} won ! 🏆`;
   title.className = "text-4xl font-bold mb-6";
 
 
   const quitBtn = document.createElement("button");
-  quitBtn.textContent = "Retour menu";
+  quitBtn.textContent = "Next";
   quitBtn.className =
-    "px-4 py-2 bg-gray-500 rounded-lg hover:bg-gray-600 transition-all";
+    "px-4 py-2px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
 
   quitBtn.addEventListener("click", () => {
     overlay.remove();
@@ -68,13 +69,15 @@ function checkWinner() {
   }
 }
 
-function resizepaddle(paddle) {
+function resizepaddle(paddle) 
+{
 	paddleSpeed = 5 * board.height
-    paddle.width  = board.width * 0.02;   
-    paddle.height = board.height * 0.15;  
+  paddle.width  = board.width * 0.02;   
+  paddle.height = board.height * 0.15;  
 }
 
-  function createBall() {
+  function createBall()
+  {
     ballSpeed = 1;
     ballXDirection = Math.random() > 0.5 ? 1 : -1;
     ballYDirection = Math.random() > 0.5 ? 1 : -1;

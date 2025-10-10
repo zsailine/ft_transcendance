@@ -1,6 +1,8 @@
 "use strict";
 
-export function initGame(app, homeHTML) {
+import { MainMenu } from ".";
+
+export function initGame(app, homeHTML, goToMainMenu) {
   let board = document.getElementById("board");
   let ctx = board.getContext("2d");
   resizeBoard();
@@ -136,33 +138,20 @@ function resizepaddle(paddle) {
     paddle2Score = 0;
     resetBall();
   }
-
-  // Bouton reset et retour
   document.getElementById("rst").addEventListener("click", resetGame);
   document.getElementById("backBtn").addEventListener("click", () => {
-    clearTimeout(IntervallID);
-    window.removeEventListener("keydown", keyHandler);
-    app.innerHTML = homeHTML;
-
-    // Réattacher le listener du bouton start
-    document.getElementById("startBtn").addEventListener("click", async () => {
-      const resp = await fetch("game.html");
-      const gameHTML = await resp.text();
-      app.innerHTML = gameHTML;
-      const gameModule = await import("./game.js");
-      gameModule.initGame(app, homeHTML);
-    });
+      clearTimeout(IntervallID);
+      window.removeEventListener("keydown", keyHandler);
+      goToMainMenu();
   });
   window.addEventListener("resize", () => {
-    resizeBoard(); // initial
+    resizeBoard();
     ballRadius = board.width * 0.0125;
     resizepaddle(paddle1);
     resizepaddle(paddle2);
     paddle2.x = board.width - paddle2.width;   
     paddle2.y = board.height - paddle2.height;
 });
-
-  // Démarrage
   createBall();
   drawScore();
   nextTick();

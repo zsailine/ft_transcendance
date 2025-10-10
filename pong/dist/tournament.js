@@ -1,5 +1,7 @@
 "use strict";
 
+import { MainMenu } from "./index.js";
+
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -19,9 +21,7 @@ async function match(i, aliases)
   document.getElementById("backBtn").style.display = "none";
   document.getElementById("player1").innerHTML = aliases[i * 2];
   document.getElementById("player2").innerHTML = aliases[i * 2 + 1];
-  console.log(`${aliases[i * 2]} vs ${aliases[i * 2 + 1]}`);
   const winner = await gameModule.initTournament();
-  console.log("the winner is " , winner);
   return (winner);
 }
 
@@ -29,37 +29,48 @@ async function startMatches(aliases)
 {
   let newAliases= [];
   const numMatches = Math.floor(aliases.length / 2);
-  console.log("number of match ", numMatches);
   for (let i = 0; i < numMatches; i++)
   {
     const winner = await match(i, aliases);
     newAliases.push(winner);
   }
-  console.log("newAliases ", newAliases);
   return newAliases;
 }
 
-async function tournament(aliases) {
-  console.log("aliases are ", aliases.length);
+function displayWinner(alias)
+{
+	const app = document.getElementById("app");
+  	app.innerHTML = "";
+	const overlay = document.createElement("div");
+	overlay.id = "winnerOverlay";
+	overlay.className = `
+	fixed inset-0 flex flex-col items-center justify-center text-white z-50`;
+	const title = document.createElement("h2");
+	title.textContent = `${alias[0]} won the tournament!`;
+	title.className = "text-4xl font-bold mb-6";
 
-  while (aliases.length > 1) {
+	const quitBtn = document.createElement("button");
+	quitBtn.textContent = "Home";
+	quitBtn.className = "px-4 py-2 px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all transition-all";
+
+	quitBtn.addEventListener("click", MainMenu);
+	overlay.append(title, quitBtn);
+ 	app.appendChild(overlay);
+}
+
+async function tournament(aliases) 
+{
+  while (aliases.length > 1)
+  {
     let newAliases = await generateQualificationPhase(aliases);
-    console.log("mivoaka");
     aliases = newAliases;
   }
-
-  console.log("vita");
+  displayWinner(aliases);
 }
 
 async function generateQualificationPhase(aliases)
 {
   const numMatches = Math.floor(aliases.length / 2);
-  if (numMatches === 0)
-  {
-    console.warn("Pas assez de joueurs pour une phase de qualification !");
-    return;
-  }
-
   const app = document.getElementById("app");
   app.innerHTML = "";
 
@@ -96,14 +107,13 @@ async function generateQualificationPhase(aliases)
   const startButton = document.createElement("button");
   startButton.id = "start";
   startButton.textContent = "Start";
-  startButton.className = "px-3 py-1 mt-3 text-sm border border-gray-400 rounded hover:bg-gray-200 hover:text-gray-900 transition-all";
+  startButton.className = "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
   phaseContainer.append(startButton);
   app.appendChild(phaseContainer);
 
   return new Promise((resolve) => {
     startButton.addEventListener("click", async () => {
       const newAliases = await startMatches(aliases);
-      console.log("yo");
       resolve(newAliases);
     });
   });
