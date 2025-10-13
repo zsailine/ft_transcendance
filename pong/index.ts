@@ -17,15 +17,15 @@ const paddleBorder = "black";
 const ballColor = "yellow";
 const ballBorsderColor = "black";
 const paddleSpeed = 50;
-
 let IntervallID;
-let ballSpeed = 1;
+let ballSpeed : number = 1;
 let ballX = boardWidth / 2;
 let ballY =  boardHeight / 2;
 let ballXDirection = 0;
 let BallYDirection = 0;
 let paddle1Score = 0;
 let paddle2Score = 0;
+const text = "1";
 let ballRadius = board.width * 0.0125;
 let paddle1 = {
     width: board.width * 0.02,   

@@ -12,7 +12,7 @@ export async function MainMenu()
   }
 
   document.getElementById("tournament").addEventListener("click", async () => {
-    response = await fetch("tournament.html");
+    response = await fetch("../tournament.html");
     const tournamentHTML = await response.text();
     app.innerHTML = tournamentHTML;
     const module = await import("./tournament.js");
@@ -21,7 +21,7 @@ export async function MainMenu()
   
   
   document.getElementById("startBtn").addEventListener("click", async () => {
-    response = await fetch("game.html");
+    response = await fetch("../game.html");
     const gameHTML = await response.text();
     app.innerHTML = gameHTML;
     const gameModule = await import("./game.js");

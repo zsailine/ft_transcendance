@@ -78,7 +78,7 @@ function resizepaddle(paddle)
 
   function createBall()
   {
-    ballSpeed = 1;
+    ballSpeed = board.width * 0.001;
     ballXDirection = Math.random() > 0.5 ? 1 : -1;
     ballYDirection = Math.random() > 0.5 ? 1 : -1;
     ballX = board.width / 2;
@@ -125,14 +125,14 @@ function resizepaddle(paddle)
 
     if (ballX - ballRadius <= paddle1.x + paddle1.width &&
         ballY > paddle1.y && ballY < paddle1.y + paddle1.height) {
-      ballSpeed += 0.5;
+      ballSpeed += board.width * 0.0005;
       ballX = (paddle1.x + paddle1.width) + ballRadius;
       ballXDirection = -ballXDirection;
     }
 
     if (ballX + ballRadius >= paddle2.x &&
         ballY > paddle2.y && ballY < paddle2.y + paddle2.height) {
-      ballSpeed += 0.5;
+      ballSpeed += board.width * 0.0005;
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
     }
@@ -198,7 +198,15 @@ function resizepaddle(paddle)
     });
   });
   window.addEventListener("resize", () => {
-    resizeBoard(); 
+    const ancient = board.width;
+    const ancientHeight = board.height;
+    const oldSpeed = ballSpeed;
+    const oldX = ballX;
+    const oldY = ballY;
+    resizeBoard();
+    ballSpeed = oldSpeed * (board.width / ancient);
+    ballX = oldX * (board.width / ancient);
+    ballY = oldY * (board.height / ancientHeight);
     ballRadius = board.width * 0.0125;
     resizepaddle(paddle1);
     resizepaddle(paddle2);
