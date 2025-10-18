@@ -1,6 +1,13 @@
 "use strict";
+import { StrictMode } from 'react'
+import { createRoot } from "react-dom/client";
+import type { Root } from "react-dom/client";
+import TournamentGame from "../Pages/TournamentGame.tsx"
+import {start} from "./tournamentGame.ts"
+import App from "../App.tsx"
 
-import { MainMenu } from "./index.js";
+const container = document.getElementById("root")!;
+let root: Root = createRoot(container);
 
 function shuffleArray<T>(array: T[]): void {
   for (let i = array.length - 1; i > 0; i--) {
@@ -9,29 +16,59 @@ function shuffleArray<T>(array: T[]): void {
   }
 }
 
-async function match(i: number, aliases: string[]): Promise<string> {
-  const app = document.getElementById("app") as HTMLElement;
+async function tournament(aliases: string[]): Promise<void> {
+  while (aliases.length > 1) {
+    const newAliases = await generateQualificationPhase(aliases);
+    aliases = newAliases;
+  }
+  displayWinner(aliases);
+}
 
-  app.innerHTML = "";
 
-  const response = await fetch("game.html");
-  const gameHTML = await response.text();
-  app.innerHTML = gameHTML;
+async function generateQualificationPhase(aliases: string[]): Promise<string[]> {
+  const numMatches = Math.floor(aliases.length / 2);
+  const phaseContainer = document.createElement("div");
+  phaseContainer.className = "flex flex-col items-center space-y-6 w-full";
+  
+  const title = document.createElement("h2");
+  title.className = "text-2xl font-bold text-yellow-400 mb-4";
+  phaseContainer.appendChild(title);
+  
+  for (let i = 0; i < numMatches; i++) {
+    const matchDiv = document.createElement("div");
+    matchDiv.className =
+    "flex justify-center items-center space-x-4 bg-gray-800 p-3 rounded shadow w-1/2";
+    
+    const player1 = document.createElement("p");
+    player1.textContent = aliases[i * 2];
+    player1.className = "flex-1 text-center";
+    
+    const vs = document.createElement("p");
+    vs.textContent = "VS";
+    vs.className = "text-yellow-400 font-bold";
+    
+    const player2 = document.createElement("p");
+    player2.textContent = aliases[i * 2 + 1];
+    player2.className = "flex-1 text-center";
+    
+    matchDiv.append(player1, vs, player2);
+    phaseContainer.appendChild(matchDiv);
+  }
+  
+  const startButton = document.createElement("button");
+  startButton.id = "start";
+  startButton.textContent = "Start";
+  startButton.className =
+  "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
+  phaseContainer.append(startButton);
+  container.appendChild(phaseContainer);
 
-  const gameModule = await import("./tournamentGame.js");
-
-  const rst = document.getElementById("rst") as HTMLElement | null;
-  const backBtn = document.getElementById("backBtn") as HTMLElement | null;
-  if (rst) rst.style.display = "none";
-  if (backBtn) backBtn.style.display = "none";
-
-  const player1 = document.getElementById("player1") as HTMLElement | null;
-  const player2 = document.getElementById("player2") as HTMLElement | null;
-  if (player1) player1.textContent = aliases[i * 2];
-  if (player2) player2.textContent = aliases[i * 2 + 1];
-
-  const winner: string = await gameModule.initTournament();
-  return winner;
+  return new Promise((resolve) => {
+    startButton.addEventListener("click", async () => {
+      const newAliases = await startMatches(aliases);
+      resolve(newAliases);
+    });
+  });
 }
 
 async function startMatches(aliases: string[]): Promise<string[]> {
@@ -45,11 +82,31 @@ async function startMatches(aliases: string[]): Promise<string[]> {
   return newAliases;
 }
 
-function displayWinner(aliases: string[]): void {
-  const app = document.getElementById("app") as HTMLElement;
-  if (!app) throw new Error("Element #app not found");
-  app.innerHTML = "";
 
+async function match(i: number, aliases: string[]): Promise<string> {
+  root.render(
+    <StrictMode>
+      <TournamentGame />
+    </StrictMode>
+  );
+  await new Promise<void>((resolve) => {
+    const check = () => {
+      if (document.getElementById("player1")) return resolve();
+      setTimeout(check, 10);
+    };
+    check();
+  });
+  const player1 = document.getElementById("player1") as HTMLElement | null;
+  const player2 = document.getElementById("player2") as HTMLElement | null;
+  if (player1) player1.textContent = aliases[i * 2];
+  if (player2) player2.textContent = aliases[i * 2 + 1];
+  console.log(player1?.textContent);
+  const winner = await start();
+  return winner;
+}
+
+function displayWinner(aliases: string[]): void {
+  root.render(<></>);
   const overlay = document.createElement("div");
   overlay.id = "winnerOverlay";
   overlay.className = "fixed inset-0 flex flex-col items-center justify-center text-white z-50";
@@ -63,70 +120,17 @@ function displayWinner(aliases: string[]): void {
   quitBtn.className =
     "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
 
-  quitBtn.addEventListener("click", MainMenu);
+  quitBtn.addEventListener("click", () => {
+    window.history.pushState({}, "", "/");
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  });
 
   overlay.append(title, quitBtn);
-  app.appendChild(overlay);
-}
-
-async function tournament(aliases: string[]): Promise<void> {
-  while (aliases.length > 1) {
-    const newAliases = await generateQualificationPhase(aliases);
-    aliases = newAliases;
-  }
-  displayWinner(aliases);
-}
-
-async function generateQualificationPhase(aliases: string[]): Promise<string[]> {
-  const numMatches = Math.floor(aliases.length / 2);
-  const app = document.getElementById("app") as HTMLElement;
-  if (!app) throw new Error("Element #app not found");
-
-  app.innerHTML = "";
-
-  const phaseContainer = document.createElement("div");
-  phaseContainer.className = "flex flex-col items-center space-y-6 w-full";
-
-  const title = document.createElement("h2");
-  title.className = "text-2xl font-bold text-yellow-400 mb-4";
-  phaseContainer.appendChild(title);
-
-  for (let i = 0; i < numMatches; i++) {
-    const matchDiv = document.createElement("div");
-    matchDiv.className =
-      "flex justify-center items-center space-x-4 bg-gray-800 p-3 rounded shadow w-1/2";
-
-    const player1 = document.createElement("p");
-    player1.textContent = aliases[i * 2];
-    player1.className = "flex-1 text-center";
-
-    const vs = document.createElement("p");
-    vs.textContent = "VS";
-    vs.className = "text-yellow-400 font-bold";
-
-    const player2 = document.createElement("p");
-    player2.textContent = aliases[i * 2 + 1];
-    player2.className = "flex-1 text-center";
-
-    matchDiv.append(player1, vs, player2);
-    phaseContainer.appendChild(matchDiv);
-  }
-
-  const startButton = document.createElement("button");
-  startButton.id = "start";
-  startButton.textContent = "Start";
-  startButton.className =
-    "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
-  phaseContainer.append(startButton);
-
-  app.appendChild(phaseContainer);
-
-  return new Promise((resolve) => {
-    startButton.addEventListener("click", async () => {
-      const newAliases = await startMatches(aliases);
-      resolve(newAliases);
-    });
-  });
+  container.appendChild(overlay);
 }
 
 export function initTournament(): void {

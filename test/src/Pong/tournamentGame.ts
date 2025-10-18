@@ -1,6 +1,6 @@
 "use strict";
 
-export async function initTournament(): Promise<string> {
+export async function start(): Promise<string> {
   return new Promise((resolve) => {
     const board = document.getElementById("board") as HTMLCanvasElement;
     const ctx = board.getContext("2d") as CanvasRenderingContext2D;
@@ -212,15 +212,6 @@ export async function initTournament(): Promise<string> {
           break;
       }
     }
-
-    function resetGame(): void {
-      paddle1Score = 0;
-      paddle2Score = 0;
-      resetBall();
-    }
-
-    document.getElementById("rst")?.addEventListener("click", resetGame);
-
     window.addEventListener("resize", () => {
       const oldWidth = board.width;
       const oldHeight = board.height;

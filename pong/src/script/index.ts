@@ -1,4 +1,10 @@
-"use strict";
+import React from 'react'
+import ReactDom from 'react-dom'
+
+ReactDOM.render(
+    <p>hello</p>, 
+    document.getElementById("app")
+)
 
 export async function MainMenu(): Promise<void> {
     const app = document.getElementById("app") as HTMLElement;
@@ -41,5 +47,5 @@ export async function MainMenu(): Promise<void> {
     }
   }
 
-  MainMenu();
+  // MainMenu();
 

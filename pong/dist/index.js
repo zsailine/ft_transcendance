@@ -1,4 +1,5 @@
 "use strict";
+
 export async function MainMenu() {
     const app = document.getElementById("app");
     let response = await fetch("../home.html");

@@ -43,7 +43,7 @@ export async function initTournament() {
             overlay.id = "winnerOverlay";
             overlay.className = `
         fixed inset-0 flex flex-col items-center justify-center 
-        bg-black bg-opacity-50 text-white z-50`;
+        bg-black/50 text-white z-50`;
             const title = document.createElement("h1");
             title.textContent = `${winner} won ! 🏆`;
             title.className = "text-4xl font-bold mb-6";
