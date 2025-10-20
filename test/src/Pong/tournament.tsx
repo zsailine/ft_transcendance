@@ -27,9 +27,11 @@ async function tournament(aliases: string[]): Promise<void> {
 
 async function generateQualificationPhase(aliases: string[]): Promise<string[]> {
   const numMatches = Math.floor(aliases.length / 2);
-  const phaseContainer = document.createElement("div");
+  root.render(<></>);
+  let phaseContainer =
+  document.getElementById("match") ?? document.createElement("div");
+  phaseContainer.id = "match";
   phaseContainer.className = "flex flex-col items-center space-y-6 w-full";
-  
   const title = document.createElement("h2");
   title.className = "text-2xl font-bold text-yellow-400 mb-4";
   phaseContainer.appendChild(title);
@@ -61,8 +63,7 @@ async function generateQualificationPhase(aliases: string[]): Promise<string[]> 
   startButton.className =
   "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
   phaseContainer.append(startButton);
-  container.appendChild(phaseContainer);
-
+  document.body.append(phaseContainer);
   return new Promise((resolve) => {
     startButton.addEventListener("click", async () => {
       const newAliases = await startMatches(aliases);
@@ -89,6 +90,8 @@ async function match(i: number, aliases: string[]): Promise<string> {
       <TournamentGame />
     </StrictMode>
   );
+  let phaseContainer = document.getElementById("match") ?? document.createElement("div");
+  phaseContainer.innerHTML = "";
   await new Promise<void>((resolve) => {
     const check = () => {
       if (document.getElementById("player1")) return resolve();
@@ -107,9 +110,11 @@ async function match(i: number, aliases: string[]): Promise<string> {
 
 function displayWinner(aliases: string[]): void {
   root.render(<></>);
+  let phaseContainer =
+  document.getElementById("match") ?? document.createElement("div");
   const overlay = document.createElement("div");
   overlay.id = "winnerOverlay";
-  overlay.className = "fixed inset-0 flex flex-col items-center justify-center text-white z-50";
+  overlay.className = "fixed inset-0 flex flex-col items-center justify-center text-gray-900 z-50";
 
   const title = document.createElement("h2");
   title.textContent = `${aliases[0]} won the tournament!`;
@@ -119,8 +124,8 @@ function displayWinner(aliases: string[]): void {
   quitBtn.textContent = "Home";
   quitBtn.className =
     "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
-
   quitBtn.addEventListener("click", () => {
+    phaseContainer.remove();
     window.history.pushState({}, "", "/");
     root.render(
       <StrictMode>
