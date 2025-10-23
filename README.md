@@ -1,5 +1,7 @@
 # Initiation de la base
-npm run init-db
+## Pour le service user
+cd BACKEND/USER
+node migration.js
 
 # Lancement du serveur
 npm run dev
