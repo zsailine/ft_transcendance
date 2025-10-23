@@ -3,15 +3,21 @@ import axios from "axios";
 import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
 import fastifyJwt from "fastify-jwt";
+import cors from '@fastify/cors'
 
 dotenv.config();
 const fastify = Fastify({ logger: true });
 
+await fastify.register(cors, {
+  origin: "*"
+})
 
 const axiosInstance = axios.create({
 baseURL: "http://localhost:3001",
 timeout: 1000,
 });
+
+
 
 fastify.decorate("axios", axiosInstance);
 

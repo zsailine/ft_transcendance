@@ -16,14 +16,16 @@ const loggedUser = async (req , rep) => {
 
     return rep.send({
         token : token,
-        user  : user.data 
+        username  : username 
     });
 }
 
 const verify = async (req , rep) => {
     const token = req.headers.authorization?.replace("Bearer " , "")
     if (!token)
+    {   
         rep.code(401).send({error: "No token"})
+    }
     try{
         const decodedToken = req.server.jwt.decode(token)
         const username = decodedToken.username
