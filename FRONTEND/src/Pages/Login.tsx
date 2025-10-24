@@ -1,8 +1,12 @@
 import { useState, type ChangeEvent, type FormEvent } from "react"
 import { useAuth } from "../Providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Login()
 {
+    const navigate = useNavigate()
+
     interface LoginData {
         username: string;
         password: string;
@@ -23,16 +27,18 @@ export default function Login()
     }));
     }
 
-    const handleSubmit = (e : FormEvent) =>
+    const handleSubmit = async (e : FormEvent) =>
     {
         e.preventDefault();
-        login(formData.username, formData.password)
         setFormData(
             {
                 username : "",
                 password : ""
             }
         )
+        const success = await login(formData.username, formData.password)
+        if (success)
+            navigate("/dashboard")
     }
 
     return(

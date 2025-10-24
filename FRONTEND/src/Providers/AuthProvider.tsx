@@ -1,15 +1,11 @@
 import { useState , createContext, useContext, useEffect} from "react";
 import api from "../Utils/axios";
 
-// interface User {
-//     token : string
-//     username : string
-// }
 
 interface AuthInterface {
     token : string | null,
     user : string | null,
-    login : (username:string, password:string) => object,
+    login : (username:string, password:string) => any,
     logout : () => void,
     loading : boolean,
     isAuthenticated : boolean
@@ -27,7 +23,7 @@ const useAuth = () => {
 const AuthProvider = ({children} : any) =>
 {
     const [user, setUser] = useState<string | null>(null)
-    const [loading, setLoading] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(true)
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
 
     const verifyToken = async () =>
@@ -35,9 +31,8 @@ const AuthProvider = ({children} : any) =>
         try
         {
             const {data} = await api.get("/auth/me")
-            console.log(data)
             if (data)
-                setUser(data.username)
+                setUser(data.user.username)
             else
                 logout()
         }
@@ -68,7 +63,6 @@ const AuthProvider = ({children} : any) =>
                 password :password
             }
             const {data} = await api.post("/auth/login", postData)
-            console.log(data)
             if (!data.username)
                 throw new Error("User not found !")
             localStorage.setItem('token', data.token)
