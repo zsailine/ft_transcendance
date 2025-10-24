@@ -1,7 +1,7 @@
 "use strict";
 
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { root } from "../main";
 import App from "../App.tsx"
 
 type Paddle = {
@@ -189,7 +189,7 @@ export async function initGame(): Promise<void> {
       clearTimeout(intervalID);
       window.removeEventListener("keydown", keyHandler);
       window.history.pushState({}, "", "/");
-      createRoot(document.getElementById('root')!).render(
+      root.render(
         <StrictMode>
           <App />
         </StrictMode>,

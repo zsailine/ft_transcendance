@@ -5,7 +5,6 @@ function PongTournament() {
 	useEffect(() => {
 		initTournament();
 	}, []);
-
 	return ( 
 	<>
 		<div id="form" className="flex flex-col items-center justify-center space-y-4">

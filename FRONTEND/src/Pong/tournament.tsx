@@ -1,13 +1,11 @@
 "use strict";
 import { StrictMode } from 'react'
-import { createRoot } from "react-dom/client";
-import type { Root } from "react-dom/client";
 import TournamentGame from "../Pages/TournamentGame.tsx"
 import {start} from "./tournamentGame.ts"
 import App from "../App.tsx"
+import { root } from "../main";
 
 const container = document.getElementById("root")!;
-let root: Root = createRoot(container);
 
 export function listen()
 {
