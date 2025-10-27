@@ -5,6 +5,9 @@ import PongTournament from "./Pages/PongTournament";import Login from "./Pages/L
 import { AuthProvider } from "./Providers/AuthProvider";
 import Dashboard from "./Pages/Dashboard";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import Settings from "./Pages/Dashboard/Settings";
+import Play from "./Pages/Dashboard/Play";
+import Profil from "./Pages/Dashboard/Profil";
  "./Pages/PongTournament"
 function App() {
 
@@ -24,8 +27,12 @@ function App() {
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
-            }
-          />
+            }>
+
+              <Route index element={<Profil/>}/>
+              <Route  path="settings" element={<Settings/>} />
+              <Route  path="play" element={<Play/>} />
+            </Route>
 
           </Routes>
         </Router>
