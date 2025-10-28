@@ -9,12 +9,19 @@ import cors from '@fastify/cors'
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-  origin: "*"
+  origin: "*",
+  allowedHeaders: ["Authorization","Content-Type"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 })
 
 fastify.decorate("db", new Database("./data/users.db"));
 
 fastify.register(userRoutes);
+
+fastify.addHook('onSend', (request, reply, payload, next) => {
+  console.log('En-têtes de réponse:', reply.getHeaders());
+  next();
+});
 
 fastify.listen({ port: 3001 }, (err, address) => {
   if (err) {

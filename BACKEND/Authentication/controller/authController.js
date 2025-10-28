@@ -32,7 +32,7 @@ const verify = async (req , rep) => {
         const user = await req.server.axios.get(`users/${username}`)
         if (!user.data)
             rep.code(404).send({error : "User not found"})
-        rep.code(200).send({user : user.data})
+        rep.code(200).send({user : user.data.username})
     }
     catch(e){
         console.log(e)

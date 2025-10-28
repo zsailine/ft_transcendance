@@ -3,9 +3,6 @@ import  db  from "../migration.js";
 
 const createUser = async (req, rep) => {
     const { username, email, password } = req.body;
-    console.log("*********************\n")
-    console.log(username, email, password)
-    console.log(req.body)
     if (!username || !email || !password) 
         return rep.code(400).send({ error: "username , email and password required" });
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,4 +31,8 @@ const getUserByUsername = (req, rep) => {
     rep.send(user);
 }
 
-export { createUser , getAllUsers , getUserByUsername };
+const getUserInfo = (req, rep) => {
+    
+}
+
+export { createUser , getAllUsers , getUserByUsername , getUserInfo };

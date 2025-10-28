@@ -32,7 +32,7 @@ const AuthProvider = ({children} : any) =>
         {
             const {data} = await api.get("/auth/me")
             if (data)
-                setUser(data.user.username)
+                setUser(data.user)
             else
                 logout()
         }
