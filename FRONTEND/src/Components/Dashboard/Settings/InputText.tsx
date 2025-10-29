@@ -1,9 +1,9 @@
 import { useDashboard } from "../../../Providers/DashboardProvider"
 
 const InputText = () => {
+    const {setNickname} = useDashboard();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {setNickname} = useDashboard();
         setNickname(e.target.value);
     }
 
