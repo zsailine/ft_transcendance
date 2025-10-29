@@ -3,7 +3,7 @@ import Fastify from "fastify";
 import Database from "better-sqlite3";
 import userRoutes from "./routes/userRoutes.js";
 import cors from '@fastify/cors'
-
+import fastifyMultipart from "@fastify/multipart";
 
 
 const fastify = Fastify({ logger: true });
@@ -16,10 +16,13 @@ await fastify.register(cors, {
 
 fastify.decorate("db", new Database("./data/users.db"));
 
+fastify.register(fastifyMultipart,{
+  attachFieldsToBody : true
+});
+
 fastify.register(userRoutes);
 
 fastify.addHook('onSend', (request, reply, payload, next) => {
-  console.log('En-têtes de réponse:', reply.getHeaders());
   next();
 });
 

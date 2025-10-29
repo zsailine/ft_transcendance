@@ -4,12 +4,14 @@ import { useAuth } from "./AuthProvider";
 
 
 interface DashboardInterface {
+    username: string | null,
+    setUsername: (username: string) => void,
     nickname: string | null,
     setNickname: (nickname: string) => void,
-    avatar: string | null,
-    setAvatar: (avatar: string) => void,
-    coverImage: string | null,
-    setCoverImage: (coverImage: string) => void
+    avatar: Blob | null,
+    setAvatar: (avatar: Blob) => void,
+    coverImage: Blob | null,
+    setCoverImage: (coverImage: Blob) => void
 }
 
 export const DasboardContext = createContext<DashboardInterface | null>(null);
@@ -23,9 +25,10 @@ export const useDashboard = () => {
 
 export const DashboardProvider = ({children} : any) =>
 {
+    const [username, setUsername] = useState<string | null>(null);
     const [nickname, setNickname] = useState<string>("");
-    const [avatar, setAvatar] = useState<string>("");
-    const [coverImage, setCoverImage] = useState<string>("");
+    const [avatar, setAvatar] = useState<Blob | null>(null);
+    const [coverImage, setCoverImage] = useState<Blob | null>(null);
     const { user } = useAuth()
 
     useEffect(() => {
@@ -34,6 +37,7 @@ export const DashboardProvider = ({children} : any) =>
             
             api.get(`/users/${user}`)
                 .then((response) => {
+                    setUsername(response.data.username);
                     setNickname(response.data.nickname);
                     setAvatar(response.data.avatar);
                     setCoverImage(response.data.cover_image);
@@ -45,6 +49,8 @@ export const DashboardProvider = ({children} : any) =>
     }, [user]);
 
     const value = {
+        username,
+        setUsername,
         nickname,
         setNickname,
         avatar,

@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom';
 const Dashboard = () => {
     return(
         <>
-            <div className="bg-[#101728] h-screen flex">
+            <div className="bg-[#101728] min-h-screen flex">
                 <div className="w-1/5">
                     <Sidebar/>
                 </div>
@@ -14,7 +14,9 @@ const Dashboard = () => {
                     <div className="flex justify-end h-max">
                         <Navbar />
                     </div>
-                    < Outlet/>
+                    <div className="mb-6">
+                        < Outlet/>
+                    </div>
                 </div>
             </div>
         </>

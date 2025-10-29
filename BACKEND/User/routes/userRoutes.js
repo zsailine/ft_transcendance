@@ -1,4 +1,4 @@
-import { createUser , getAllUsers , getUserByUsername, getUserInfo} from "../controller/userController.js";
+import { createUser , getAllUsers , getUserByUsername, updateUser } from "../controller/userController.js";
 
 export default async function userRoutes(fastify) {
   const db = fastify.db;
@@ -9,5 +9,5 @@ export default async function userRoutes(fastify) {
 
   fastify.post("/users/register", { handler: createUser });
 
-  fastify.get("/users/me/info" , { handler : getUserInfo });
+  fastify.post("/users/update" , { handler: updateUser });
 }

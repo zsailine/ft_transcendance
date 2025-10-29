@@ -1,21 +1,51 @@
+import { useDashboard } from "../../../Providers/DashboardProvider";
+import { useRef, useState } from "react";
+import { FaCirclePlus } from "react-icons/fa6";
+
 
 const Avatar = () => {
+    const ImageRef = useRef<HTMLInputElement | null>(null);
+    const { setAvatar } = useDashboard()
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    const handleChange = (e: any) => {
+        setAvatar(e.target?.files[0]);
+        setSelectedFile(e.target?.files[0]);
+    }
+
     return (
+
         <>
-            <label htmlFor="photo" className="block text-sm/6 font-medium text-white">
+            <label className="block text-sm/6 font-medium text-white">
                 Avatar photo
             </label>
             <input
-                type="file" />
+                ref={ImageRef}
+                onChange={handleChange}
+                type="file"
+                style={{ display: "none" }}
+            />
             <div className="mt-2 flex items-center gap-x-6">
-                <div>
+                <div className="relative">
+                    {selectedFile ? (
+                        <img
+                            src={URL.createObjectURL(selectedFile)}
+                            alt="avatar"
+                            className="h-20 w-20 rounded-full bg-gray-800 object-cover cursor-pointer"
+                        />
+                    ) : (
+                        <img
+                            src="/images/avatar.jpg"
+                            alt=""
+                            className="h-20 w-20 rounded-full bg-gray-800 object-cover cursor-pointer"
+                        />
+                    )}
+                    <FaCirclePlus
+                        onClick={() => ImageRef.current?.click()}
+                        className="absolute -bottom-0 -right-0 h-6 w-6 text-cyan-400 cursor-pointer"
+                    />
                 </div>
-                <button
-                    type="button"
-                    className="rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white inset-ring inset-ring-white/5 hover:bg-white/20"
-                >
-                    Change
-                </button>
             </div>
         </>
     )
