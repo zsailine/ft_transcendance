@@ -31,17 +31,63 @@ const getUserByUsername = (req, rep) => {
 
 const updateUser = async (req, rep) => {
     try {
-        console.log("Received files:", req.body);
-        const {username, avatar, cover_image, nickname} = req.body;
-        const avataBuffer = avatar ? Buffer.from(avatar.data) : null;
-        const coverImageBuffer = cover_image ? Buffer.from(cover_image.data) : null;
+        console.log("Received data:", req.body);
+        const { username, avatar, cover_image, nickname } = req.body;
+
+        const usernameValue = username?.value || username;
+        const nicknameValue = nickname?.value || nickname;
+
+        console.log("Username:", usernameValue);
+        console.log("Nickname:", nicknameValue);
+        console.log("Avatar type:", avatar?.type);
+        console.log("Cover image type:", cover_image?.type);
+
+        let avatarBuffer = null;
+        let coverImageBuffer = null;
+
+        if (avatar && avatar.type === 'file') {
+            try {
+                avatarBuffer = await avatar.toBuffer();
+                console.log("Avatar buffer size:", avatarBuffer.length);
+            } catch (error) {
+                console.error("Error converting avatar to buffer:", error);
+            }
+        }
+
+        if (cover_image && cover_image.type === 'file') {
+            try {
+                coverImageBuffer = await cover_image.toBuffer();
+                console.log("Cover image buffer size:", coverImageBuffer.length);
+            } catch (error) {
+                console.error("Error converting cover image to buffer:", error);
+            }
+        }
+
+        console.log("Final avatar buffer:", avatarBuffer ? avatarBuffer.length : "null");
+        console.log("Final cover buffer:", coverImageBuffer ? coverImageBuffer.length : "null");
+
+        const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
+        const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
         
-        // const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
-        // const result = stmt.run(avataBuffer, coverImageBuffer, nickname, username);
-        rep.code(200).send({ message: "Success"});
+        console.log("Update result:", result);
+
+        if (result.changes === 0) {
+            return rep.code(404).send({ error: "User not found" });
+        }
+
+        rep.code(200).send({ 
+            message: "Success", 
+            changes: result.changes,
+            avatarUpdated: !!avatarBuffer,
+            coverImageUpdated: !!coverImageBuffer
+        });
+
     } catch (error) {
         console.error("Error processing files:", error);
-        rep.code(500).send({ error: "Error processing upload" });
+        rep.code(500).send({ 
+            error: "Error processing upload",
+            details: error.message 
+        });
     }
 }
 export { createUser, getAllUsers, getUserByUsername, updateUser };

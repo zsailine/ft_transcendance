@@ -3,15 +3,20 @@ import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
 
 
+export interface ImageBuffer {
+  type: "Buffer";
+  data: number[];
+}
+
 interface DashboardInterface {
     username: string | null,
     setUsername: (username: string) => void,
     nickname: string | null,
     setNickname: (nickname: string) => void,
-    avatar: Blob | null,
-    setAvatar: (avatar: Blob) => void,
-    coverImage: Blob | null,
-    setCoverImage: (coverImage: Blob) => void
+    avatar: ImageBuffer | null,
+    setAvatar: (avatar: ImageBuffer) => void,
+    coverImage: ImageBuffer | null,
+    setCoverImage: (coverImage: ImageBuffer) => void,
 }
 
 export const DasboardContext = createContext<DashboardInterface | null>(null);
@@ -27,8 +32,8 @@ export const DashboardProvider = ({children} : any) =>
 {
     const [username, setUsername] = useState<string | null>(null);
     const [nickname, setNickname] = useState<string>("");
-    const [avatar, setAvatar] = useState<Blob | null>(null);
-    const [coverImage, setCoverImage] = useState<Blob | null>(null);
+    const [avatar, setAvatar] = useState<ImageBuffer | null>(null);
+    const [coverImage, setCoverImage] = useState<ImageBuffer | null>(null);
     const { user } = useAuth()
 
     useEffect(() => {

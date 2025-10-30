@@ -22,8 +22,8 @@ const Settings = () => {
         const body = new FormData();
         body.append('username', username as string);
         body.append('nickname', nickname as string);
-        body.append('avatar', avatar as Blob);
-        body.append('cover_image', coverImage as Blob) ;
+        body.append('avatar', avatar as any); ;
+        body.append('cover_image', coverImage as any); ;
         await api.post('/users/update' , body)
         .then((response) => {
             console.log("Profile updated successfully:", response.data);
