@@ -1,13 +1,21 @@
 import { useDashboard } from "../../../Providers/DashboardProvider";
-import { useRef, useState } from "react";
+import { useRef, useState , useEffect } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
+import { getImageUrlFromBlob } from "../../../Utils/blob";
 
 
 const Avatar = () => {
     const ImageRef = useRef<HTMLInputElement | null>(null);
-    const { setAvatar } = useDashboard()
+    const { avatar, setAvatar } = useDashboard()
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [avatarURL, setAvatarURL] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        let url: string | null = getImageUrlFromBlob(avatar?.data);
+        setAvatarURL(url);
+    }, [avatar]);
 
     const handleChange = (e: any) => {
         setAvatar(e.target?.files[0]);
@@ -36,7 +44,7 @@ const Avatar = () => {
                         />
                     ) : (
                         <img
-                            src="/images/avatar.jpg"
+                            src={avatarURL ? avatarURL : "/images/avatar.jpg"}
                             alt=""
                             className="h-20 w-20 rounded-full bg-gray-800 object-cover cursor-pointer"
                         />

@@ -15,6 +15,7 @@ const Settings = () => {
             avatar, 
             coverImage,
             nickname,
+            refreshUserData
            } = useDashboard();
 
     const handleSubmit = async (e: any) => {
@@ -25,8 +26,8 @@ const Settings = () => {
         body.append('avatar', avatar as any); ;
         body.append('cover_image', coverImage as any); ;
         await api.post('/users/update' , body)
-        .then((response) => {
-            console.log("Profile updated successfully:", response.data);
+        .then(() => {
+            refreshUserData && refreshUserData();
             navigate('/dashboard/')
         })
         .catch((error) => {
@@ -34,15 +35,16 @@ const Settings = () => {
         });
     }
 
+       const hoverEffect = "hover:z-10 hover:scale-105 transition-transform transition-colors duration-300 ease-in-out transform-gpu origin-center"
 
 
     return (
         <>
-            <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 border border-amber-100/10 rounded-lg shadow-md shadow-amber-100/20 py-6 bg-cyan-800/5  ">
                 <div className="rounded-lg text-white text-center ml-4 mr-3 my-8">
                     <h1 className="text-3xl">Profil management</h1>
                 </div>
-                <form >
+                <form onSubmit={handleSubmit}>
                     <div className="sm:col-span-4">
                         <InputText />
                     </div>
@@ -53,11 +55,15 @@ const Settings = () => {
                         <CoverInput />
                     </div>
                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button type="button" className="text-sm/6 font-semibold text-white">Cancel</button>
+                        <button 
+                            type="button" 
+                            className={`cursor-pointer text-sm/6 font-semibold text-white ${hoverEffect}`}
+                            >
+                            Cancel</button>
                         <button
                             onClick = {handleSubmit}
                             type="submit" 
-                            className="rounded-md bg-cyan-400 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Save</button>
+                            className={`cursor-pointer rounded-md bg-cyan-400 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${hoverEffect}`}>Update</button>
                     </div>
                 </form>
             </div>

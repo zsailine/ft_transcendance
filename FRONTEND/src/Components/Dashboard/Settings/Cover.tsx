@@ -1,13 +1,22 @@
 import { GoPlusCircle } from "react-icons/go";
 import { useDashboard } from "../../../Providers/DashboardProvider";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { getImageUrlFromBlob } from "../../../Utils/blob";
 
 const CoverInput = () => {
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const { setCoverImage } = useDashboard()
+    const { coverImage, setCoverImage } = useDashboard()
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    const [coverURL, setCoverURL] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        let url: string | null = getImageUrlFromBlob(coverImage?.data);
+        setCoverURL(url);
+    }, [coverImage]);
 
     const handleChange = (e: any) => {
         setSelectedFile(e.target?.files[0]);
@@ -19,7 +28,7 @@ const CoverInput = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
     } : {
-        backgroundImage: "url(/images/cover.jpg)", 
+        backgroundImage: `url(${coverURL ? coverURL : "/images/cover.jpg"})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
     };

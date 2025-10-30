@@ -17,6 +17,7 @@ interface DashboardInterface {
     setAvatar: (avatar: ImageBuffer) => void,
     coverImage: ImageBuffer | null,
     setCoverImage: (coverImage: ImageBuffer) => void,
+    refreshUserData: () => void,
 }
 
 export const DasboardContext = createContext<DashboardInterface | null>(null);
@@ -36,10 +37,26 @@ export const DashboardProvider = ({children} : any) =>
     const [coverImage, setCoverImage] = useState<ImageBuffer | null>(null);
     const { user } = useAuth()
 
+    const refreshUserData = async () => {
+        if (user)
+        {           
+            try {
+                const response = await api.get(`/users/${user}`);
+                setNickname(response.data.nickname);
+                setAvatar(response.data.avatar);
+                setCoverImage(response.data.cover_image);
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        }
+    }
+    useEffect (() =>  {
+        refreshUserData();
+    }, [])
+
     useEffect(() => {
         if (user)
-        {
-            
+        {           
             api.get(`/users/${user}`)
                 .then((response) => {
                     setUsername(response.data.username);
@@ -61,7 +78,8 @@ export const DashboardProvider = ({children} : any) =>
         avatar,
         setAvatar,
         coverImage,
-        setCoverImage
+        setCoverImage,
+        refreshUserData
     }
 
     return (

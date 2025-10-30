@@ -7,11 +7,11 @@ const Dashboard = () => {
     return(
         <>
             <div className="bg-[#101728] min-h-screen flex">
-                <div className="w-1/5">
+                <div className="w-full md:w-1/5 lg:w-1/6 ">
                     <Sidebar/>
                 </div>
-                <div className="w-4/5">
-                    <div className="flex justify-end h-max">
+                <div className="w-full md:w-4/5 lg:w-5/6">
+                    <div className="flex justify-end h-max mb-10">
                         <Navbar />
                     </div>
                     <div className="mb-6">

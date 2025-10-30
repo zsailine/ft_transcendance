@@ -9,6 +9,7 @@ import Settings from "./Pages/Dashboard/Settings";
 import Play from "./Pages/Dashboard/Play";
 import Profil from "./Pages/Dashboard/Profil";
 import { DashboardProvider } from "./Providers/DashboardProvider";
+import { Suspense } from "react";
 "./Pages/PongTournament"
 function App() {
 
@@ -26,7 +27,9 @@ function App() {
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <Suspense fallback={<div>Loading...</div>}> 
+                      <Dashboard />
+                    </Suspense>
                   </ProtectedRoute>
                 }>
                 <Route index element={<Profil />} />

@@ -1,25 +1,15 @@
 import { useDashboard } from "../../Providers/DashboardProvider";
 import { useState , useEffect } from "react";
+import { getImageUrlFromBlob } from "../../Utils/blob";
 
 const Profil = () => {
-    const { avatar, coverImage } = useDashboard();
+    const { avatar, coverImage, username } = useDashboard();
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
 
     useEffect(() => {
-        let url: string | null = null;
-
-        if (avatar?.data) {
-            try {
-                const uint8Array = new Uint8Array(avatar.data);
-                const blob = new Blob([uint8Array], { type: 'image/png' });
-                url = URL.createObjectURL(blob);
-                setAvatarURL(url);
-            } catch (error) {
-                console.error('Error creating avatar URL:', error);
-                setAvatarURL(null);
-            }
-        }
+        let url: string | null = getImageUrlFromBlob(avatar?.data);
+        setAvatarURL(url);
 
         return () => {
             if (url) URL.revokeObjectURL(url);
@@ -27,19 +17,8 @@ const Profil = () => {
     }, [avatar]);
 
     useEffect(() => {
-        let url: string | null = null;
-
-        if (coverImage?.data) {
-            try {
-                const uint8Array = new Uint8Array(coverImage.data);
-                const blob = new Blob([uint8Array], { type: 'image/png' });
-                url = URL.createObjectURL(blob);
-                setCoverURL(url);
-            } catch (error) {
-                console.error('Error creating cover URL:', error);
-                setCoverURL(null);
-            }
-        }
+        let url: string | null = getImageUrlFromBlob(coverImage?.data);
+        setCoverURL(url);
 
         return () => {
             if (url) URL.revokeObjectURL(url);
@@ -66,7 +45,7 @@ const Profil = () => {
                 style={{ ...coverStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
             >
                 <div className="p-3 rounded-lg h-full bg-linear-65 from-cyan-200/15 to-cyan-800/30">
-                    <h1 className="text-3xl font-bold">test0</h1>
+                    <h1 className="text-3xl font-bold">{username}</h1>
                     <p>More information</p>
                 </div>
             </div>
