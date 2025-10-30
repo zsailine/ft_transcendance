@@ -6,7 +6,7 @@ const CoverInput = () => {
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const {setCoverImage} = useDashboard()
+    const { setCoverImage } = useDashboard()
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleChange = (e: any) => {
@@ -18,17 +18,21 @@ const CoverInput = () => {
         backgroundImage: `url(${URL.createObjectURL(selectedFile)})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-    } : {backgroundImage:"url(/images/cover.jpg)" };
+    } : {
+        backgroundImage: "url(/images/cover.jpg)", 
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    };
 
     return (
         <>
             <label className="block text-sm/6 font-medium text-white">
                 Cover photo
             </label>
-            <input 
+            <input
                 type="file"
                 onChange={handleChange}
-                ref={inputRef} 
+                ref={inputRef}
                 style={{ display: "none" }}
             />
             <div style={style} className="mt-2 flex justify-center rounded-lg border border-dashed border-white/25 px-6 py-10">
