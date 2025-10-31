@@ -228,14 +228,23 @@ export async function start(): Promise<string> {
       const oldSpeed = ballSpeed;
       const oldX = ballX;
       const oldY = ballY;
-
+      const paddle1X = paddle1.x;
+      const paddle2X = paddle2.x;
+      const paddle1Y = paddle1.y;
+      const paddle2Y = paddle2.y;
+  
       resizeBoard();
-
+  
       ballSpeed = oldSpeed * (board.width / oldWidth);
       ballX = oldX * (board.width / oldWidth);
       ballY = oldY * (board.height / oldHeight);
       ballRadius = board.width * 0.0125;
-
+  
+      paddle1.x = paddle1X * (board.width / oldWidth);
+      paddle2.x = paddle2X * (board.width / oldWidth);
+      paddle1.y = paddle1Y * (board.height / oldHeight);
+      paddle2.y = paddle2Y * (board.height / oldHeight);
+  
       resizePaddle(paddle1);
       resizePaddle(paddle2);
       paddle2.x = board.width - paddle2.width;
