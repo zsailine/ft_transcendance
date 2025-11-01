@@ -47,8 +47,12 @@ function process(socket)
     const roomName = generateRoom();
     player1.join(roomName);
     player2.join(roomName);
+    console.log("playe1 is"+player1.id);
+    console.log("playe2 is"+player2.id);
     player1.emit("role", "player1");
     player2.emit("role", "player2");
+    player1.emit("ready");
+    player2.emit("ready");
     initGame(fastify.io, roomName, player1.id, player2.id);
     player1 = null;
     player2 = null;
