@@ -1,5 +1,5 @@
 import { useEffect, useState} from "react";
-import {start} from "../OnlinePong/start.tsx";
+import {start} from "../OnlinePong/start.ts";
 import { useNavigate } from "react-router-dom"
 import io, { Socket } from "socket.io-client";
 
@@ -13,7 +13,7 @@ function ButtonMenu({ className, onClick, children }: ButtonMenuProps) {
 	return (
 		<button
 			onClick={onClick}
-			className={`px-6 py-3 text-gray-900 text-xl font-semibold rounded-lg shadow-md transition-all ${className || ""}`}
+			className={className}
 		>
 			{children}
 		</button>
@@ -63,7 +63,6 @@ function OnlineGame() {
 			<canvas id="board" className="border-4 border-white rounded-lg bg-green-700 shadow-lg width 70vw"></canvas>
 			<p id="player2" className="font-bold [writing-mode:vertical-rl] text-center">Player 2</p>
 			</div>
-			<h2 id="score" className="text-2xl font-bold">0 : 0</h2>
 			{overlay && (
 				<div className="fixed inset-0 flex flex-col items-center justify-center 
 				bg-black/50 text-white z-50">
@@ -71,7 +70,8 @@ function OnlineGame() {
 						{winner === role ? "You win ! 🏆" : "You lose ! 🤕"}
 					</h1>
 				<ButtonMenu 			
-						onClick={handleQuit}>
+						onClick={handleQuit}
+						className="px-6 py-3 bg-green-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-green-300 transition-all" >
 						Home
 				</ButtonMenu>
 				</div>

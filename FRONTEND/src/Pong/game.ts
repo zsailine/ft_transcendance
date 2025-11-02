@@ -1,9 +1,5 @@
 "use strict";
 
-import { StrictMode } from 'react'
-import { root } from "../main";
-import App from "../App.tsx"
-
 type Paddle = {
   width: number;
   height: number;
@@ -11,7 +7,11 @@ type Paddle = {
   y: number;
 };
 
-export async function initGame(): Promise<void> {
+const sounds = {
+  paddle: new Audio("/sounds/pong.wav"),
+};
+
+export function initGame(): () => void  {
   const board = document.getElementById("board") as HTMLCanvasElement;
   let ctx = board.getContext("2d") as CanvasRenderingContext2D ;
   if (!ctx) throw new Error("Canvas context not found");
@@ -96,9 +96,24 @@ export async function initGame(): Promise<void> {
   }
 
   function drawScore(): void {
-    const scoreEl = document.getElementById("score");
-    if (scoreEl) scoreEl.textContent = `${paddle1Score} : ${paddle2Score}`;
-  }
+  const scale = board.width / 400;
+  const fontSize = 16 * scale;
+
+  ctx.fillStyle = "black";
+  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.textBaseline = "top";
+
+  const score1 = `${paddle2Score}`;
+  const score2 = `${paddle1Score}`;
+
+  const textWidth1 = ctx.measureText(score1).width;
+  const textWidth2 = ctx.measureText(score2).width;
+
+  const center = board.width / 2;
+  const top = board.height * 0.05;
+  ctx.fillText(score1, center + board.width/10 - textWidth1/2, top);
+  ctx.fillText(score2, center - board.width/10 - textWidth2/2, top);
+}
 
   function moveBall(): void {
     ballX += ballSpeed * ballXDirection;
@@ -115,9 +130,9 @@ export async function initGame(): Promise<void> {
       ballSpeed += board.width * 0.0005;
       ballX = paddle1.x + paddle1.width + ballRadius;
       ballXDirection = -ballXDirection;
+      sounds.paddle.currentTime = 0;
+      sounds.paddle.play();
     }
-
-    // Collision avec paddle 2
     if (
       ballX + ballRadius >= paddle2.x &&
       ballY > paddle2.y &&
@@ -127,8 +142,6 @@ export async function initGame(): Promise<void> {
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
     }
-
-    // Score
     if (ballX - ballRadius < 0) {
       paddle2Score++;
       resetBall();
@@ -148,6 +161,7 @@ export async function initGame(): Promise<void> {
       clearBoard();
       drawPaddles();
       moveBall();
+      drawScore();
       drawBall(ballX, ballY);
       nextTick();
     }, 10);
@@ -183,23 +197,11 @@ export async function initGame(): Promise<void> {
   const rstBtn = document.getElementById("rst");
   if (rstBtn) rstBtn.addEventListener("click", resetGame);
 
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn)
-    backBtn.addEventListener("click", () => {
-      clearTimeout(intervalID);
-      window.removeEventListener("keydown", keyHandler);
-      window.history.pushState({}, "", "/");
-      root.render(
-        <StrictMode>
-          <App />
-        </StrictMode>,
-      )
-    });
-    window.addEventListener('popstate', () =>
-    {
-      clearTimeout(intervalID);
-      window.removeEventListener("keydown", keyHandler);
-    });
+  window.addEventListener('popstate', () =>
+  {
+    clearTimeout(intervalID);
+    window.removeEventListener("keydown", keyHandler);
+  });
 
   window.addEventListener("resize", () => {
     const oldWidth = board.width;
@@ -235,4 +237,8 @@ export async function initGame(): Promise<void> {
   drawScore();
   nextTick();
   window.addEventListener("keydown", keyHandler);
+  return () => {
+    clearInterval(intervalID);
+    window.removeEventListener("keydown", keyHandler);
+  };
 }

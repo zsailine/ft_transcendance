@@ -2,6 +2,10 @@
 
 import {listen}  from "./tournament.tsx";
 
+const sounds = {
+  paddle: new Audio("/sounds/pong.wav"),
+};
+
 export async function start(): Promise<string> {
   return new Promise((resolve) => {
     window.addEventListener('popstate', () => {
@@ -145,9 +149,23 @@ export async function start(): Promise<string> {
     }
 
     function drawScore(): void {
-      const score = document.getElementById("score");
-      if (score) score.textContent = `${paddle1Score} : ${paddle2Score}`;
-      checkWinner();
+	    const scale = board.width / 400;
+	    const fontSize = 16 * scale;
+
+	    ctx.fillStyle = "black";
+	    ctx.font = `bold ${fontSize}px Arial`;
+	    ctx.textBaseline = "top";
+
+	    const score1 = `${paddle2Score}`;
+	    const score2 = `${paddle1Score}`;
+
+	    const textWidth1 = ctx.measureText(score1).width;
+	    const textWidth2 = ctx.measureText(score2).width;
+
+	    const center = board.width / 2;
+	    const top = board.height * 0.05;
+	    ctx.fillText(score1, center + board.width/10 - textWidth1/2, top);
+	    ctx.fillText(score2, center - board.width/10 - textWidth2/2, top);
     }
 
     function moveBall(): void {
@@ -165,6 +183,8 @@ export async function start(): Promise<string> {
         ballSpeed += board.width * 0.0005;
         ballX = paddle1.x + paddle1.width + ballRadius;
         ballXDirection = -ballXDirection;
+        sounds.paddle.currentTime = 0;
+        sounds.paddle.play();
       }
 
       if (
@@ -175,6 +195,8 @@ export async function start(): Promise<string> {
         ballSpeed += board.width * 0.0005;
         ballX = paddle2.x - ballRadius;
         ballXDirection = -ballXDirection;
+        sounds.paddle.currentTime = 0;
+        sounds.paddle.play();
       }
 
       if (ballX - ballRadius < 0) {
@@ -188,7 +210,7 @@ export async function start(): Promise<string> {
 
     function resetBall(): void {
       createBall();
-      drawScore();
+      checkWinner();
     }
 
     function nextTick(): void {
@@ -197,6 +219,7 @@ export async function start(): Promise<string> {
         clearBoard();
         drawPaddles();
         moveBall();
+        drawScore();
         drawBall(ballX, ballY);
         nextTick();
       }, 10);

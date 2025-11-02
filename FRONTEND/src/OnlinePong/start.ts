@@ -2,6 +2,10 @@
 
 import { Socket } from "socket.io-client";
 
+const sounds = {
+  paddle: new Audio("/sounds/pong.wav"),
+};
+
 export function start(
 	socket: Socket,
 	onGameStart: () => void,
@@ -84,8 +88,23 @@ export function start(
 	}
 
 	function drawScore(): void {
-	  const score = document.getElementById("score");
-	  if (score) score.textContent = `${paddle1Score} : ${paddle2Score}`; 
+	  const scale = board.width / 400;
+	  const fontSize = 16 * scale;
+
+	  ctx.fillStyle = "black";
+	  ctx.font = `bold ${fontSize}px Arial`;
+	  ctx.textBaseline = "top";
+
+	  const score1 = `${paddle2Score}`;
+	  const score2 = `${paddle1Score}`;
+
+	  const textWidth1 = ctx.measureText(score1).width;
+	  const textWidth2 = ctx.measureText(score2).width;
+
+	  const center = board.width / 2;
+	  const top = board.height * 0.05;
+	  ctx.fillText(score1, center + board.width/10 - textWidth1/2, top);
+	  ctx.fillText(score2, center - board.width/10 - textWidth2/2, top);
 	}
 
 	function keyHandler(e: KeyboardEvent): void {
@@ -128,6 +147,7 @@ export function start(
 	}
 	socket.on("update", data => {
 		clearBoard();
+		drawScore();
 		drawBall(convert(1, data.ballX), convert(0, data.ballY));
 		drawPaddles();
 	});
@@ -146,12 +166,23 @@ export function start(
 	socket.on("score", data => {
 		paddle1Score = data.paddle1Score;
 		paddle2Score = data.paddle2Score;
-		drawScore();
 	});
 	socket.on("finish", data => {
+		socket.disconnect();
+		clearBoard();
+		drawScore();
+		drawPaddles();
+		drawBall(board.width / 2, board.height / 2);
+		window.removeEventListener("keydown", keyHandler);
 		onEnd(data);
 	});
 	socket.on("stop", data => {
+		socket.disconnect();
+		clearBoard();
+		drawScore();
+		drawPaddles();
+		drawBall(board.width / 2, board.height / 2);
+		window.removeEventListener("keydown", keyHandler);
 		onEnd(data);
 	});
 	socket.on("start", () => {
@@ -159,6 +190,10 @@ export function start(
 		clearInterval(interval);
 		onGameStart();
 	});
+	socket.on("pong", () => {
+		sounds.paddle.currentTime = 0;
+    	sounds.paddle.play();
+	})
 	window.addEventListener('popstate', () => {
 		socket.disconnect();
 	});

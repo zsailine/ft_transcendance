@@ -37,7 +37,7 @@ export async function initGame(io, roomName, player1Id, player2Id)
       });
 
       socket.on("disconnect", () => {
-        const winner = player1Id === socket ? "player2" : "player1";
+        const winner = (socket.id === player1Id) ? "player2" : "player1";
         io.to(roomName).emit("stop", winner);
         stopGameLoop();
       });
@@ -101,21 +101,21 @@ export async function initGame(io, roomName, player1Id, player2Id)
     if (
       ballX - ballRadius <= paddle1.x + paddle1.width &&
       ballY > paddle1.y &&
-      ballY < paddle1.y + paddle1.height
-    ) {
+      ballY < paddle1.y + paddle1.height) {
       ballSpeed += board.width * 0.0005;
       ballX = paddle1.x + paddle1.width + ballRadius;
       ballXDirection = -ballXDirection;
+      io.to(roomName).emit("pong");
     }
 
     if (
       ballX + ballRadius >= paddle2.x &&
       ballY > paddle2.y &&
-      ballY < paddle2.y + paddle2.height
-    ) {
+      ballY < paddle2.y + paddle2.height) {
       ballSpeed += board.width * 0.0005;
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
+      io.to(roomName).emit("pong");
     }
 
     if (ballX - ballRadius < 0) {

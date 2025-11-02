@@ -118,7 +118,6 @@ async function match(i: number, aliases: string[]): Promise<string> {
   const player2 = document.getElementById("player2") as HTMLElement | null;
   if (player1) player1.textContent = aliases[i * 2];
   if (player2) player2.textContent = aliases[i * 2 + 1];
-  console.log(player1?.textContent);
   const winner = await start();
   return winner;
 }
