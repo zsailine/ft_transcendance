@@ -1,0 +1,203 @@
+"use strict";
+import { StrictMode } from 'react'
+import { createRoot } from "react-dom/client";
+import type { Root } from "react-dom/client";
+import TournamentGame from "../Pages/TournamentGame.tsx"
+import {start} from "./tournamentGame.ts"
+import App from "../App.tsx"
+
+const container = document.getElementById("root")!;
+let root: Root = createRoot(container);
+
+function shuffleArray<T>(array: T[]): void {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+async function tournament(aliases: string[]): Promise<void> {
+  while (aliases.length > 1) {
+    const newAliases = await generateQualificationPhase(aliases);
+    aliases = newAliases;
+  }
+  displayWinner(aliases);
+}
+
+
+async function generateQualificationPhase(aliases: string[]): Promise<string[]> {
+  const numMatches = Math.floor(aliases.length / 2);
+  root.render(<></>);
+  let phaseContainer =
+  document.getElementById("match") ?? document.createElement("div");
+  phaseContainer.id = "match";
+  phaseContainer.className = "flex flex-col items-center space-y-6 w-full";
+  const title = document.createElement("h2");
+  title.className = "text-2xl font-bold text-yellow-400 mb-4";
+  phaseContainer.appendChild(title);
+  
+  for (let i = 0; i < numMatches; i++) {
+    const matchDiv = document.createElement("div");
+    matchDiv.className =
+    "flex justify-center items-center space-x-4 bg-gray-800 p-3 rounded shadow w-1/2";
+    
+    const player1 = document.createElement("p");
+    player1.textContent = aliases[i * 2];
+    player1.className = "flex-1 text-center";
+    
+    const vs = document.createElement("p");
+    vs.textContent = "VS";
+    vs.className = "text-yellow-400 font-bold";
+    
+    const player2 = document.createElement("p");
+    player2.textContent = aliases[i * 2 + 1];
+    player2.className = "flex-1 text-center";
+    
+    matchDiv.append(player1, vs, player2);
+    phaseContainer.appendChild(matchDiv);
+  }
+  
+  const startButton = document.createElement("button");
+  startButton.id = "start";
+  startButton.textContent = "Start";
+  startButton.className =
+  "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
+  phaseContainer.append(startButton);
+  document.body.append(phaseContainer);
+  return new Promise((resolve) => {
+    startButton.addEventListener("click", async () => {
+      const newAliases = await startMatches(aliases);
+      resolve(newAliases);
+    });
+  });
+}
+
+async function startMatches(aliases: string[]): Promise<string[]> {
+  const newAliases: string[] = [];
+  const numMatches = Math.floor(aliases.length / 2);
+
+  for (let i = 0; i < numMatches; i++) {
+    const winner = await match(i, aliases);
+    newAliases.push(winner);
+  }
+  return newAliases;
+}
+
+
+async function match(i: number, aliases: string[]): Promise<string> {
+  root.render(
+    <StrictMode>
+      <TournamentGame />
+    </StrictMode>
+  );
+  let phaseContainer = document.getElementById("match") ?? document.createElement("div");
+  phaseContainer.innerHTML = "";
+  await new Promise<void>((resolve) => {
+    const check = () => {
+      if (document.getElementById("player1")) return resolve();
+      setTimeout(check, 10);
+    };
+    check();
+  });
+  const player1 = document.getElementById("player1") as HTMLElement | null;
+  const player2 = document.getElementById("player2") as HTMLElement | null;
+  if (player1) player1.textContent = aliases[i * 2];
+  if (player2) player2.textContent = aliases[i * 2 + 1];
+  console.log(player1?.textContent);
+  const winner = await start();
+  return winner;
+}
+
+function displayWinner(aliases: string[]): void {
+  root.render(<></>);
+  let phaseContainer =
+  document.getElementById("match") ?? document.createElement("div");
+  const overlay = document.createElement("div");
+  overlay.id = "winnerOverlay";
+  overlay.className = "fixed inset-0 flex flex-col items-center justify-center text-gray-900 z-50";
+
+  const title = document.createElement("h2");
+  title.textContent = `${aliases[0]} won the tournament!`;
+  title.className = "text-4xl font-bold mb-6";
+
+  const quitBtn = document.createElement("button");
+  quitBtn.textContent = "Home";
+  quitBtn.className =
+    "px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all";
+  quitBtn.addEventListener("click", () => {
+    phaseContainer.remove();
+    window.history.pushState({}, "", "/");
+    root.render(
+      <StrictMode>
+        <App />
+      </StrictMode>
+    );
+  });
+
+  overlay.append(title, quitBtn);
+  container.appendChild(overlay);
+}
+
+export function initTournament(): void {
+  const select = document.getElementById("players") as HTMLSelectElement | null;
+  const aliasesContainer = document.getElementById("aliasesContainer") as HTMLElement | null;
+  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement | null;
+  const form = document.getElementById("tournamentForm") as HTMLFormElement | null;
+
+  if (!select || !aliasesContainer || !submitBtn || !form) {
+    console.error("Missing required DOM elements for tournament initialization");
+    return;
+  }
+
+  let aliasInputs: HTMLInputElement[] = [];
+
+  select.addEventListener("change", () => {
+    const numPlayers = parseInt(select.value);
+    aliasesContainer.innerHTML = "";
+    aliasInputs = [];
+
+    for (let i = 1; i <= numPlayers; i++) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = `Alias du joueur ${i}`;
+      input.className =
+        "bg-white rounded px-3 py-1 w-48 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400";
+      input.required = true;
+      aliasesContainer.appendChild(input);
+      aliasInputs.push(input);
+    }
+
+    submitBtn.disabled = true;
+  });
+
+  aliasesContainer.addEventListener("input", () => {
+    const aliases = aliasInputs.map((input) => input.value.trim());
+    const uniqueAliases = new Set(aliases.filter((a) => a !== ""));
+    const allFilled = aliases.every((alias) => alias !== "");
+    const noDuplicates = uniqueAliases.size === aliases.length;
+    const validLength = aliases.every((alias) => alias.length <= 12);
+
+    aliasInputs.forEach((input) => {
+      const alias = input.value.trim();
+      if (alias.length > 12) {
+        input.classList.add("ring-2", "ring-red-500");
+        input.title = "Maximum 12 caractères";
+      } else if (aliases.filter((a) => a === alias).length > 1 && alias !== "") {
+        input.classList.add("ring-2", "ring-red-500");
+        input.title = "Alias dupliqué";
+      } else {
+        input.classList.remove("ring-2", "ring-red-500");
+        input.title = "";
+      }
+    });
+
+    submitBtn.disabled = !(allFilled && noDuplicates && validLength);
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const aliases = aliasInputs.map((input) => input.value.trim());
+    shuffleArray(aliases);
+    tournament(aliases);
+  });
+}
