@@ -1,11 +1,13 @@
 import { useState , createContext, useContext, useEffect} from "react";
 import api from "../Utils/axios";
+import { toast } from "react-toastify";
 
 
 interface AuthInterface {
     token : string | null,
     user : string | null,
     login : (username:string, password:string) => any,
+    register : (username:string, password:string, email:string) => any, 
     logout : () => void,
     loading : boolean,
     isAuthenticated : boolean
@@ -64,7 +66,10 @@ const AuthProvider = ({children} : any) =>
             }
             const {data} = await api.post("/auth/login", postData)
             if (!data.username)
+            {
+                toast.error("User not found !")
                 throw new Error("User not found !")
+            }
             localStorage.setItem('token', data.token)
             setToken(data.token)
             setUser(data.username)
@@ -72,10 +77,28 @@ const AuthProvider = ({children} : any) =>
         }
         catch(err : any)
         {
+            toast.error("User not found !")
             return({success : false , error : err.message})
         }
     }
 
+    const register = async (username: string , password:string, email:string) =>
+    {
+        try
+        {
+            const postData = {
+                username : username,
+                password :password,
+                email : email
+            }
+            await api.post("/users/register", postData)
+            return ({success : true})
+        }
+        catch(err : any)
+        {
+            return({success : false , error : err.message})
+        }
+    }
     
     const logout = async() => {
         setToken(null)
@@ -88,6 +111,7 @@ const AuthProvider = ({children} : any) =>
         token,
         login,
         logout,
+        register,
         loading,
         isAuthenticated: !!user
     }

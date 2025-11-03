@@ -1,110 +1,144 @@
-// import { useState, type ChangeEvent, type FormEvent } from "react";
-// import { useAuth } from "../Providers/AuthProvider";
-// import { useNavigate } from "react-router-dom";
-import { FaFacebook, FaGithub, FaGoogle } from 'react-icons/fa';
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useAuth } from "../Providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
+
+import { FaGoogle } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
+import { ImSpinner9 } from "react-icons/im";
+import { toast } from "react-toastify";
 
-// const AuthPage = () => {
-    
 export default function Login() {
-    const handleClick = () => {
-        alert('Form submitted!');
-    };
-    const location = useLocation();
-    const isLogin = location.pathname === '/login';
-//   const navigate = useNavigate();
+  const location = useLocation();
+  const isLogin = location.pathname === '/login';
 
-//   interface LoginData {
-//     username: string;
-//     password: string;
-//   }
+  const navigate = useNavigate();
 
-//   const { login } = useAuth();
+  interface LoginData {
+    username: string;
+    email?: string;
+    password: string;
+    confirmPassword?: string;
+  }
 
-//   const [formData, setFormData] = useState<LoginData>({
-//     username: "",
-//     password: "",
-//   });
+  const { login, register } = useAuth();
 
-//   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setFormData((prevData) => ({
-//       ...prevData,
-//       [name]: value,
-//     }));
-//   };
+  const [formData, setFormData] = useState<LoginData>({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-//   const handleSubmit = async (e: FormEvent) => {
-//     e.preventDefault();
-//     setFormData({
-//       username: "",
-//       password: "",
-//     });
-//     const success = await login(formData.username, formData.password);
-//     if (success) navigate("/dashboard");
-//   };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setFormData({
+      username: "",
+      password: "",
+      email: "",
+      confirmPassword: "",
+    });
+    try
+    {
+      if (!isLogin) {
+        const success = await register(formData.username, formData.password, formData.email!);
+        setTimeout(() => {
+        }, 2000);
+        if (success) 
+        {
+          navigate("/login");
+        }
+      }
+      const success = await login(formData.username, formData.password);
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      console.log("Done");
+      if (success) 
+      {
+        navigate("/dashboard");
+        toast.success("Successfully logged in !");
+      }
+    }
+    catch (error)
+    {
+      console.error("Authentication error:", error);
+    }
+    finally
+    {
+      setIsLoading(false);
+    }
+  };
+
+  const disablesStyle = isLoading ? "opacity-50 cursor-not-allowed" : "";
+
+  const hoverEffect = "hover:z-10 hover:scale-105 ring-2 ring-transparent hover:ring-cyan-500/50 transition-transform transition-colors duration-300 ease-in-out transform-gpu origin-center"
 
   return (
     <>
-      {/* <form onSubmit={handleSubmit}>
-                <label> Enter your username
-                    <input
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                    />
-                </label>
-                <label> Enter your password
-                    <input 
-                        type="text"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
-                </label>
-                <button type="submit"> Submit</button>
-            </form> */}
       <div
         className="min-h-screen w-full flex items-center justify-center 
-    bg-[url('/images/bbg.jpeg')] bg-center bg-fixed bg-no-repeat
+    bg-[url('/images/bg.jpg')] bg-center bg-fixed bg-no-repeat
     bg-cover object-cover"
       >
-        <div className="bg-black/50 dark:bg-zinc-900 p-8 rounded-2xl shadow-xl w-96 ">
+
+        <div className=" dark:bg-zinc-900/70 p-8 rounded-2xl shadow-xl w-96 ">
           <h2 className="text-2xl font-bold text-center text-amber-50 mb-6">
             {isLogin ? "Sign in" : "Create Account"}
           </h2>
-          <form className="text-gray-300 dark:text-gray-200">
+          <form onSubmit={handleSubmit} className="text-gray-300 dark:text-gray-200">
             <input
-              type="text"
               placeholder="login"
               className="w-full mb-4 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
             />
             {!isLogin && (
               <input
                 type="Email"
+                name="email"
                 placeholder="Email"
                 className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                onChange={handleChange}
+                value={formData.email}
               />
             )}
             <input
-              type="password"
               placeholder="password"
               className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
             />
             {!isLogin && (
               <input
                 type="password"
                 placeholder="confirms password"
                 className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                onChange={handleChange}
+                value={formData.confirmPassword}
               />
             )}
             <button
               type="submit"
-              className="w-full bg-linear-to-r from-sky-300 to-indigo-600 text-white py-2 rounded shadow hover:bg-blue-700 transition"
-              onClick={handleClick}
+              className={`"cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle} ${hoverEffect} "`}
+              onClick={handleSubmit}
+              disabled={isLoading}
             >
               {isLogin ? "Sign in" : "Register"}
+              {isLoading && <ImSpinner9 className="animate-spin inline ml-2" />}
             </button>
           </form>
           {isLogin && (
@@ -113,14 +147,8 @@ export default function Login() {
                 <p>or</p>
               </div>
               <div className="mt-4 flex justify-center space-x-4">
-                <button className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition">
+                <button className="cursor-pointer w-full flex justify-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition">
                   <FaGoogle size={20} />
-                </button>
-                <button className="bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-gray-900 transition">
-                  <FaGithub size={20} />
-                </button>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
-                  <FaFacebook size={20} />
                 </button>
               </div>
               <div className="mt-6 text-center text-gray-300">
@@ -135,7 +163,7 @@ export default function Login() {
                 <p className="mt-4">
                   Don't have an account?{" "}
                   <Link
-                    to="/new-account"
+                    to="/register"
                     className="text-blue-400 hover:underline"
                   >
                     Sign Up

@@ -4,6 +4,7 @@ import {
     IoGameController,
     IoChatboxEllipsesSharp
 } from "react-icons/io5";
+import { FaUsers } from "react-icons/fa6";
 import { RiPingPongLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
@@ -39,8 +40,14 @@ const Sidebar = () => {
                     <IoGameController className="text-cyan-500" />
                     <h2>Play Games</h2>
                 </div>
+                <div
+                    onClick={() => navigate("/dashboard/friends")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                    <FaUsers className="text-cyan-500" />
+                    <h2>Friends</h2>
+                </div>
             </div>
-            <div> 
+            <div>
                 <div className={`rounded-br-lg flex gap-3.5 px-4 py-2 items-center border-t-1 border-cyan-800/10 ${hoverEffect}`} >
                     <IoChatboxEllipsesSharp className="text-cyan-500" />
                     <h2>Discussion</h2>
