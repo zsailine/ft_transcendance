@@ -1,6 +1,9 @@
+import Users from "./FriendsList";
+
 function ReceiverHeader() {
+	
 	return (
-	<div>
+	<div className="ml-8">
 		ReceiverHeader
 	</div>
 	)

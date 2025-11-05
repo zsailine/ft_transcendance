@@ -35,12 +35,11 @@ const getUsername = async (req, rep, url) => {
 
 const getAllContacts = async (req, rep) => {
 	try {
-		const loggedInUsername = await getUsername(req, rep);
+		const loggedInUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
 
 		const allUsers = await axios.get(`${USER_URL}/all`);
 		const contacts = allUsers.data.filter(user => user.username !== loggedInUsername);
-		rep.status(200).send(contacts);
-		
+		rep.status(200).send(contacts);	
 
 	} catch(error) {
 		console.error("Error getting contacts:", error);

@@ -1,16 +1,14 @@
 import Fastify from "fastify";
 import chatRoutes from "./routes/chatRoutes.js";
-import cookie from "@fastify/cookie";
-import cors from "cors";
-import Database from "better-sqlite3";
+import cors from "@fastify/cors";
 
 const fastify = Fastify({ logger: true });  
 
 await fastify.register(cors, {
-  origin: "*",
-  allowedHeaders: ["Authorization","Content-Type"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-})
+	origin: "*",
+	allowedHeaders: ["Authorization","Content-Type"],
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+});
 
 fastify.register(chatRoutes);
 

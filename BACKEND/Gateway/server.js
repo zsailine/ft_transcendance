@@ -36,6 +36,12 @@ fastify.register(httpProxy, {
   rewritePrefix: '/users'
 });
 
+fastify.register(httpProxy, {
+  upstream: "http://localhost:3004",
+  prefix: "/message",
+  rewritePrefix: '/message'
+});
+
 fastify.listen({ port: 3000 }, (err, address) => {
   if (err) {
     fastify.log.error(err);

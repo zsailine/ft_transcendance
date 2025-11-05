@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
     "axios": "^1.13.1",
     "better-sqlite3": "^12.4.1",
     "cors": "^2.8.5",
