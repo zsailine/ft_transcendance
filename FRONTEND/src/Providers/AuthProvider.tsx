@@ -67,6 +67,7 @@ const AuthProvider = ({children} : any) =>
             const {data} = await api.post("/auth/login", postData)
             if (!data.username)
             {
+                toast.error("User not found !")
                 throw new Error("User not found !")
             }
             localStorage.setItem('token', data.token)
@@ -76,6 +77,7 @@ const AuthProvider = ({children} : any) =>
         }
         catch(err : any)
         {
+            toast.error("User not found !")
             return({success : false , error : err.message})
         }
     }
