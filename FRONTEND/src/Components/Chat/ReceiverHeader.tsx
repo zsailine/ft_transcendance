@@ -1,5 +1,3 @@
-import Users from "./FriendsList";
-
 function ReceiverHeader() {
 	
 	return (

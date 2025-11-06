@@ -1,6 +1,6 @@
 function MessageList() {
 	return (
-	<div>
+	<div className="ml-8 h-[550px]">
 		MessageList
 	</div>
 	)
