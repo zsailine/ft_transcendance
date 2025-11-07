@@ -16,21 +16,23 @@ const loggedUser = async (req , rep) => {
 
     return rep.send({
         token : token,
-        user  : user.data 
+        username  : username 
     });
 }
 
 const verify = async (req , rep) => {
     const token = req.headers.authorization?.replace("Bearer " , "")
     if (!token)
+    {   
         rep.code(401).send({error: "No token"})
+    }
     try{
         const decodedToken = req.server.jwt.decode(token)
         const username = decodedToken.username
         const user = await req.server.axios.get(`users/${username}`)
         if (!user.data)
             rep.code(404).send({error : "User not found"})
-        rep.code(200).send({user : user.data})
+        rep.code(200).send({user : user.data.username})
     }
     catch(e){
         console.log(e)

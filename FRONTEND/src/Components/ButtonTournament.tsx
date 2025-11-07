@@ -4,7 +4,7 @@ function ButtonTournament() {
 	const navigate = useNavigate()
 
 	const handleStart = () => {
-		navigate("/tournament")
+		navigate("/dashboard/play/tournament")
 	}
 	return (  
 		<>

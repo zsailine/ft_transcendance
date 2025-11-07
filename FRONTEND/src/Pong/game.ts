@@ -141,6 +141,8 @@ export function initGame(): () => void  {
       ballSpeed += board.width * 0.0005;
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
+      sounds.paddle.currentTime = 0;
+      sounds.paddle.play();
     }
     if (ballX - ballRadius < 0) {
       paddle2Score++;

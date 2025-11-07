@@ -10,9 +10,12 @@ fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
 
 fastify.decorate("authenticate", async function(request, reply) {
   try {
-    if (request.url.startsWith("/auth") || request.url == "/users/register") {
+    if (request.url.startsWith("/auth") || request.url === "/users/register") {
       return;
     }
+    if (request.method === 'OPTIONS') {
+      return;
+  }
     await request.jwtVerify();
   } catch (err) {
     reply.code(401).send({ error: "Unauthorized" });

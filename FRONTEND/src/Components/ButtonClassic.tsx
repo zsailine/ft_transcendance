@@ -4,7 +4,7 @@ function ButtonClassic() {
 	const navigate = useNavigate()
 
 	const handleStart = () => {
-		navigate("/pong")
+		navigate("/dashboard/play/pong")
 	}
 	return (  
 		<>
