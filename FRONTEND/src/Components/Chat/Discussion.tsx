@@ -4,11 +4,14 @@ import ChatTitle from "./ChatTitle";
 import SearchBar from "./SearchBar";
 import { ChatProvider } from "../../Providers/ChatProvider";
 import ChatContainer from "./ChatContainer";
+import { useAuth } from "../../Providers/AuthProvider";
 
 function Discussion() {
 
+	const { user } = useAuth();
+
 	return (
-	<ChatProvider>
+	<ChatProvider key={user ?? "anynonmous"}>
 		<div className="flex justify-center">
 			<ChatBorder>
 

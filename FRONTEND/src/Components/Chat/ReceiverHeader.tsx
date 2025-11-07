@@ -6,7 +6,7 @@ function ReceiverHeader() {
 	const { selectedUser } = useChat();
 	
 	return (
-		<div className="flex items-center gap-4 pl-2 rounded-lg cursor-pointer mb-0">
+		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8">
 
 			<div id="friends-avatar" className="w-15 h-15">
 				{ selectedUser?.avatar ?

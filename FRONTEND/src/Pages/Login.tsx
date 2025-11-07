@@ -95,7 +95,6 @@ export default function Login() {
       const { success } = await login(formData.username, formData.password);
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      console.log("Done");
       if (success) {
         navigate("/dashboard");
         toast.success("Successfully logged in !");

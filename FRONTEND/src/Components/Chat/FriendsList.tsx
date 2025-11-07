@@ -16,7 +16,6 @@ function FriendsList() {
 		} else {
 			setFilteredFriends(friendsList);
 		}
-		console.log("Filtered", filteredFriends);
 	}, [searchValue, friendsList]);
 
 	if (friendsList.length === 0 ||

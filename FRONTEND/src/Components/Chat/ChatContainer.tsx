@@ -14,7 +14,7 @@ function ChatContainer() {
 	}
 
 	return (
-		<div className="flex flex-col w-5/6 gap-10 mt-5">
+		<div className="flex flex-col w-5/6 gap-3 mt-3 h-[800px]">
 			<ReceiverHeader />
 			<div className="w-full border-1 border-cyan-500/20 h-px mt-0 mb-0"></div>
 			<MessageList />

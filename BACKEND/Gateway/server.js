@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import httpProxy from "@fastify/http-proxy";
 import dotenv from "dotenv";
-import fastifyJwt from "fastify-jwt";
+import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
 const fastify = Fastify({ logger: true });  

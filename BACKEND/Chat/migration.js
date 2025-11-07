@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import Database from "better-sqlite3";
 
-const db = new Database("./data/users.db");
+const db = new Database("./data/chat.db");
 
 db.exec(`
 CREATE TABLE IF NOT EXISTS migrations (

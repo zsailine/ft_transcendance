@@ -44,7 +44,32 @@ const getAllContacts = async (req, rep) => {
 	} catch(error) {
 		console.error("Error getting contacts:", error);
 		rep.status(500).send({
-			message: "Internal Server Error",
+			message: "Internal Server Error: get contact",
+			details: error.message
+		});
+	}
+}
+
+const getSelectedMessages = async (req, rep) => {
+	try {
+		const senderUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
+		const	receiverUsername = req.params.username;
+
+		if (senderUsername === receiverUsername) {
+			rep.status(400).send({ error: "Can't get message with yourself" });
+		}
+
+		const messages = db.prepare(`SELECT * FROM message WHERE
+			(sender_username=? AND receiver_username=?) OR
+			(sender_username=? AND receiver_username=?)
+			ORDER BY created_at ASC`)
+			.all(senderUsername, receiverUsername, receiverUsername, senderUsername);
+		rep.status(200).send(messages);
+
+	} catch(error) {
+		console.error("Error getting messages:", error);
+		rep.status(500).send({
+			message: "Internal Server Error: get messages",
 			details: error.message
 		});
 	}
@@ -76,10 +101,10 @@ const sendMessage = async (req, rep) => {
 	} catch(error) {
 		console.error("Error sending message:", error);
 		rep.status(500).send({
-			message: "Internal Server Error",
+			message: "Internal Server Error: send messages",
 			details: error.message
 		});
 	}
 }
 
-export { getAllContacts, sendMessage };
+export { getAllContacts, getSelectedMessages, sendMessage };
