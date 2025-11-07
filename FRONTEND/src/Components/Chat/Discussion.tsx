@@ -1,13 +1,12 @@
 import ChatBorder from "../../Pages/Chat/ChatBorder";
 import FriendsList from "./FriendsList";
 import ChatTitle from "./ChatTitle";
-import MessageInput from "./MessageInput";
-import MessageList from "./MessageList";
-import ReceiverHeader from "./ReceiverHeader";
 import SearchBar from "./SearchBar";
 import { ChatProvider } from "../../Providers/ChatProvider";
+import ChatContainer from "./ChatContainer";
 
 function Discussion() {
+
 	return (
 	<ChatProvider>
 		<div className="flex justify-center">
@@ -21,12 +20,7 @@ function Discussion() {
 
 				<div className="w-px border-1 border-cyan-500/20 h-full"></div>
 
-				<div className="flex flex-col w-5/6 gap-10 mt-8">
-					<ReceiverHeader />
-					<div className="w-full border-1 border-cyan-500/20 h-px"></div>
-					<MessageList />
-					<MessageInput />
-				</div>
+				<ChatContainer/>
 
 			</ChatBorder>
 		</div>
