@@ -28,37 +28,26 @@ fastify.ready().then(() => {
 });
 
 let waitingPlayers = [];
-let waitingTournament = [];
 
 function process(socket) {
-  socket.on("quick", () => {
-    waitingPlayers.push(socket);
-    if (waitingPlayers.length >= 2) {
-      const player1 = waitingPlayers.shift();
-      const player2 = waitingPlayers.shift();
-  
-      const roomName = generateRoom();
-      player1.join(roomName);
-      player2.join(roomName);
-  
-      player1.emit("role", "player1");
-      player2.emit("role", "player2");
-      player1.emit("ready");
-      player2.emit("ready");
-  
-      initGame(fastify.io, roomName, player1.id, player2.id);
-    }
-  });
-  socket.on("tournament", () => {
-    waitingTournament.push(socket);
-    if (waitingTournament === 4)
-    {
-      
-    }
-  });
+  waitingPlayers.push(socket);
+  if (waitingPlayers.length >= 2) {
+    const player1 = waitingPlayers.shift();
+    const player2 = waitingPlayers.shift();
+
+    const roomName = generateRoom();
+    player1.join(roomName);
+    player2.join(roomName);
+
+    player1.emit("role", "player1");
+    player2.emit("role", "player2");
+    player1.emit("ready");
+    player2.emit("ready");
+
+    initGame(fastify.io, roomName, player1.id, player2.id);
+  }
   socket.on("disconnect", () => {
     waitingPlayers = waitingPlayers.filter(s => s !== socket);
-    waitingTournament = waitingTournament.filter(s => s !== socket);
   });
 }
 

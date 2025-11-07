@@ -33,7 +33,6 @@ function OnlineGame() {
 	useEffect(() => {
 		const s = io("http://localhost:3005/");
 		setSocket(s);
-		s.emit("quick");
 		s.on("ready", () =>
 		{
 			start(
