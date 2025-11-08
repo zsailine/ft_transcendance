@@ -90,10 +90,13 @@ const sendMessage = async (req, rep) => {
 			rep.status(400).send({ error: "Need to have a text or an image" });
 		}
 
-		let imageUrl = image;
+		let imageUrl = null;
+		if (image) {
+			imageUrl = Buffer.from(image);
+		}
 		
 		const message = db.prepare(`INSERT INTO message (sender_username, receiver_username, text, image)
-			VALUES (?, ?, ?, ?)`).run(senderUsername, receiverUsername, text || null, imageUrl || null);
+			VALUES (?, ?, ?, ?)`).run(senderUsername, receiverUsername, text || null, imageUrl);
 		const messageId = message.lastInsertRowid;
 		const newMessage = db.prepare(`SELECT * FROM message WHERE id = ?`).get(messageId);
 		rep.status(200).send(newMessage);

@@ -2,10 +2,16 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { ImageBuffer } from "./DashboardProvider";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
+import { toast } from "react-toastify";
 
 interface ChatProviderProps {
 	children: ReactNode;
 };
+
+interface MessageDataInterface {
+	text: string | null,
+	image: ImageBuffer | null
+}
 
 export interface UserInterface {
 	id: number,
@@ -16,8 +22,8 @@ export interface UserInterface {
 interface MessageInterface {
 	id: number,
 	created_at: string,
-	sender_username: string,
-	receiver_username: string,
+	sender_username: string | null | undefined,
+	receiver_username: string | null | undefined ,
 	text: string | null,
 	image: ImageBuffer | null
 };
@@ -32,7 +38,8 @@ interface ChatInterface {
 	messages: MessageInterface[],
 	setMessages: (messages: MessageInterface[]) => void,
 	fetchFriends: () => void,
-	fetchMessages: () => void
+	fetchMessages: () => void,
+	sendMessages: (message: MessageDataInterface) => void
 };
 
 const ChatContext = createContext<ChatInterface | null>(null);
@@ -60,10 +67,31 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 		try {
 			const response = await api.get(`/message/get/${selectedUser?.username}`);
 			if (response) {
-				setMessages(response.data)
+				setMessages(response.data);
 			}
 		} catch(error) {
 			console.log("Error in fetching messages:", error);
+		}
+	}
+
+	const sendMessages = async (messageData: MessageDataInterface) => {
+		const optimisticMessage = {
+			id: Math.floor(Date.now() / 1000),
+			receiver_username: selectedUser?.username,
+			sender_username: user,
+			text: messageData.text,
+			image: messageData.image,
+			created_at: new Date().toISOString()
+		};
+		setMessages([...messages, optimisticMessage]);
+
+		try {
+			const response = await api.post(`/message/send/${selectedUser?.username}`, messageData);
+			setMessages(messages.concat(response.data));
+		} catch(error) {
+			setMessages(messages);
+			toast.error("Something went wrong while sending message");
+			console.log(error);
 		}
 	}
 	
@@ -87,7 +115,8 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 		selectedUser, setSelectedUser,
 		messages, setMessages,
 		fetchFriends,
-		fetchMessages
+		fetchMessages,
+		sendMessages
 	};
 
 	return (
