@@ -8,11 +8,6 @@ export function start(
   player: string[],
   setWinner: (winner : string) => void
 ) : () => void {
-  window.addEventListener('popstate', () => {
-    gameOver = true;
-    clearTimeout(intervalID);
-    window.removeEventListener("keydown", keyHandler);
-  });
   const board = document.getElementById("board") as HTMLCanvasElement;
   const ctx = board.getContext("2d") as CanvasRenderingContext2D;
   resizeBoard();
@@ -67,10 +62,12 @@ export function start(
       gameOver = true;
       clearTimeout(intervalID);
       window.removeEventListener("keydown", keyHandler);
+      window.removeEventListener("resize", ft_resize);
       const winner =
         paddle1Score === 5
           ? player[0]
           : player[1];
+      clearBoard();
       setWinner(winner);
     }
   }
@@ -213,7 +210,7 @@ export function start(
         break;
     }
   }
-  window.addEventListener("resize", () => {
+  const ft_resize = () => {
     const oldWidth = board.width;
     const oldHeight = board.height;
     const oldSpeed = ballSpeed;
@@ -238,7 +235,8 @@ export function start(
 
     resizePaddle(paddle1);
     resizePaddle(paddle2);
-  });
+  }
+  window.addEventListener("resize", ft_resize);
 
   createBall();
   drawScore();
@@ -248,5 +246,6 @@ export function start(
     gameOver = true;
     clearInterval(intervalID);
     window.removeEventListener("keydown", keyHandler);
+    window.removeEventListener("resize", ft_resize);
   };
 }
