@@ -1,6 +1,6 @@
 import { useState , createContext, useContext, useEffect} from "react";
 import api from "../Utils/axios";
-import { toast } from "react-toastify";
+import { io, Socket } from "socket.io-client";
 
 interface AuthInterface {
 		token : string | null,
@@ -9,7 +9,11 @@ interface AuthInterface {
 		register : (username:string, password:string, email:string) => any, 
 		logout : () => void,
 		loading : boolean,
-		isAuthenticated : boolean
+		isAuthenticated : boolean,
+		socket: Socket | null,
+		onlineUsers: string[],
+		connectSocket: () => void,
+		disconnectSocket: () => void
 }
 
 const AuthContext = createContext<AuthInterface | null>(null);
@@ -25,7 +29,9 @@ const AuthProvider = ({children} : any) =>
 {
 		const [user, setUser] = useState<string | null>(null)
 		const [loading, setLoading] = useState<boolean>(true)
-		const [token, setToken] = useState<string | null>(localStorage.getItem('token'))
+		const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+		const [socket, setSocket] = useState<Socket | null>(null);
+		const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
 		const verifyToken = async () =>
 		{
@@ -33,9 +39,9 @@ const AuthProvider = ({children} : any) =>
 				{
 						const {data} = await api.get("/auth/me")
 						if (data)
-								setUser(data.user)
+							setUser(data.user)
 						else
-								logout()
+							logout()
 				}
 				catch(e)
 				{
@@ -54,6 +60,14 @@ const AuthProvider = ({children} : any) =>
 			else
 					setLoading(false)
 		}, []);
+
+		useEffect(() => {
+			if (user && token) {
+				connectSocket()
+			} else if (!user && socket?.connected) {
+				disconnectSocket();
+			}
+		}, [user, token]);
 
 		const login = async (username: string , password:string) =>
 		{
@@ -103,6 +117,31 @@ const AuthProvider = ({children} : any) =>
 				localStorage.removeItem('token')
 		}
 
+		const connectSocket = () => {
+			if (!user || socket?.connected) {
+				return;
+			}
+
+			const newSocket = io("http://localhost:3000", {
+				withCredentials: true,
+				transports: ["websocket"],
+				auth: {
+					token: `Bearer ${token}`
+				}
+			})
+			newSocket.on("connect", () => {});
+			newSocket.on("onlineUser", (usernames: string[]) => {
+				setOnlineUsers(usernames);
+			});
+			setSocket(newSocket);
+		};
+
+		const disconnectSocket = () => {
+			if (socket?.connected) {
+				socket.disconnect();
+			}
+		}
+
 		const value = {
 				user,
 				token,
@@ -110,7 +149,9 @@ const AuthProvider = ({children} : any) =>
 				logout,
 				register,
 				loading,
-				isAuthenticated: !!user
+				isAuthenticated: !!user,
+				connectSocket, disconnectSocket,
+				socket, onlineUsers
 		}
 
 		return(
@@ -118,9 +159,7 @@ const AuthProvider = ({children} : any) =>
 						{children}
 				</AuthContext.Provider>
 				
-		) 
-		
-		children
+		)
 }
 
 export { useAuth, AuthProvider }

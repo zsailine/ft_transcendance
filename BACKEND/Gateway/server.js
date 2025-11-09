@@ -10,7 +10,8 @@ fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
 
 fastify.decorate("authenticate", async function(request, reply) {
   try {
-    if (request.url.startsWith("/auth") || request.url === "/users/register") {
+    if (request.url.startsWith("/auth") || request.url === "/users/register" ||
+      request.url.startsWith("/socket.io")) {
       return;
     }
     if (request.method === 'OPTIONS') {
@@ -40,6 +41,13 @@ fastify.register(httpProxy, {
   upstream: "http://localhost:3004",
   prefix: "/message",
   rewritePrefix: '/message'
+});
+
+fastify.register(httpProxy, {
+  upstream: "http://localhost:3004",
+  prefix: "/socket.io",
+  rewritePrefix: '/socket.io',
+  websocket: true
 });
 
 fastify.listen({ port: 3000 }, (err, address) => {

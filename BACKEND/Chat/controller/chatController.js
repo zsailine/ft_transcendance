@@ -1,5 +1,6 @@
 import db from "../migration.js";
 import axios from "axios"
+import { fastify, getReceiverSocket } from "../server.js";
 
 const AUTH_URL = "http://localhost:3002/auth";
 const USER_URL = "http://localhost:3001/users";
@@ -78,7 +79,7 @@ const getSelectedMessages = async (req, rep) => {
 const sendMessage = async (req, rep) => {
 	try {
 		const senderUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
-		const	receiverUsername = req.params.username;
+		const receiverUsername = req.params.username;
 		
 		if (senderUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't send message to yourself" });
@@ -99,6 +100,12 @@ const sendMessage = async (req, rep) => {
 			VALUES (?, ?, ?, ?)`).run(senderUsername, receiverUsername, text || null, imageUrl);
 		const messageId = message.lastInsertRowid;
 		const newMessage = db.prepare(`SELECT * FROM message WHERE id = ?`).get(messageId);
+
+		const receiverSocket = getReceiverSocket(receiverUsername);
+		if (receiverSocket) {
+			fastify.io.to(receiverSocket).emit("newMessage", newMessage);
+		}
+
 		rep.status(200).send(newMessage);
 
 	} catch(error) {

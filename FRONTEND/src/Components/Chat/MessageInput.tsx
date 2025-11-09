@@ -19,7 +19,7 @@ function MessageInput() {
 		}
 		sendMessages({
 			text: text.trim(),
-			image: image?.data
+			image: image
 		});
 		setText("");
 		setImage(null);

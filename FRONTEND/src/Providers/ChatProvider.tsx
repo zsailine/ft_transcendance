@@ -39,7 +39,9 @@ interface ChatInterface {
 	setMessages: (messages: MessageInterface[]) => void,
 	fetchFriends: () => void,
 	fetchMessages: () => void,
-	sendMessages: (message: MessageDataInterface) => void
+	sendMessages: (message: MessageDataInterface) => void,
+	subscribeMessage: () => void,
+	unsubscribeMessage: () => void
 };
 
 const ChatContext = createContext<ChatInterface | null>(null);
@@ -50,7 +52,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 	const [ searchValue, setSearchValue ] = useState<string>("");
 	const [ selectedUser, setSelectedUser ] = useState<UserInterface | null>(null);
 	const [ messages, setMessages ] = useState<MessageInterface[]>([]);
-	const { user } = useAuth();
+	const { user, socket } = useAuth();
 
 	const fetchFriends = async () => {
 		try {
@@ -94,6 +96,20 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 			console.log(error);
 		}
 	}
+
+	const subscribeMessage = () => {
+		if (!selectedUser) return ;
+
+		socket?.on("newMessage", (newMessage) => {
+			if (newMessage.sender_username === selectedUser.username) {
+				setMessages((prevMessages) => [...prevMessages, newMessage]);
+			}
+		})
+	}
+
+	const unsubscribeMessage = () => {
+		socket?.off("newMessage");
+	}
 	
 	useEffect(() => {
 		if (user) {
@@ -106,8 +122,10 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 	useEffect(() => {
 		if (selectedUser) {
 			fetchMessages();
+			subscribeMessage();
 		}
-	}, [selectedUser]);
+		return () => unsubscribeMessage();
+	}, [selectedUser, socket]);
 
 	const value = {
 		friendsList, setFriendsList,
@@ -116,7 +134,8 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 		messages, setMessages,
 		fetchFriends,
 		fetchMessages,
-		sendMessages
+		sendMessages,
+		subscribeMessage, unsubscribeMessage
 	};
 
 	return (

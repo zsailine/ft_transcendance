@@ -1,8 +1,18 @@
 import Fastify from "fastify";
 import chatRoutes from "./routes/chatRoutes.js";
 import cors from "@fastify/cors";
+import fastifySocketIo from "fastify-socket.io";
+import { socketAuth } from "./controller/socketController.js";
+import dotenv from "dotenv";
 
-const fastify = Fastify({ logger: true });  
+dotenv.config();
+
+const fastify = Fastify({ logger: true });
+const userSocketMap = {};
+
+await fastify.register(fastifySocketIo, {
+	cors: { origin: "*" }
+});
 
 await fastify.register(cors, {
 	origin: "*",
@@ -12,6 +22,23 @@ await fastify.register(cors, {
 
 fastify.register(chatRoutes);
 
+fastify.ready().then(() => {
+	fastify.io.use(socketAuth);
+	
+	fastify.io.on("connection", (socket) => {
+		console.log("A User connected", socket.username);
+		const userName = socket.username;
+		userSocketMap[userName] = socket.id;
+		fastify.io.emit("onlineUser", Object.keys(userSocketMap));
+	
+		socket.on("disconnect", () => {
+			console.log("A User disconnected", socket.username);
+			delete userSocketMap[userName];
+			fastify.io.emit("onlineUser", Object.keys(userSocketMap));
+		});
+	});
+});
+
 fastify.listen({ port: 3004 }, (err, address) => {
 	if(err) {
 		console.log(err);
@@ -19,3 +46,9 @@ fastify.listen({ port: 3004 }, (err, address) => {
 	}
 	console.log(`🚀 Serveur démarré sur ${address}`);
 });
+
+export const getReceiverSocket = (username) => {
+	return userSocketMap[username];
+}
+
+export { fastify };
