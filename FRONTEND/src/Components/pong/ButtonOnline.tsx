@@ -1,20 +1,20 @@
 import { useNavigate } from "react-router-dom"
 
-function ButtonTournament() {
+function ButtonClassic() {
 	const navigate = useNavigate()
 
 	const handleStart = () => {
-		navigate("/tournament")
+		navigate("/dashboard/play/online")
 	}
 	return (  
 		<>
 			<button
 				onClick={handleStart}
       			className="px-6 py-3 bg-yellow-400 text-gray-900 text-xl font-semibold rounded-lg shadow-md hover:bg-yellow-300 transition-all">
-      		START TOURNAMENT
+      		Multiplayer
     		</button>
 		</>
 	);
 }
 
-export default ButtonTournament ;
+export default ButtonClassic

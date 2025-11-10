@@ -40,7 +40,7 @@ export const DashboardProvider = ({children} : any) =>
         if (user)
         {           
             try {
-                const response = await api.get(`/users/${user}`);
+                const response = await api.get(`/users/${user}`); 
                 setNickname(response.data.nickname);
                 setAvatar(response.data.avatar);
                 setCoverImage(response.data.cover_image);

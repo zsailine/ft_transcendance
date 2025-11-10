@@ -1,9 +1,5 @@
 "use strict";
 
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from "../App.tsx"
-
 type Paddle = {
   width: number;
   height: number;
@@ -11,7 +7,11 @@ type Paddle = {
   y: number;
 };
 
-export async function initGame(): Promise<void> {
+const sounds = {
+  paddle: new Audio("/sounds/pong.wav"),
+};
+
+export function initGame(): () => void  {
   const board = document.getElementById("board") as HTMLCanvasElement;
   let ctx = board.getContext("2d") as CanvasRenderingContext2D ;
   if (!ctx) throw new Error("Canvas context not found");
@@ -96,19 +96,32 @@ export async function initGame(): Promise<void> {
   }
 
   function drawScore(): void {
-    const scoreEl = document.getElementById("score");
-    if (scoreEl) scoreEl.textContent = `${paddle1Score} : ${paddle2Score}`;
-  }
+  const scale = board.width / 400;
+  const fontSize = 16 * scale;
+
+  ctx.fillStyle = "black";
+  ctx.font = `bold ${fontSize}px Arial`;
+  ctx.textBaseline = "top";
+
+  const score1 = `${paddle2Score}`;
+  const score2 = `${paddle1Score}`;
+
+  const textWidth1 = ctx.measureText(score1).width;
+  const textWidth2 = ctx.measureText(score2).width;
+
+  const center = board.width / 2;
+  const top = board.height * 0.05;
+  ctx.fillText(score1, center + board.width/10 - textWidth1/2, top);
+  ctx.fillText(score2, center - board.width/10 - textWidth2/2, top);
+}
 
   function moveBall(): void {
     ballX += ballSpeed * ballXDirection;
     ballY += ballSpeed * ballYDirection;
 
-    // Collision avec le haut/bas
     if (ballY - ballRadius < 0 || ballY + ballRadius > board.height)
       ballYDirection = -ballYDirection;
 
-    // Collision avec paddle 1
     if (
       ballX - ballRadius <= paddle1.x + paddle1.width &&
       ballY > paddle1.y &&
@@ -117,9 +130,9 @@ export async function initGame(): Promise<void> {
       ballSpeed += board.width * 0.0005;
       ballX = paddle1.x + paddle1.width + ballRadius;
       ballXDirection = -ballXDirection;
+      sounds.paddle.currentTime = 0;
+      sounds.paddle.play();
     }
-
-    // Collision avec paddle 2
     if (
       ballX + ballRadius >= paddle2.x &&
       ballY > paddle2.y &&
@@ -128,9 +141,9 @@ export async function initGame(): Promise<void> {
       ballSpeed += board.width * 0.0005;
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
+      sounds.paddle.currentTime = 0;
+      sounds.paddle.play();
     }
-
-    // Score
     if (ballX - ballRadius < 0) {
       paddle2Score++;
       resetBall();
@@ -150,6 +163,7 @@ export async function initGame(): Promise<void> {
       clearBoard();
       drawPaddles();
       moveBall();
+      drawScore();
       drawBall(ballX, ballY);
       nextTick();
     }, 10);
@@ -182,30 +196,19 @@ export async function initGame(): Promise<void> {
     resetBall();
   }
 
-  // Boutons
   const rstBtn = document.getElementById("rst");
   if (rstBtn) rstBtn.addEventListener("click", resetGame);
 
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn)
-    backBtn.addEventListener("click", () => {
-      clearTimeout(intervalID);
-      window.removeEventListener("keydown", keyHandler);
-      window.history.pushState({}, "", "/");
-      createRoot(document.getElementById('root')!).render(
-        <StrictMode>
-          <App />
-        </StrictMode>,
-      )
-    });
-
-  // Resize
-  window.addEventListener("resize", () => {
+  const ft_resize = () => {
     const oldWidth = board.width;
     const oldHeight = board.height;
     const oldSpeed = ballSpeed;
     const oldX = ballX;
     const oldY = ballY;
+    const paddle1X = paddle1.x;
+    const paddle2X = paddle2.x;
+    const paddle1Y = paddle1.y;
+    const paddle2Y = paddle2.y;
 
     resizeBoard();
 
@@ -214,15 +217,24 @@ export async function initGame(): Promise<void> {
     ballY = oldY * (board.height / oldHeight);
     ballRadius = board.width * 0.0125;
 
+    paddle1.x = paddle1X * (board.width / oldWidth);
+    paddle2.x = paddle2X * (board.width / oldWidth);
+    paddle1.y = paddle1Y * (board.height / oldHeight);
+    paddle2.y = paddle2Y * (board.height / oldHeight);
+
     resizePaddle(paddle1);
     resizePaddle(paddle2);
-    paddle2.x = board.width - paddle2.width;
-    paddle2.y = board.height - paddle2.height;
-  });
+  }
+  window.addEventListener("resize", ft_resize);
 
   // Initialisation
   createBall();
   drawScore();
   nextTick();
   window.addEventListener("keydown", keyHandler);
+  return () => {
+    clearInterval(intervalID);
+    window.removeEventListener("keydown", keyHandler);
+    window.removeEventListener("resize", ft_resize);
+  };
 }

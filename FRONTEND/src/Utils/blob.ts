@@ -3,11 +3,7 @@ const getImageUrlFromBlob = (data: any): string | null => {
 
     if (data) {
         try {
-            let uint8Array:ArrayBuffer = new Uint8Array(data);
-            if (data instanceof ArrayBuffer) {
-                uint8Array = data;
-                console.log("NIDITRA TATO");
-            }
+            const uint8Array = new Uint8Array(data);
             const blob = new Blob([uint8Array], { type: 'image/png' });
             url = URL.createObjectURL(blob);
             return url;

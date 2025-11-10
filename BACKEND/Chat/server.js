@@ -7,11 +7,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const fastify = Fastify({
-	logger: true,
-	bodyLimit: 10 * 1024 * 1024 });
-
- const userSocketMap = {};
+const fastify = Fastify({ logger: true });
+const userSocketMap = {};
 
 await fastify.register(fastifySocketIo, {
 	cors: { origin: "*" }
