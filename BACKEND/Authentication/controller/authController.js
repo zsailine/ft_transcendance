@@ -12,7 +12,7 @@ const loggedUser = async (req , rep) => {
         return rep.code(401).send({ error: "invalid password" });
 
     const token = req.server.jwt.sign({ username: user.data.username , id: user.data.id });
-    rep.header("Authorization" , `Bearer ${token}`);
+    // rep.header("Authorization" , `Bearer ${token}`);
 
     return rep.send({
         token : token,
