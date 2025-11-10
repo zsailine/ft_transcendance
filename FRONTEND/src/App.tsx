@@ -8,6 +8,7 @@ import { Suspense } from "react";
 
 import { Menu } from "./Pages/Pong/Menu"
 import PongGame from "./Pages/Pong/PongGame";
+import OnlineTournament from "./Pages/Pong/OnlineTournament.tsx";
 import OnlineGame from "./Pages/Pong/onlineGame";
 import PongTournament from "./Pages/Pong/Tournament/PongTournament"; import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard.tsx";
@@ -16,7 +17,7 @@ import Settings from "./Pages/Dashboard/Settings";
 import Profil from "./Pages/Dashboard/Profil";
 import Friend from "./Pages/Dashboard/Friend";
 import Play from "./Pages/Dashboard/Play";
-"./Pages/PongTournament"
+import Discussion from "./Components/Chat/Discussion";
 
 function App() {
 
@@ -51,8 +52,10 @@ function App() {
                   <Route path="pong" element={<PongGame />} />
                   <Route path="tournament" element={<PongTournament />} />
                   <Route path="online" element={<OnlineGame />} />
+                  <Route path="onlineTournament" element={<OnlineTournament />} />
                 </Route>
                 <Route path="friends" element={<Friend />} />
+                <Route path="discussion" element={<Discussion />} />
               </Route>
 
             </Routes>

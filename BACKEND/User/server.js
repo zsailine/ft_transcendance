@@ -1,4 +1,3 @@
-
 import Fastify from "fastify";
 import Database from "better-sqlite3";
 import userRoutes from "./routes/userRoutes.js";

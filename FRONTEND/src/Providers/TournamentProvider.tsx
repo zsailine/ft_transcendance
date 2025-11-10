@@ -12,4 +12,4 @@ export const UserContext = createContext<UserContextType>({
   setAliases: () => {},
   pages: 0,
   setPages: () => {}
-});
+});  

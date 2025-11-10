@@ -199,22 +199,16 @@ export function initGame(): () => void  {
   const rstBtn = document.getElementById("rst");
   if (rstBtn) rstBtn.addEventListener("click", resetGame);
 
-  window.addEventListener('popstate', () =>
-  {
-    clearTimeout(intervalID);
-    window.removeEventListener("keydown", keyHandler);
-  });
-
-  window.addEventListener("resize", () => {
+  const ft_resize = () => {
     const oldWidth = board.width;
     const oldHeight = board.height;
     const oldSpeed = ballSpeed;
     const oldX = ballX;
     const oldY = ballY;
     const paddle1X = paddle1.x;
-		const paddle2X = paddle2.x;
-		const paddle1Y = paddle1.y;
-		const paddle2Y = paddle2.y;
+    const paddle2X = paddle2.x;
+    const paddle1Y = paddle1.y;
+    const paddle2Y = paddle2.y;
 
     resizeBoard();
 
@@ -224,15 +218,14 @@ export function initGame(): () => void  {
     ballRadius = board.width * 0.0125;
 
     paddle1.x = paddle1X * (board.width / oldWidth);
-		paddle2.x = paddle2X * (board.width / oldWidth);
-		paddle1.y = paddle1Y * (board.height / oldHeight);
-		paddle2.y = paddle2Y * (board.height / oldHeight);
+    paddle2.x = paddle2X * (board.width / oldWidth);
+    paddle1.y = paddle1Y * (board.height / oldHeight);
+    paddle2.y = paddle2Y * (board.height / oldHeight);
 
     resizePaddle(paddle1);
     resizePaddle(paddle2);
-    paddle2.x = board.width - paddle2.width;
-    paddle2.y = board.height - paddle2.height;
-  });
+  }
+  window.addEventListener("resize", ft_resize);
 
   // Initialisation
   createBall();
@@ -242,5 +235,6 @@ export function initGame(): () => void  {
   return () => {
     clearInterval(intervalID);
     window.removeEventListener("keydown", keyHandler);
+    window.removeEventListener("resize", ft_resize);
   };
 }
