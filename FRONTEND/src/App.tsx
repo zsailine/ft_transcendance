@@ -17,7 +17,7 @@ import Settings from "./Pages/Dashboard/Settings";
 import Profil from "./Pages/Dashboard/Profil";
 import Friend from "./Pages/Dashboard/Friend";
 import Play from "./Pages/Dashboard/Play";
-"./Pages/PongTournament"
+import Discussion from "./Components/Chat/Discussion";
 
 function App() {
 
@@ -55,6 +55,7 @@ function App() {
                   <Route path="onlineTournament" element={<OnlineTournament />} />
                 </Route>
                 <Route path="friends" element={<Friend />} />
+                <Route path="discussion" element={<Discussion />} />
               </Route>
 
             </Routes>

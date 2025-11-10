@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import axios from "axios";
 import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
-import fastifyJwt from "fastify-jwt";
+import fastifyJwt from "@fastify/jwt";
 import cors from '@fastify/cors'
 
 dotenv.config();

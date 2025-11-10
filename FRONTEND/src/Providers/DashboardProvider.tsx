@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
 
-
 export interface ImageBuffer {
   type: "Buffer";
   data: number[];
