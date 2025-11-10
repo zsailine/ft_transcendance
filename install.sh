@@ -5,5 +5,6 @@
 (cd BACKEND/Gateway && npm install) &
 (cd BACKEND/OnlinePong && npm install) &
 (cd BACKEND/User && npm install) &
+(cd BACKEND/Chat && npm install) &
 
 wait

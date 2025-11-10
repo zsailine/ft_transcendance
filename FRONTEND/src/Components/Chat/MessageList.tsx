@@ -48,8 +48,12 @@ function MessageList() {
 
 				{message.image && (
 					<img alt="preview"
-					src={getImageUrlFromBlob(message.image.data) || ""}
-					className="max-w-l max-h-60 rounded-lg mt-1"/>
+					src={((message.receiver_username === selectedUser?.username) ?
+						getImageUrlFromBlob(message.image.data) :
+						getImageUrlFromBlob(message.image)) || ""
+					}
+					className="max-w-l max-h-60 rounded-lg mt-1"
+					onLoad={() => {bottomScroll.current?.scrollIntoView({behavior: "smooth"})}}/>
 				)}
 
 				{message.text && <div className="text-lg">{message.text}</div>}
