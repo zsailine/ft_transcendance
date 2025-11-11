@@ -50,6 +50,12 @@ fastify.register(httpProxy, {
   websocket: true
 });
 
+fastify.register(httpProxy, {
+  upstream: "http://localhost:3006",
+  prefix: "/friend",
+  rewritePrefix: '/friend'
+});
+
 fastify.listen({ port: 3000 }, (err, address) => {
   if (err) {
     fastify.log.error(err);
