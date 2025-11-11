@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { start } from "../../OnlinePong/start.ts";
 import { useNavigate } from "react-router-dom"
+import { useDashboard } from "../../Providers/DashboardProvider";
 import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
 import { ImSpinner9 } from "react-icons/im";
@@ -30,12 +31,11 @@ function OnlineGame() {
 	const [role, setRole] = useState<string>("");
 	const [begin, setBegin] = useState(false);
 	const navigate = useNavigate();
+	const { theme } = useDashboard();
 
 	useEffect(() => {
 		const s = io("http://localhost:3005/");
 		setSocket(s);
-
-		// Quand le serveur dit que le jeu peut commencer
 		s.on("ready", () => {
 			setBegin(true);
 		});
@@ -48,9 +48,9 @@ function OnlineGame() {
 		};
 	}, []);
 	useEffect(() => {
-		if (!begin || !socket) return;
-
+		if (!begin || !socket || !theme) return;
 		const clean = start(
+			theme,
 			socket,
 			() => setLoading(false),
 			(winnerRole: string) => {
@@ -72,11 +72,19 @@ function OnlineGame() {
 		<div className="h-full">
 			<div className="text-white flex flex-col items-center justify-center font-sans">
 				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
-					<p id="player1" className="font-bold [writing-mode:vertical-rl] 
-			rotate-180 text-center">Player 1</p>
-					<canvas id="board" className="border-4 border-white rounded-lg 
-			bg-green-700 h-full w-full shadow-lg"></canvas>
-					<p id="player2" className="font-bold [writing-mode:vertical-rl] text-center">Player 2</p>
+					<p
+						id="player1"
+						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
+						style={{ color: theme?.paddle1 }}
+					>Player 1</p>
+					<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
+						style={{ backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder }}
+					></canvas>
+					<p
+						id="player2"
+						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
+						style={{ color: theme?.paddle2 }}
+					>Player 2</p>
 				</div>
 			</div>
 			{overlay && (

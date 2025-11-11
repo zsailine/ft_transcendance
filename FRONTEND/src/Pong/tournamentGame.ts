@@ -1,13 +1,17 @@
 "use strict";
 
+import type { ThemeColors } from "../Providers/DashboardProvider";
+import { drawBall, drawPaddles, clearBoard, drawScore } from "./draw";
+
 const sounds = {
   paddle: new Audio("/sounds/pong.wav"),
 };
 
 export function start(
+  theme: ThemeColors,
   player: string[],
-  setWinner: (winner : string) => void
-) : () => void {
+  setWinner: (winner: string) => void
+): () => void {
   const board = document.getElementById("board") as HTMLCanvasElement;
   const ctx = board.getContext("2d") as CanvasRenderingContext2D;
   resizeBoard();
@@ -46,12 +50,6 @@ export function start(
   let paddleSpeed = board.height / 7;
   let gameOver = false;
 
-  const paddle1Color = "lightblue";
-  const paddle2Color = "red";
-  const paddleBorder = "black";
-  const ballColor = "yellow";
-  const ballBorderColor = "black";
-
   function resizeBoard(): void {
     board.width = window.innerWidth * 0.8;
     board.height = window.innerHeight * 0.7;
@@ -67,7 +65,7 @@ export function start(
         paddle1Score === 5
           ? player[0]
           : player[1];
-      clearBoard();
+      clearBoard(ctx, board, theme.boardBackground);
       setWinner(winner);
     }
   }
@@ -84,53 +82,6 @@ export function start(
     ballYDirection = Math.random() > 0.5 ? 1 : -1;
     ballX = board.width / 2;
     ballY = board.height / 2;
-  }
-
-  function drawBall(x: number, y: number): void {
-    ctx.fillStyle = ballColor;
-    ctx.strokeStyle = ballBorderColor;
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
-  }
-
-  function drawPaddles(): void {
-    ctx.strokeStyle = paddleBorder;
-
-    ctx.fillStyle = paddle1Color;
-    ctx.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-    ctx.strokeRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-
-    ctx.fillStyle = paddle2Color;
-    ctx.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-    ctx.strokeRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-  }
-
-  function clearBoard(): void {
-    ctx.fillStyle = "forestgreen";
-    ctx.fillRect(0, 0, board.width, board.height);
-  }
-
-  function drawScore(): void {
-    const scale = board.width / 400;
-    const fontSize = 16 * scale;
-
-    ctx.fillStyle = "black";
-    ctx.font = `bold ${fontSize}px Arial`;
-    ctx.textBaseline = "top";
-
-    const score1 = `${paddle2Score}`;
-    const score2 = `${paddle1Score}`;
-
-    const textWidth1 = ctx.measureText(score1).width;
-    const textWidth2 = ctx.measureText(score2).width;
-
-    const center = board.width / 2;
-    const top = board.height * 0.05;
-    ctx.fillText(score1, center + board.width / 10 - textWidth1 / 2, top);
-    ctx.fillText(score2, center - board.width / 10 - textWidth2 / 2, top);
   }
 
   function moveBall(): void {
@@ -181,11 +132,11 @@ export function start(
   function nextTick(): void {
     if (gameOver) return;
     intervalID = window.setTimeout(() => {
-      clearBoard();
-      drawPaddles();
+      clearBoard(ctx, board, theme.boardBackground);
+      drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
       moveBall();
-      drawScore();
-      drawBall(ballX, ballY);
+     drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
+      drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
       nextTick();
     }, 10);
   }
@@ -239,7 +190,7 @@ export function start(
   window.addEventListener("resize", ft_resize);
 
   createBall();
-  drawScore();
+  drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   nextTick();
   window.addEventListener("keydown", keyHandler);
   return () => {
