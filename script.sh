@@ -9,7 +9,6 @@
 (cd BACKEND/OnlinePong && npm run dev) &
 (cd BACKEND/User && npm run dev) &
 (cd BACKEND/Chat && npm run dev) &
-(cd BACKEND/Friend && npm run dev) &
 
 # Attendre que tout s'arrête (CTRL+C)
 wait
