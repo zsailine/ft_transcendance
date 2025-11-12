@@ -13,7 +13,8 @@ export function start(
 	theme: ThemeColors,
 	socket: Socket,
 	onGameStart: () => void,
-	onEnd: (winner: string) => void,): () => void {
+	onEnd: (winner: string) => void,): () => void 
+{
 	const board = document.getElementById("board") as HTMLCanvasElement;
 	const ctx = board.getContext("2d") as CanvasRenderingContext2D;
 	resizeBoard();
@@ -116,10 +117,10 @@ export function start(
 	socket.on("down2", () => {
 		paddle2.y = Math.min(board.height - paddle2.height, paddle2.y + paddleSpeed);
 	});
-	socket.on("score", data => {
+	socket.on("score", (data) => {
 		paddle1Score = data.paddle1Score;
 		paddle2Score = data.paddle2Score;
-	});
+});
 	socket.on("finish", data => {
 		socket.disconnect();
 		clearBoard(ctx, board, theme.boardBackground);

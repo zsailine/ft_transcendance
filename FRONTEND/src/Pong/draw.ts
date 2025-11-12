@@ -69,6 +69,6 @@ export function drawScore(
 
     const center = board.width / 2;
     const top = board.height * 0.05;
-    ctx.fillText(score1, center + board.width / 10 - textWidth1 / 2, top);
-    ctx.fillText(score2, center - board.width / 10 - textWidth2 / 2, top);
+    ctx.fillText(score1, center - board.width / 10 - textWidth2 / 2, top);
+    ctx.fillText(score2, center + board.width / 10 - textWidth1 / 2, top);
 }
