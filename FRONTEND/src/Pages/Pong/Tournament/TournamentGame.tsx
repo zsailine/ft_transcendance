@@ -4,6 +4,9 @@ import { useContext } from "react";
 import { hoverEffect } from "../../../Utils/style.ts";
 import { UserContext } from "../../../Providers/TournamentProvider"
 import { useDashboard, type ThemeColors } from "../../../Providers/DashboardProvider";
+import OverlayLoading from "../../../Components/pong/OverlayLoading.tsx";
+import OverlayResult from "../../../Components/pong/OverlayResult.tsx";
+import { AnimatePresence } from "framer-motion";
 
 function Board({ player, theme }: { player: string[], theme: ThemeColors }) {
 	return (
@@ -25,42 +28,6 @@ function Board({ player, theme }: { player: string[], theme: ThemeColors }) {
 			</div>
 		</div>
 	);
-}
-
-function Loading({
-	player,
-	onClick,
-}: {
-	player: string[];
-	onClick: () => void;
-}) {
-	return (
-		<div className="absolute z-10 top-0 w-[100%] h-[100%] flex flex-col items-center justify-center 
-				bg-black/30 backdrop-blur-[2px] text-white">
-			<h1 id="pending" className="text-4xl text-center text-cyan- font-bold mb-6">{player[0]} vs {player[1]}</h1>
-			<div
-				className={`cursor-pointer mr-1.5 py-1.5 px-6 text-xl flex items-center h-max gap-2 backdrop-blur-xl rounded-xl
-						bg-cyan-800/5 shadow-md shadow-cyan-500/50 ${hoverEffect}`}
-				onClick={onClick}>
-				Start
-			</div>
-		</div>
-	)
-}
-
-function Winner({ push, onClick }: { push: string; onClick: () => void }) {
-	return (
-		<div className="absolute z-10 top-0 w-[100%] h-[100%] flex flex-col items-center justify-center 
-			bg-black/30 backdrop-blur-[2px] text-white">
-			<h1 className="text-4xl text-center text-cyan- font-bold mb-6">{push} won</h1>
-			<div
-				className={`cursor-pointer mr-1.5 py-1.5 px-6 text-xl flex items-center h-max gap-2 backdrop-blur-xl rounded-xl
-						bg-cyan-800/5 shadow-md shadow-cyan-500/50 ${hoverEffect}`}
-				onClick={onClick}>
-				Next
-			</div>
-		</div>
-	)
 }
 
 function TournamentGame() {
@@ -117,12 +84,18 @@ function TournamentGame() {
 	return (
 		<>
 			{theme && <Board player={player} theme={theme} />}
-			{loading && (
-				<Loading player={player} onClick={startMatch} />
-			)}
-			{winner && (
-				<Winner push={push} onClick={nextMatch} />
-			)}
+			<AnimatePresence mode="wait">
+				{loading && (
+					<OverlayLoading key="overlay-loading"
+						text={`${player[0]} vs ${player[1]}`} buttonText="Start"
+						hoverEffect={hoverEffect} onQuit={startMatch} />
+				)}
+				{winner && (
+					<OverlayResult key="overlay-result"
+						buttonText="Next" winner={`${push} won`}
+						onQuit={nextMatch} hoverEffect={hoverEffect} />
+				)}
+			</AnimatePresence>
 		</>
 	);
 }

@@ -3,7 +3,7 @@
 import Fastify from 'fastify';
 import fastifySocketIO from 'fastify-socket.io';
 import { initGame } from './logic/logic.js';
-import { removeSocket } from './socket_utils.js';
+import { removeSocket, generateRoom } from './socket_utils.js';
 
 const fastify = Fastify();
 
@@ -13,16 +13,6 @@ await fastify.register(fastifySocketIO, {
   },
 });
 
-function generateRoom() {
-  const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMBNOPQRSTUVWXYZ123456789"
-  let i = 0;
-  let result = "";
-  while (i < 26) {
-    result += alphabet[Math.floor(Math.random() * 61)];
-    i++;
-  }
-  return (result);
-}
 fastify.ready().then(() => {
   // initGame(fastify.io);
   fastify.io.on("connection", process);
@@ -32,6 +22,7 @@ const AllMode = new Map();
 const waitingPlayers = new Map();
 
 function process(socket) {
+  console.log("the socket is " + socket.id);
   socket.on("quick", (username) => {
     if (AllMode.has(username)) {
       socket.emit("duplicate");

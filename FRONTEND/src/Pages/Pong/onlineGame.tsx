@@ -29,7 +29,7 @@ function OnlineGame() {
 		s.on("ready", () => {
 			setBegin(true);
 		});
-
+		
 		s.on("role", data => {
 			setRole(data);
 		});
