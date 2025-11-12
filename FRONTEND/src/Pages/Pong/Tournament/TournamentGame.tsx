@@ -87,12 +87,12 @@ function TournamentGame() {
 			<AnimatePresence mode="wait">
 				{loading && (
 					<OverlayLoading key="overlay-loading"
-						text={`${player[0]} vs ${player[1]}`} buttonText="next"
+						text={`${player[0]} vs ${player[1]}`} buttonText="Start"
 						hoverEffect={hoverEffect} onQuit={startMatch} />
 				)}
 				{winner && (
 					<OverlayResult key="overlay-result"
-						buttonText="Home" winner={`${push} won`}
+						buttonText="Next" winner={`${push} won`}
 						onQuit={nextMatch} hoverEffect={hoverEffect} />
 				)}
 			</AnimatePresence>

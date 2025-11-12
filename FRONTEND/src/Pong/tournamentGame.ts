@@ -57,6 +57,7 @@ export function start(
 
   function checkWinner(): void {
     if (paddle1Score === 5 || paddle2Score === 5) {
+      clearBoard(ctx, board, theme.boardBackground);
       gameOver = true;
       clearTimeout(intervalID);
       window.removeEventListener("keydown", keyHandler);
@@ -65,7 +66,6 @@ export function start(
         paddle1Score === 5
           ? player[0]
           : player[1];
-      clearBoard(ctx, board, theme.boardBackground);
       setWinner(winner);
     }
   }
@@ -134,8 +134,8 @@ export function start(
     intervalID = window.setTimeout(() => {
       clearBoard(ctx, board, theme.boardBackground);
       drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+      drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
       moveBall();
-     drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
       drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
       nextTick();
     }, 10);
