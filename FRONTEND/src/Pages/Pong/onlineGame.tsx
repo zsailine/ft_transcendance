@@ -4,38 +4,28 @@ import { useNavigate } from "react-router-dom"
 import { useDashboard } from "../../Providers/DashboardProvider";
 import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
-import { ImSpinner9 } from "react-icons/im";
+import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
+import OverlayResult from "../../Components/pong/OverlayResult.tsx";
+import { AnimatePresence } from "framer-motion";
 
-type ButtonMenuProps = {
-	className?: string;
-	onClick: () => void;
-	children?: React.ReactNode;
-};
-
-function ButtonMenu({ className, onClick, children }: ButtonMenuProps) {
-	return (
-		<div
-			onClick={onClick}
-			className={className}
-		>
-			{children}
-		</div>
-	);
-}
 
 function OnlineGame() {
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(false);
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [winner, setWinner] = useState<string>("");
 	const [role, setRole] = useState<string>("");
+	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
+	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
 	const navigate = useNavigate();
-	const { theme } = useDashboard();
+	const { theme, username } = useDashboard();
 
 	useEffect(() => {
 		const s = io("http://localhost:3005/");
 		setSocket(s);
+		s.emit("quick", username);
 		s.on("ready", () => {
 			setBegin(true);
 		});
@@ -43,10 +33,21 @@ function OnlineGame() {
 		s.on("role", data => {
 			setRole(data);
 		});
+		s.on("opponent", data => {
+			setOpponent(data);
+		})
+		s.on("duplicate", () => {
+			setLoading(false);
+			setError(true);
+		});
 		return () => {
 			s.disconnect();
 		};
 	}, []);
+	useEffect(() => {
+		if (opponent.length && role.length && username)
+			role === "player1" ? setPLayer([username, opponent]) :  setPLayer([opponent, username]);
+	}, [opponent, role])
 	useEffect(() => {
 		if (!begin || !socket || !theme) return;
 		const clean = start(
@@ -65,8 +66,11 @@ function OnlineGame() {
 
 
 	function handleQuit() {
-		socket?.disconnect();
-		navigate("/dashboard/play");
+		if (socket)
+		{
+			socket?.disconnect();
+			navigate("/dashboard/play");
+		}
 	}
 	return (
 		<div className="h-full">
@@ -76,7 +80,7 @@ function OnlineGame() {
 						id="player1"
 						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
 						style={{ color: theme?.paddle1 }}
-					>Player 1</p>
+					>{player[0]}</p>
 					<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
 						style={{ backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder }}
 					></canvas>
@@ -84,38 +88,38 @@ function OnlineGame() {
 						id="player2"
 						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
 						style={{ color: theme?.paddle2 }}
-					>Player 2</p>
+					>{player[1]}</p>
 				</div>
 			</div>
-			{overlay && (
-				<div className="absolute z-10 top-0 w-[100%] h-[100%] flex flex-col 
-			items-center justify-center 
-			bg-black/30 backdrop-blur-[2px] text-white">
-					<h1 className="text-4xl text-center text-cyan- font-bold mb-6">
-						{winner === role ? "You win ! 🏆" : "You lose ! 🤕"}
-					</h1>
-					<ButtonMenu
-						onClick={handleQuit}
-						className={`cursor-pointer mr-1.5 py-1.5 px-6 text-xl flex items-center 
-						h-max gap-2 backdrop-blur-xl rounded-xl 
-					bg-cyan-800/5 shadow-md shadow-cyan-500/50 ${hoverEffect}`} >
-						Home
-					</ButtonMenu>
-				</div>
-			)}
-			{loading && (
-				<div className="absolute z-10 top-0 w-[100%] h-[100%] flex flex-col items-center justify-center 
-				bg-black/30 backdrop-blur-[2px] text-white">
-					<h1 id="pending" className="text-4xl text-center text-cyan- font-bold mb-6">Waiting for another player</h1>
-					<span><ImSpinner9 className="size-6 text-cyan-500 mb-6 animate-spin inline ml-2" /></span>
-					<ButtonMenu
-						className={`cursor-pointer mr-1.5 py-1.5 px-6 text-xl flex items-center h-max gap-2 backdrop-blur-xl rounded-xl
-						bg-cyan-800/5 shadow-md shadow-cyan-500/50 ${hoverEffect}`}
-						onClick={handleQuit}>
-						Home
-					</ButtonMenu>
-				</div>
-			)}
+			<AnimatePresence mode="wait">
+				{overlay && (
+					<OverlayResult
+						key="overlay-result"
+						buttonText="Home"
+						winner={winner === role ? "You win ! 🏆" : "You lose ! 🤕"}
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
+				{loading && (
+					<OverlayLoading
+						key="overlay-loading"
+						text="Waiting for another player"
+						buttonText="Home"
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
+				{error && (
+					<OverlayLoading
+						key="overlay-loading"
+						text="You are already on a match"
+						buttonText="Home"
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 }
