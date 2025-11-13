@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  web:
+    build: ./FRONTEND
+    ports:
+      - "8080:8080"
+    networks:
+      - webnet
+
+  gateway:
+    build: ./BACKEND/Gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=6e77c39c1cfc6593a5c8b527b2ddcf3c6631f634b922adf0120128bcb16c76359bba5aebae35b48a87ca1bd50714e086
+    depends_on:
+      - userservice
+      - authservice
+    networks:
+      - webnet
+  
+  userservice:
+    build: ./BACKEND/User
+    ports:
+      - "3001:3001"
+    networks:
+      - webnet
+  
+  authservice:
+    build: ./BACKEND/Authentication
+    ports:
+      - "3002:3002"
+    networks:
+      - webnet
+
+  # chat_service:
+  #   build: ./BACKEND/Chat
+  #   ports:
+  #     - "3003:3003"
+  #   networks:
+  #     - webnet
+
+  # OnlinePong_service:
+  #   build: ./BACKEND/OnlinePong
+  #   ports:
+  #     - "3004:3004"
+  #   networks:
+  #     - webnet
+
+  # Friend_service:
+  #   build: ./BACKEND/Friend
+  #   ports:
+  #     - "3005:3005"
+  #   networks:
+  #     - webnet
+
+networks:
+  webnet:
+    driver: bridge

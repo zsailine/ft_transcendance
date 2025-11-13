@@ -51,6 +51,7 @@ export default function Login() {
     try
     {
       if (!isLogin) {
+        console.log("Registering user:", formData);
         const success = await register(formData.username, formData.password, formData.email!);
         setTimeout(() => {
         }, 2000);
