@@ -2,49 +2,38 @@ import db from "../migration.js";
 import axios from "axios"
 import { fastify, getReceiverSocket } from "../server.js";
 
-const AUTH_URL = "http://localhost:3002/auth";
 const USER_URL = "http://localhost:3001/users";
 
-const verifyToken = (req, rep) => {
-	const token = req.headers.authorization;
+const getUsername = async (req, rep) => {
+	const token = req.cookies?.token;
+	if (!token)
+		console.log("\n\nMISSING TOKEN\n\n");
 
-	if (!token || !token.startsWith("Bearer ")) {
-		rep.status(400).send({
-			message: "Bad Request",
-			details: "Bearer Token Missing"
-		});
-	}
-	return token;
-}
-
-const getUsername = async (req, rep, url) => {
-	const token = verifyToken(req, rep);
-	const AuthMeResponse = await axios.get(url, {
-		headers: {
-			Authorization: token
-		}
-	});
-	const loggedInUsername = AuthMeResponse.data.user;
-	
-	if (!loggedInUsername) {
+	try {
+		const decoded = req.server.jwt.decode(token);
+		if (decoded)
+			return decoded.username;
+	} catch(error) {
+		console.log(error.message);
 		rep.status(500).send({
 			error: "Verification service error, failed to fetch username"
 		});
 	}
-	return loggedInUsername;
 }
 
 const getAllContacts = async (req, rep) => {
 	try {
-		const loggedInUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
-
+		const loggedInUsername = await getUsername(req, rep);
 		const allUsers = await axios.get(`${USER_URL}/all`);
 		const contacts = allUsers.data.filter(user => user.username !== loggedInUsername);
-		rep.status(200).send(contacts);	
+
+		if (contacts) {
+			return rep.status(200).send(contacts);	
+		}
 
 	} catch(error) {
 		console.error("Error getting contacts:", error);
-		rep.status(500).send({
+		return rep.status(500).send({
 			message: "Internal Server Error: get contact",
 			details: error.message
 		});
@@ -53,11 +42,11 @@ const getAllContacts = async (req, rep) => {
 
 const getSelectedMessages = async (req, rep) => {
 	try {
-		const senderUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
+		const senderUsername = await getUsername(req, rep);
 		const	receiverUsername = req.params.username;
 
 		if (senderUsername === receiverUsername) {
-			rep.status(400).send({ error: "Can't get message with yourself" });
+			return rep.status(400).send({ error: "Can't get message with yourself" });
 		}
 
 		const messages = db.prepare(`SELECT * FROM message WHERE
@@ -65,11 +54,11 @@ const getSelectedMessages = async (req, rep) => {
 			(sender_username=? AND receiver_username=?)
 			ORDER BY created_at ASC`)
 			.all(senderUsername, receiverUsername, receiverUsername, senderUsername);
-		rep.status(200).send(messages);
+		return rep.status(200).send(messages);
 
 	} catch(error) {
 		console.error("Error getting messages:", error);
-		rep.status(500).send({
+		return rep.status(500).send({
 			message: "Internal Server Error: get messages",
 			details: error.message
 		});
@@ -78,7 +67,7 @@ const getSelectedMessages = async (req, rep) => {
 
 const sendMessage = async (req, rep) => {
 	try {
-		const senderUsername = await getUsername(req, rep, `${AUTH_URL}/me`);
+		const senderUsername = await getUsername(req, rep);
 		const receiverUsername = req.params.username;
 		
 		if (senderUsername === receiverUsername) {
