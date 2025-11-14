@@ -7,6 +7,7 @@ import { hoverEffect } from "../../Utils/style.ts";
 import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
 import { AnimatePresence } from "framer-motion";
+import { OnlineGameProvider, useOnlineGame } from "../../Providers/OnlineGameProvider.tsx";
 
 export function generateRoom() {
 	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMBNOPQRSTUVWXYZ123456789"
@@ -18,13 +19,6 @@ export function generateRoom() {
 	}
 	return (result);
 }
-
-const TextProvider = ({children}) => {
-	const [ text , setText] = useState("");
-	return (Tex)
-}
-
-const TextContext = createContext();
 
 function OnlineGame() {
 	const [loading, setLoading] = useState(false);
@@ -54,7 +48,7 @@ function OnlineGame() {
 			const room = generateRoom();
 			setLink(room);
 			setCreate(true);
-			s.emit("create quick", {username, room});
+			s.emit("create quick", { username, room });
 		}
 		else if (mode === "join") {
 			setJoin(true);
@@ -129,51 +123,51 @@ function OnlineGame() {
 					>{player[1]} </p>
 				</div>
 			</div>
-			< TextProvider value="">
-			
-			</TextProvider>
-			<AnimatePresence mode="wait">
-				{overlay && (
-					<OverlayResult
-						key="overlay-result"
-						buttonText="Home"
-						winner={winner === role ? "You win ! 🏆" : "You lose ! 🤕"}
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
-				{loading && (
-					<OverlayLoading
-						key="overlay-loading"
-						text="Waiting for another player"
-						buttonText="Home"
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
-				{create && (
-					<OverlayLoading
-						key="overlay-loading"
-						text= <>
-							{link}
-							<br />
-							Copy to join
-						</>
-						buttonText="Home"
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
-				{error && (
-					<OverlayLoading
-						key="overlay-loading"
-						text="You are already on a match"
-						buttonText="Home"
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
-			</AnimatePresence>
+			< OnlineGameProvider >
+				<AnimatePresence mode="wait">
+					{overlay && (
+						<OverlayResult
+							key="overlay-result"
+							buttonText="Home"
+							winner={winner === role ? "You win ! 🏆" : "You lose ! 🤕"}
+							onQuit={handleQuit}
+							hoverEffect={hoverEffect}
+						/>
+					)}
+					{loading && (
+						<OverlayLoading
+							key="overlay-loading"
+							text="Waiting for another player"
+							buttonText="Home"
+							onQuit={handleQuit}
+							hoverEffect={hoverEffect}
+						/>
+					)}
+					{create && (
+						<OverlayLoading
+							key="overlay-loading"
+							text=<>
+								{link}
+								<br />
+								Copy to join
+							</>
+							buttonText="Home"
+							onQuit={handleQuit}
+							hoverEffect={hoverEffect}
+						/>
+					)}
+					{error && (
+						<OverlayLoading
+							key="overlay-loading"
+							text="You are already on a match"
+							buttonText="Home"
+							onQuit={handleQuit}
+							hoverEffect={hoverEffect}
+						/>
+					)}
+				</AnimatePresence>
+			</OnlineGameProvider>
+
 		</div>
 	);
 }
