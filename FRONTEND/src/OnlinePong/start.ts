@@ -12,7 +12,6 @@ const sounds = {
 export function start(
 	theme: ThemeColors,
 	socket: Socket,
-	onGameStart: () => void,
 	onEnd: (winner: string) => void,): () => void 
 {
 	const board = document.getElementById("board") as HTMLCanvasElement;
@@ -139,7 +138,6 @@ export function start(
 	});
 	window.addEventListener("keydown", keyHandler);
 	clearInterval(interval);
-	onGameStart();
 	socket.on("pong", () => {
 		sounds.paddle.currentTime = 0;
 		sounds.paddle.play();

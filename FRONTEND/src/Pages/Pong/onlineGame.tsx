@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { start } from "../../OnlinePong/start.ts";
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation, createContext } from "react-router-dom"
 import { useDashboard } from "../../Providers/DashboardProvider";
 import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
@@ -8,10 +8,30 @@ import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
 import { AnimatePresence } from "framer-motion";
 
+export function generateRoom() {
+	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMBNOPQRSTUVWXYZ123456789"
+	let i = 0;
+	let result = "";
+	while (i < 26) {
+		result += alphabet[Math.floor(Math.random() * 61)];
+		i++;
+	}
+	return (result);
+}
+
+const TextProvider = ({children}) => {
+	const [ text , setText] = useState("");
+	return (Tex)
+}
+
+const TextContext = createContext();
 
 function OnlineGame() {
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
+	const [create, setCreate] = useState(false);
+	const [join, setJoin] = useState(false);
+	const [link, setLink] = useState("");
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [winner, setWinner] = useState<string>("");
@@ -19,17 +39,34 @@ function OnlineGame() {
 	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
 	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
-	const navigate = useNavigate();
 	const { theme, username } = useDashboard();
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const queryParams = new URLSearchParams(location.search);
+	const mode = queryParams.get("mode") || "quick";
+
 
 	useEffect(() => {
 		const s = io("http://localhost:3005/");
 		setSocket(s);
-		s.emit("quick", username);
+		if (mode === "create") {
+			const room = generateRoom();
+			setLink(room);
+			setCreate(true);
+			s.emit("create quick", {username, room});
+		}
+		else if (mode === "join") {
+			setJoin(true);
+		}
+		else {
+			s.emit("quick", username);
+			setLoading(true);
+		}
 		s.on("ready", () => {
 			setBegin(true);
 		});
-		
+
 		s.on("role", data => {
 			setRole(data);
 		});
@@ -46,14 +83,16 @@ function OnlineGame() {
 	}, []);
 	useEffect(() => {
 		if (opponent.length && role.length && username)
-			role === "player1" ? setPLayer([username, opponent]) :  setPLayer([opponent, username]);
+			role === "player1" ? setPLayer([username, opponent]) : setPLayer([opponent, username]);
 	}, [opponent, role])
 	useEffect(() => {
 		if (!begin || !socket || !theme) return;
+		setLoading(false);
+		setJoin(false);
+		setCreate(false);
 		const clean = start(
 			theme,
 			socket,
-			() => setLoading(false),
 			(winnerRole: string) => {
 				setWinner(winnerRole);
 				setOverlay(true);
@@ -66,8 +105,7 @@ function OnlineGame() {
 
 
 	function handleQuit() {
-		if (socket)
-		{
+		if (socket) {
 			socket?.disconnect();
 			navigate("/dashboard/play");
 		}
@@ -88,9 +126,12 @@ function OnlineGame() {
 						id="player2"
 						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
 						style={{ color: theme?.paddle2 }}
-					>{player[1]}</p>
+					>{player[1]} </p>
 				</div>
 			</div>
+			< TextProvider value="">
+			
+			</TextProvider>
 			<AnimatePresence mode="wait">
 				{overlay && (
 					<OverlayResult
@@ -105,6 +146,19 @@ function OnlineGame() {
 					<OverlayLoading
 						key="overlay-loading"
 						text="Waiting for another player"
+						buttonText="Home"
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
+				{create && (
+					<OverlayLoading
+						key="overlay-loading"
+						text= <>
+							{link}
+							<br />
+							Copy to join
+						</>
 						buttonText="Home"
 						onQuit={handleQuit}
 						hoverEffect={hoverEffect}
