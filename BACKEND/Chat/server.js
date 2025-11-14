@@ -4,6 +4,8 @@ import cors from "@fastify/cors";
 import fastifySocketIo from "fastify-socket.io";
 import { socketAuth } from "./controller/socketController.js";
 import dotenv from "dotenv";
+import fastifyCookie from "@fastify/cookie";
+import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
 
@@ -14,11 +16,14 @@ await fastify.register(fastifySocketIo, {
 	cors: { origin: "*" }
 });
 
+await fastify.register(fastifyCookie);
+
 await fastify.register(cors, {
-	origin: "*",
-	allowedHeaders: ["Authorization","Content-Type"],
-	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	origin: "http://localhost:5173",
+	credentials: true
 });
+
+fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 
 fastify.register(chatRoutes);
 
@@ -26,13 +31,11 @@ fastify.ready().then(() => {
 	fastify.io.use(socketAuth);
 	
 	fastify.io.on("connection", (socket) => {
-		console.log("A User connected", socket.username);
 		const userName = socket.username;
 		userSocketMap[userName] = socket.id;
 		fastify.io.emit("onlineUser", Object.keys(userSocketMap));
 	
 		socket.on("disconnect", () => {
-			console.log("A User disconnected", socket.username);
 			delete userSocketMap[userName];
 			fastify.io.emit("onlineUser", Object.keys(userSocketMap));
 		});

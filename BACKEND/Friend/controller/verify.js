@@ -1,33 +1,20 @@
-import axios from "axios";
 import db from "../migration.js";
 
-const verifyToken = (req, rep) => {
-	const token = req.headers.authorization;
+const getUsername = async (req, rep) => {
+	const token = req.cookies?.token;
+	if (!token)
+		console.log("\n\nMISSING TOKEN\n\n");
 
-	if (!token || !token.startsWith("Bearer ")) {
-		rep.status(400).send({
-			message: "Bad Request",
-			details: "Bearer Token Missing"
-		});
-	}
-	return token;
-}
-
-const getUsername = async (req, rep, url) => {
-	const token = verifyToken(req, rep);
-	const AuthMeResponse = await axios.get(url, {
-		headers: {
-			Authorization: token
-		}
-	});
-	const loggedInUsername = AuthMeResponse.data.user;
-	
-	if (!loggedInUsername) {
+	try {
+		const decoded = req.server.jwt.decode(token);
+		if (decoded)
+			return decoded.username;
+	} catch(error) {
+		console.log(error.message);
 		rep.status(500).send({
 			error: "Verification service error, failed to fetch username"
 		});
 	}
-	return loggedInUsername;
 }
 
 const isBlocked = (loggedInUsername, checkUsername) => {
@@ -46,4 +33,4 @@ const isBlocked = (loggedInUsername, checkUsername) => {
 	}
 };
 
-export { verifyToken, getUsername, isBlocked };
+export { getUsername, isBlocked };
