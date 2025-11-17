@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { useChat, type UserInterface } from "../../Providers/ChatProvider";
+import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 
-function FriendsList() {
+interface FriendsListProps {
+	friendsList: UserInterface[],
+	searchValue: string, 
+	setSelectedUser: (user: UserInterface) => void
+}
 
-	const { friendsList, searchValue, setSelectedUser } = useChat();
+function FriendsList({ friendsList, searchValue, setSelectedUser }: FriendsListProps) {
 	const [ filteredFriends, setFilteredFriends ] = useState<UserInterface[]>([]);
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
@@ -16,6 +20,7 @@ function FriendsList() {
 		} else {
 			setFilteredFriends(friendsList);
 		}
+		console.log(filteredFriends);
 	}, [searchValue, friendsList]);
 
 	if (friendsList.length === 0 ||

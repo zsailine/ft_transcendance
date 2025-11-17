@@ -1,5 +1,7 @@
 import db from "../migration.js";
 
+const AUTH_URL = "http://localhost:3002/auth/me";
+
 const getUsername = async (req, rep) => {
 	const token = req.cookies?.token;
 	if (!token)
@@ -17,20 +19,16 @@ const getUsername = async (req, rep) => {
 	}
 }
 
-const isBlocked = (loggedInUsername, checkUsername) => {
+const getWhat = async (req, rep, status) => {
 	try {
-		const blocked = db.prepare(`SELECT * FROM friendship WHERE
-			(username_first=? AND username_second=?) OR
-			(username_first=? AND username_second=?)`)
-			.get(loggedInUsername, checkUsername, checkUsername, loggedInUsername);
-		if (!blocked) {
-			return false;
-		} else {
-			return true;
-		}
+		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
+		const toGet = db.prepare(`SELECT * FROM friendship WHERE
+			(username_first=? OR username_second=?) AND status=?`)
+			.all(loggedInUsername, loggedInUsername, status);
+		return toGet;
 	} catch(error) {
-		console.log("Error in fecthing blocked user:", error);
+		console.log("Something went wrong", error.message);
 	}
-};
+}
 
-export { getUsername, isBlocked };
+export { getUsername, getWhat };

@@ -75,4 +75,11 @@ const updateUser = async (req, rep) => {
         });
     }
 }
-export { createUser, getAllUsers, getUserByUsername, updateUser };
+
+const getAvatar = async (req, rep) => {
+    const username = req.params;
+    const avatar = db.prepare("SELECT avatar FROM users WHERE username = ?").get(username);
+    rep.send(avatar);
+}
+
+export { createUser, getAllUsers, getUserByUsername, updateUser, getAvatar };
