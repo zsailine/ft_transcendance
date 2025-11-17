@@ -1,11 +1,40 @@
 import { useChat } from "../../Providers/ChatProvider"
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { GiConsoleController } from "react-icons/gi";
-
+import { AiFillNotification } from "react-icons/ai";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../Providers/AuthProvider";
+import { generateRoom } from "../../Utils/tools";
+import { useNavigate } from "react-router-dom";
 
 function ReceiverHeader() {
-
+	const { socket } = useAuth();
+	const navigate = useNavigate();
 	const { selectedUser } = useChat();
+	const [join, setJoin] = useState(false);
+	const [link, setLink] = useState("");
+
+	function invite ()
+	{
+		if (!socket || !selectedUser) return;
+		const room = generateRoom();
+		const user = selectedUser.username;
+		socket.emit("invite", {user , room});
+		navigate(`/dashboard/play/online?mode=create&link=${room}`);
+	}
+	function joinRoom()
+	{
+		if (!link) return;
+		navigate(`/dashboard/play/online?mode=join&link=${link}`);
+	}
+	useEffect(() => {
+		if (!socket || !selectedUser) return ;
+		setJoin(false);
+		socket.on("join", (room) => {
+			setJoin(true);
+			setLink(room);
+		})
+	}, [socket, selectedUser]);
 
 	return (
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8">
@@ -23,8 +52,11 @@ function ReceiverHeader() {
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica">
 				{selectedUser?.username}
 			</div>
-			<div className="ml-auto mr-6">
-				<GiConsoleController className="size-8 text-cyan-500" />
+			<div className=" flex ml-auto mr-6">
+			{join && (
+				<AiFillNotification className="size-6 mt-1 mr-4 text-cyan-500" onClick={joinRoom} />
+			)}
+				<GiConsoleController className="size-8 text-cyan-500" onClick={invite} />
 			</div>
 		</div>
 	);

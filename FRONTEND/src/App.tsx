@@ -36,14 +36,6 @@ function App() {
               <Route path="/pong" element={<PongGame />} />
               <Route path="/tournament" element={<PongTournament />} />
               <Route path="/login" element={<Login />} />
-              <Route
-                path="/online"
-                element={
-                  <OnlineGameProvider>
-                    <OnlineGame />
-                  </OnlineGameProvider>
-                }
-              />
               <Route path="/register" element={<Login />} />
               <Route
                 path="/dashboard"
