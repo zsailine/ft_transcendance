@@ -1,22 +1,17 @@
 import bcrypt from "bcrypt";
-import  db  from "../migration.js";
+import db from "../migration.js";
 
 const createUser = async (req, rep) => {
     const { username, email, password } = req.body;
-    console.log("*********************\n")
-    console.log(username, email, password)
-    console.log(req.body)
-    if (!username || !email || !password) 
+    if (!username || !email || !password)
         return rep.code(400).send({ error: "username , email and password required" });
     const hashedPassword = await bcrypt.hash(password, 10);
-    try 
-    {
+    try {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         const result = stmt.run(username, email, hashedPassword);
         rep.code(201).send({ id: result.lastInsertRowid, username, email, password: hashedPassword });
-    } 
-    catch (e) 
-    {
+    }
+    catch (e) {
         rep.code(400).send({ error: "username and email must be unique" });
     }
 }
@@ -29,9 +24,55 @@ const getAllUsers = (req, rep) => {
 const getUserByUsername = (req, rep) => {
     const { username } = req.params;
     const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
-    if (!user) 
-      return rep.code(404).send({ error: "User not found" });
+    if (!user)
+        return rep.code(404).send({ error: "User not found" });
     rep.send(user);
 }
 
-export { createUser , getAllUsers , getUserByUsername };
+const updateUser = async (req, rep) => {
+    try {
+        const { username, avatar, cover_image, nickname } = req.body;
+
+        const usernameValue = username?.value || username;
+        const nicknameValue = nickname?.value || nickname;
+
+        let avatarBuffer = null;
+        let coverImageBuffer = null;
+
+        if (avatar && avatar.type === 'file') {
+            try {
+                avatarBuffer = await avatar.toBuffer();
+            } catch (error) {
+            }
+        }
+
+        if (cover_image && cover_image.type === 'file') {
+            try {
+                coverImageBuffer = await cover_image.toBuffer();
+            } catch (error) {
+            }
+        }
+
+        const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
+        const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
+        
+        if (result.changes === 0) {
+            return rep.code(404).send({ error: "User not found" });
+        }
+
+        rep.code(200).send({ 
+            message: "Success", 
+            changes: result.changes,
+            avatarUpdated: !!avatarBuffer,
+            coverImageUpdated: !!coverImageBuffer
+        });
+
+    } catch (error) {
+        console.error("Error processing files:", error);
+        rep.code(500).send({ 
+            error: "Error processing upload",
+            details: error.message 
+        });
+    }
+}
+export { createUser, getAllUsers, getUserByUsername, updateUser };

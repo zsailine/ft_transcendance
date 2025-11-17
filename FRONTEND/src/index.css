@@ -1,3 +1,31 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('../font/HelveticaNeueMedium.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: 'Helvetica Neue Bold';
+  src: url('../font/HelveticaNeueBlack.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.Toastify__toast--success {
+  background-color: rgb(16, 134, 7, 50) !important;
+  color: white !important;
+}
+
+@layer utilities {
+  .font-helvetica {
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+  .font-helvetica-b {
+    font-family: 'Helvetica Neue Bold', sans-serif;
+  }
+}
