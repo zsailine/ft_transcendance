@@ -125,6 +125,7 @@ export default function Login() {
             {!isLogin && (
               <input
                 type="password"
+                name="confirmPassword"
                 placeholder="confirms password"
                 className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
                 onChange={handleChange}

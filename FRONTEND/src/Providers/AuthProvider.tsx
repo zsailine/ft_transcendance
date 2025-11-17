@@ -56,8 +56,11 @@ const AuthProvider = ({children} : any) =>
                 toast.error("User not found !")
                 throw new Error("User not found !")
             }
-            setUser(data.username)
-            return ({success : true})
+            else
+            {
+                setUser(data.username)
+                return ({success : true})
+            }
         }
         catch(err : any)
         {
