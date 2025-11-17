@@ -1,4 +1,5 @@
 import db from "../migration.js";
+import axios from "axios";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -31,4 +32,18 @@ const getWhat = async (req, rep, status) => {
 	}
 }
 
-export { getUsername, getWhat };
+const friendsList = async (req, rep, friends) => {
+	let allFriends;
+	const loggedInUsername = await getUsername(req, rep);
+
+	friends.map(async friend => {
+		let user;
+		friend.username_first === loggedInUsername ?
+			user = friend.username_second : user = friend.username_first;
+		const avatar = await axios.get(`http://localhost:3001/users/${user}/avatar`);
+		console.log(avatar);
+	});
+	return allFriends;
+}
+
+export { getUsername, getWhat, friendsList };
