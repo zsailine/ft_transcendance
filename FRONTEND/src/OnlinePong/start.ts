@@ -1,15 +1,20 @@
 "use strict";
 
 import { Socket } from "socket.io-client";
+import type { ThemeColors } from "../Providers/DashboardProvider";
+import { drawBall, drawPaddles, clearBoard, drawScore } from "../Pong/draw";
+
 
 const sounds = {
 	paddle: new Audio("/sounds/pong.wav"),
 };
 
 export function start(
+	theme: ThemeColors,
 	socket: Socket,
 	onGameStart: () => void,
-	onEnd: (winner: string) => void,): () => void {
+	onEnd: (winner: string) => void,): () => void 
+{
 	const board = document.getElementById("board") as HTMLCanvasElement;
 	const ctx = board.getContext("2d") as CanvasRenderingContext2D;
 	resizeBoard();
@@ -42,11 +47,6 @@ export function start(
 	let ballY: number;
 	let paddleSpeed = board.height / 7;
 
-	const paddle1Color = "lightblue";
-	const paddle2Color = "red";
-	const paddleBorder = "black";
-	const ballColor = "yellow";
-	const ballBorderColor = "black";
 
 	function resizeBoard(): void {
 		board.width = window.innerWidth * 0.8;
@@ -57,53 +57,6 @@ export function start(
 		paddle.width = board.width * 0.02;
 		paddle.height = board.height * 0.15;
 		paddleSpeed = board.height / 7;
-	}
-
-	function drawBall(x: number, y: number): void {
-		ctx.fillStyle = ballColor;
-		ctx.strokeStyle = ballBorderColor;
-		ctx.beginPath();
-		ctx.arc(x, y, ballRadius, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.stroke();
-		ctx.closePath();
-	}
-
-	function drawPaddles(): void {
-		ctx.strokeStyle = paddleBorder;
-
-		ctx.fillStyle = paddle1Color;
-		ctx.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-		ctx.strokeRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-
-		ctx.fillStyle = paddle2Color;
-		ctx.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-		ctx.strokeRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-	}
-
-	function clearBoard(): void {
-		ctx.fillStyle = "forestgreen";
-		ctx.fillRect(0, 0, board.width, board.height);
-	}
-
-	function drawScore(): void {
-		const scale = board.width / 400;
-		const fontSize = 16 * scale;
-
-		ctx.fillStyle = "black";
-		ctx.font = `bold ${fontSize}px Arial`;
-		ctx.textBaseline = "top";
-
-		const score1 = `${paddle2Score}`;
-		const score2 = `${paddle1Score}`;
-
-		const textWidth1 = ctx.measureText(score1).width;
-		const textWidth2 = ctx.measureText(score2).width;
-
-		const center = board.width / 2;
-		const top = board.height * 0.05;
-		ctx.fillText(score1, center + board.width / 10 - textWidth1 / 2, top);
-		ctx.fillText(score2, center - board.width / 10 - textWidth2 / 2, top);
 	}
 
 	function keyHandler(e: KeyboardEvent): void {
@@ -147,10 +100,10 @@ export function start(
 		return (value / base) * current;
 	}
 	socket.on("update", data => {
-		clearBoard();
-		drawScore();
-		drawBall(convert(1, data.ballX), convert(0, data.ballY));
-		drawPaddles();
+		clearBoard(ctx, board, theme.boardBackground);
+		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
+		drawBall(ctx, ballRadius, theme.ball, convert(1, data.ballX), convert(0, data.ballY));
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 	});
 	socket.on("up1", () => {
 		paddle1.y = Math.max(paddle1.y - paddleSpeed, 0);
@@ -164,24 +117,24 @@ export function start(
 	socket.on("down2", () => {
 		paddle2.y = Math.min(board.height - paddle2.height, paddle2.y + paddleSpeed);
 	});
-	socket.on("score", data => {
+	socket.on("score", (data) => {
 		paddle1Score = data.paddle1Score;
 		paddle2Score = data.paddle2Score;
-	});
+});
 	socket.on("finish", data => {
 		socket.disconnect();
-		clearBoard();
-		drawScore();
-		drawPaddles();
-		drawBall(board.width / 2, board.height / 2);
+		clearBoard(ctx, board, theme.boardBackground);
+		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
 		onEnd(data);
 	});
 	socket.on("stop", data => {
 		socket.disconnect();
-		clearBoard();
-		drawScore();
-		drawPaddles();
-		drawBall(board.width / 2, board.height / 2);
+		clearBoard(ctx, board, theme.boardBackground);
+		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
 		onEnd(data);
 	});
 	window.addEventListener("keydown", keyHandler);

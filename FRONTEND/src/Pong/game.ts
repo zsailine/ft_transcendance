@@ -1,5 +1,8 @@
 "use strict";
 
+import type { ThemeColors } from "../Providers/DashboardProvider";
+import { drawBall, drawPaddles, clearBoard, drawScore } from "./draw";
+
 type Paddle = {
   width: number;
   height: number;
@@ -11,7 +14,7 @@ const sounds = {
   paddle: new Audio("/sounds/pong.wav"),
 };
 
-export function initGame(): () => void  {
+export function initGame(theme: ThemeColors): () => void  {
   const board = document.getElementById("board") as HTMLCanvasElement;
   let ctx = board.getContext("2d") as CanvasRenderingContext2D ;
   if (!ctx) throw new Error("Canvas context not found");
@@ -43,12 +46,6 @@ export function initGame(): () => void  {
   let intervalID: number;
   let paddleSpeed = board.height / 7;
 
-  const paddle1Color = "lightblue";
-  const paddle2Color = "red";
-  const paddleBorder = "black";
-  const ballColor = "yellow";
-  const ballBorderColor = "black";
-
   function resizeBoard(): void {
     board.width = window.innerWidth * 0.8;
     board.height = window.innerHeight * 0.7;
@@ -67,53 +64,6 @@ export function initGame(): () => void  {
     ballX = board.width / 2;
     ballY = board.height / 2;
   }
-
-  function drawBall(x: number, y: number): void {
-    ctx.fillStyle = ballColor;
-    ctx.strokeStyle = ballBorderColor;
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
-  }
-
-  function drawPaddles(): void {
-    ctx.strokeStyle = paddleBorder;
-
-    ctx.fillStyle = paddle1Color;
-    ctx.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-    ctx.strokeRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-
-    ctx.fillStyle = paddle2Color;
-    ctx.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-    ctx.strokeRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-  }
-
-  function clearBoard(): void {
-    ctx.fillStyle = "forestgreen";
-    ctx.fillRect(0, 0, board.width, board.height);
-  }
-
-  function drawScore(): void {
-  const scale = board.width / 400;
-  const fontSize = 16 * scale;
-
-  ctx.fillStyle = "black";
-  ctx.font = `bold ${fontSize}px Arial`;
-  ctx.textBaseline = "top";
-
-  const score1 = `${paddle2Score}`;
-  const score2 = `${paddle1Score}`;
-
-  const textWidth1 = ctx.measureText(score1).width;
-  const textWidth2 = ctx.measureText(score2).width;
-
-  const center = board.width / 2;
-  const top = board.height * 0.05;
-  ctx.fillText(score1, center + board.width/10 - textWidth1/2, top);
-  ctx.fillText(score2, center - board.width/10 - textWidth2/2, top);
-}
 
   function moveBall(): void {
     ballX += ballSpeed * ballXDirection;
@@ -155,16 +105,16 @@ export function initGame(): () => void  {
 
   function resetBall(): void {
     createBall();
-    drawScore();
+    drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   }
 
   function nextTick(): void {
     intervalID = window.setTimeout(() => {
-      clearBoard();
-      drawPaddles();
+      clearBoard(ctx, board, theme.boardBackground);
+      drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
       moveBall();
-      drawScore();
-      drawBall(ballX, ballY);
+      drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
+      drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
       nextTick();
     }, 10);
   }
@@ -229,7 +179,7 @@ export function initGame(): () => void  {
 
   // Initialisation
   createBall();
-  drawScore();
+  drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   nextTick();
   window.addEventListener("keydown", keyHandler);
   return () => {

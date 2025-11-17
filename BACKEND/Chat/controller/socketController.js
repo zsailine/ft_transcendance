@@ -5,31 +5,25 @@ dotenv.config();
 
 export const socketAuth = async (socket, next) => {
 	try {
-		const token = socket.handshake.auth?.token;
-		if (!token || !token.startsWith("Bearer ")) {
-			console.log("Invalid token");
+		const token = socket.handshake.headers.cookie;
+		if (!token) {
 			return next(new Error("Unauthorized"));
 		}
 		
-		const decoded = jwt.verify(token.substring(7), process.env.JWT_SECRET);
+		const decoded = jwt.verify(token.substr(6), process.env.JWT_SECRET);
 		if (!decoded) {
-			console.log("Invalid token");
 			return next(new Error("Unauthorized"));
 		}
 
 		const username = decoded.username;
 		if (!username) {
-			console.log("User not found");
 			return next(new Error("User not found"));
 		}
 
 		socket.username = username;
 		next();
-
-		console.log(`Socket authenticated for ${socket.username}`);
-
 	} catch(error) {
-		console.log("Error in socketAuth:", error.message);
+		console.log(error.message);
 		return next(new Error("Unauthorized"));
 	}
 };

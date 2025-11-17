@@ -1,0 +1,6 @@
+ALTER TABLE users ADD COLUMN paddle1_color TEXT DEFAULT '#5c9cd1';
+ALTER TABLE users ADD COLUMN paddle2_color TEXT DEFAULT '#6bd1e6';
+ALTER TABLE users ADD COLUMN ball_color TEXT DEFAULT '#a9e6f9';
+ALTER TABLE users ADD COLUMN board_background TEXT DEFAULT '#101728';
+ALTER TABLE users ADD COLUMN board_border TEXT DEFAULT '#3c4e8b';
+ALTER TABLE users ADD COLUMN score_color TEXT DEFAULT '#3c4e8b';
