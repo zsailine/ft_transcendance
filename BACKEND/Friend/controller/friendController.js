@@ -1,5 +1,5 @@
 import db from "../migration.js";
-import { getUsername, getWhat } from "./verify.js";
+import { friendsList, getUsername, getWhat } from "./verify.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -52,11 +52,13 @@ const getRelationship = async (req, rep) => {
 
 const getAllFriends = async (req, rep) => {
 	try {
-		const loggedInUsername = await getUsername(req, rep);
 		const friends = await getWhat(req, rep, "accepted");
-		friends = friends.forEach(friend => {
-			friend['avatar_first'] = await api
-		});
+		// friends = friends.forEach(friend => {
+		// 	friend['avatar_first'] = await api
+		// });
+		console.log(friends);
+		const listFriends = await friendsList(req, rep, friends);
+		//console.log(listFriends);
 		if (!friends) {
 			return rep.status(200).send([]);
 		} else {
