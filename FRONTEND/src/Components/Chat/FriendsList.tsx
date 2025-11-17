@@ -39,7 +39,7 @@ function FriendsList() {
 											src={getImageUrlFromBlob(friend.avatar.data)?.toString()}
 											className="w-full h-full rounded-full object-cover border border-cyan-500/20"
 								/> :
-								<div className="w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-lg font-semibold border border-cyan-500/20">
+								<div className="font-helvetica w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-lg font-semibold border border-cyan-500/20">
 									{friend.username?.at(0)?.toUpperCase()}
 								</div>}
 							</div>

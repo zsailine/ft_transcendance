@@ -6,6 +6,6 @@
 (cd BACKEND/OnlinePong && npm install) &
 (cd BACKEND/User && npm install) &
 (cd BACKEND/Chat && npm install) &
-(cd BACKEND/Friend && npm i) &
+(cd BACKEND/Friend && npm install) &
 
 wait
