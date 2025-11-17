@@ -1,10 +1,14 @@
 const getImageUrlFromBlob = (data: any): string | null => {
     let url: string | null = null;
+    let uint8Array;
 
     if (data) {
         try {
-            const uint8Array = new Uint8Array(data);
-            const blob = new Blob([uint8Array], { type: 'image/png' });
+            if (data.data)
+                uint8Array = new Uint8Array(data.data);
+            else
+                uint8Array = new Uint8Array(data);
+            const blob = new Blob([uint8Array], { type: 'image/jpeg' });
             url = URL.createObjectURL(blob);
             return url;
         } catch (error) {
@@ -12,7 +16,6 @@ const getImageUrlFromBlob = (data: any): string | null => {
             return null;
         }
     }
-
     return null;
 }
 
