@@ -1,4 +1,3 @@
-
 import Fastify from "fastify";
 import Database from "better-sqlite3";
 import userRoutes from "./routes/userRoutes.js";
@@ -9,9 +8,8 @@ import fastifyMultipart from "@fastify/multipart";
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-  origin: "*",
-  allowedHeaders: ["Authorization","Content-Type"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: "http://localhost:5173",
+    credentials: true
 })
 
 fastify.decorate("db", new Database("./data/users.db"));

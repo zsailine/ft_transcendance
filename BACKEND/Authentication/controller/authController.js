@@ -12,16 +12,29 @@ const loggedUser = async (req , rep) => {
         return rep.code(401).send({ error: "invalid password" });
 
     const token = req.server.jwt.sign({ username: user.data.username , id: user.data.id });
-    rep.header("Authorization" , `Bearer ${token}`);
+    // rep.header("Authorization" , `Bearer ${token}`);
+    rep.setCookie("token" , token , {
+        httpOnly : true,
+        sameSite : "lax",
+        path : "/"
+    });
 
     return rep.send({
-        token : token,
         username  : username 
     });
 }
 
+const logout = async (req , rep) => {
+    rep.clearCookie("token" , {
+        httpOnly : true,
+        sameSite : "lax",
+        path : "/"
+    });
+    return rep.send({ message : "logged out successfully"});
+}
+
 const verify = async (req , rep) => {
-    const token = req.headers.authorization?.replace("Bearer " , "")
+    const token = req.cookies?.token;
     if (!token)
     {   
         rep.code(401).send({error: "No token"})
@@ -39,4 +52,4 @@ const verify = async (req , rep) => {
     }
 }
 
-export { loggedUser , verify};
+export { loggedUser , verify ,logout};

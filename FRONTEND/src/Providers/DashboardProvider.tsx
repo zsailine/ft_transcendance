@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
 
-
 export interface ImageBuffer {
   type: "Buffer";
   data: number[];
@@ -41,7 +40,7 @@ export const DashboardProvider = ({children} : any) =>
         if (user)
         {           
             try {
-                const response = await api.get(`/users/${user}`);
+                const response = await api.get(`/users/${user}`); 
                 setNickname(response.data.nickname);
                 setAvatar(response.data.avatar);
                 setCoverImage(response.data.cover_image);
