@@ -41,21 +41,17 @@ function MessageList() {
 
 	return (
 	<div className="m-8 text-white overflow-y-auto h-[600px]">
-		<ul className="flex flex-col gap-5">
+		<ul className="flex flex-col gap-5 font-helvetica">
 		{messages.map(message => 
 			<li key={message.id}
 				className={message.receiver_username === selectedUser?.username ? senderStyle : receiverStyle }>
 
 				{message.image && (
 					<img alt="preview"
-					src={((message.receiver_username === selectedUser?.username) ?
-						getImageUrlFromBlob(message.image.data) :
-						getImageUrlFromBlob(message.image)) || ""
-					}
+					src={(getImageUrlFromBlob(message.image)) || ""}
 					className="max-w-l max-h-60 rounded-lg mt-1"
 					onLoad={() => {bottomScroll.current?.scrollIntoView({behavior: "smooth"})}}/>
 				)}
-
 				{message.text && <div className="text-lg">{message.text}</div>}
 
 				<div className={`text-xs ${
