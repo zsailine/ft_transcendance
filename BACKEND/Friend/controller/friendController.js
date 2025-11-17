@@ -1,5 +1,5 @@
 import db from "../migration.js";
-import { getUsername, isBlocked } from "./verify.js";
+import { getUsername, getWhat } from "./verify.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -34,10 +34,6 @@ const getRelationship = async (req, rep) => {
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't get relationship with yourself" }); }
-		if (isBlocked(loggedInUsername, receiverUsername)) {
-			rep.status(200).send({ status: "blocked" });
-			return;
-		}
 		const status = db.prepare(`SELECT * FROM friendship WHERE
 			(username_first=? AND username_second=?) OR
 			(username_first=? AND username_second=?)`)
@@ -56,18 +52,19 @@ const getRelationship = async (req, rep) => {
 
 const getAllFriends = async (req, rep) => {
 	try {
-		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
-		const friends = db.prepare(`SELECT * FROM friendship WHERE
-			(username_first=? OR username_second=?) AND status=?`)
-			.all(loggedInUsername, loggedInUsername, "accepted");
+		const loggedInUsername = await getUsername(req, rep);
+		const friends = await getWhat(req, rep, "accepted");
+		friends = friends.forEach(friend => {
+			friend['avatar_first'] = await api
+		});
 		if (!friends) {
-			rep.status(200).send([]);
+			return rep.status(200).send([]);
 		} else {
-			rep.status(200).send(friends);
+			return rep.status(200).send(friends);
 		}
 	} catch(error) {
 		rep.status(500).send({
-			error: "Cannot send friend request"
+			error: "Cannot send fetch friends"
 		});
 	}
 }
@@ -89,7 +86,7 @@ const acceptRequest = async (req, rep) => {
 		}
 	} catch(error) {
 		rep.status(500).send({
-			error: "Cannot send friend request"
+			error: "Cannot accept friend request"
 		});
 	}
 }
@@ -99,7 +96,7 @@ const declineRequest = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
-			rep.status(400).send({ error: "Can't accept your own request" }); }
+			rep.status(400).send({ error: "Can't decline your own request" }); }
 		const request = db.prepare(`UPDATE friendship SET status='declined' WHERE
 			(username_first=? AND username_second=?) OR
 			(username_first=? AND username_second=?)`)
@@ -111,9 +108,54 @@ const declineRequest = async (req, rep) => {
 		}
 	} catch(error) {
 		rep.status(500).send({
-			error: "Cannot send friend request"
+			error: "Cannot decline friend request"
 		});
 	}
 }
 
-export { sendFriendRequest, getRelationship, getAllFriends, acceptRequest, declineRequest };
+const blockUser = async (req, rep) => {
+	try {
+		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
+		const receiverUsername = req.params.username;
+		if (loggedInUsername === receiverUsername) {
+			rep.status(400).send({ error: "Can't block yourself" }); }
+		const request = db.prepare(`UPDATE friendship SET status='blocked' WHERE
+			(username_first=? AND username_second=?) OR
+			(username_first=? AND username_second=?)`)
+			.run(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+		if (request.changes > 0) {
+			rep.status(200).send({ status: "User blocked" });
+		} else {
+			rep.status(404).send({ status: "User not found" });
+		}
+	} catch(error) {
+		rep.status(500).send({
+			error: "Cannot block user"
+		});
+	}
+}
+
+const getFriendRequests = async (req, rep) => {
+	try {
+		const requests = await getWhat(req, rep, "pending");
+		if (!requests) {
+			return rep.status(200).send([]);
+		} else {
+			return rep.status(200).send(requests);
+		}
+	} catch(error) {
+		rep.status(500).send({
+			error: "Cannot fetch requests list"
+		});
+	}
+}
+
+export {
+	sendFriendRequest,
+	getRelationship,
+	getAllFriends,
+	acceptRequest,
+	declineRequest,
+	blockUser,
+	getFriendRequests 
+};

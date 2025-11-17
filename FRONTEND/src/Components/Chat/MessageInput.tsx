@@ -42,7 +42,7 @@ function MessageInput() {
 	const removeImage = () => setImage(null);
 
 	return (
-	<div className="ml-8 mr-8 font-helvetica">
+	<div className="ml-8 mr-8 font-helvetica mb-8">
 
 		{image && (
 			<div className="max-w-3xl mx-auto mb-3 ml-16 flex items-center">
