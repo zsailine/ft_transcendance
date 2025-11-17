@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 const userSocketMap = {};
 
 await fastify.register(fastifySocketIo, {
@@ -30,7 +30,11 @@ fastify.ready().then(() => {
 		const userName = socket.username;
 		userSocketMap[userName] = socket.id;
 		fastify.io.emit("onlineUser", Object.keys(userSocketMap));
-	
+		socket.on("invite", (data) => {
+			const receiverSocket = userSocketMap[data.user]
+			if (receiverSocket)
+				fastify.io.to(receiverSocket).emit("join", data.room);
+		});
 		socket.on("disconnect", () => {
 			console.log("A User disconnected", socket.username);
 			delete userSocketMap[userName];

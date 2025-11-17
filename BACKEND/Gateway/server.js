@@ -4,11 +4,11 @@ import dotenv from "dotenv";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
-const fastify = Fastify({ logger: true });  
+const fastify = Fastify({ logger: false });
 
-fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
+fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 
-fastify.decorate("authenticate", async function(request, reply) {
+fastify.decorate("authenticate", async function (request, reply) {
   try {
     if (request.url.startsWith("/auth") || request.url === "/users/register" ||
       request.url.startsWith("/socket.io")) {
@@ -16,7 +16,7 @@ fastify.decorate("authenticate", async function(request, reply) {
     }
     if (request.method === 'OPTIONS') {
       return;
-  }
+    }
     await request.jwtVerify();
   } catch (err) {
     reply.code(401).send({ error: "Unauthorized" });

@@ -1,12 +1,14 @@
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom";
+import React from "react";
 
-
-const Play = () => {
+const PlayComponent = () => {
     return (
         <div className="">
-            < Outlet />
+            <Outlet />
         </div>
-    )
-}
+    );
+};
 
-export default Play
+const Play = React.memo(PlayComponent);
+
+export default Play;

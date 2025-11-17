@@ -6,20 +6,10 @@ import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
 import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
-import { AnimatePresence } from "framer-motion";
+import { alpha, AnimatePresence } from "framer-motion";
 import { useOnlineGame } from "../../Providers/OnlineGameProvider.tsx";
 import OverlayInput from "../../Components/pong/OverlayInput.tsx";
-
-export function generateRoom() {
-	const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMBNOPQRSTUVWXYZ123456789"
-	let i = 0;
-	let result = "";
-	while (i < 26) {
-		result += alphabet[Math.floor(Math.random() * 61)];
-		i++;
-	}
-	return (result);
-}
+import { generateRoom } from "../../Utils/tools.ts";
 
 function OnlineGame() {
 	const [loading, setLoading] = useState(false);
@@ -33,29 +23,38 @@ function OnlineGame() {
 	const [role, setRole] = useState<string>("");
 	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
+	const [enter, setEnter] = useState(false);
 	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
 	const { theme, username } = useDashboard();
-	const { text } = useOnlineGame();
+	const { text, setText } = useOnlineGame();
 	const navigate = useNavigate();
 	const location = useLocation();
 
 	const queryParams = new URLSearchParams(location.search);
 	const mode = queryParams.get("mode") || "quick";
-
+	const path = queryParams.get("link") || "";
 
 	useEffect(() => {
+		if (!username) return;
 		const s = io("http://localhost:3005/");
 		setSocket(s);
+		console.log("the mde is "+ mode);
 		if (mode === "create") {
-			const room = generateRoom();
+			const room = path.length > 0 ? path : generateRoom();
 			setLink(room);
 			setCreate(true);
 			s.emit("create quick", { username, room });
 		}
 		else if (mode === "join") {
-			setJoin(true);
+			if (path.length)
+			{
+				setText(path);
+				setEnter(true);
+			}
+			else
+				setJoin(true);
 		}
-		else {
+		else if (mode === "quick") {
 			s.emit("quick", username);
 			setLoading(true);
 		}
@@ -78,7 +77,7 @@ function OnlineGame() {
 		return () => {
 			s.disconnect();
 		};
-	}, []);
+	}, [username]);
 	useEffect(() => {
 		if (opponent.length && role.length && username)
 			role === "player1" ? setPLayer([username, opponent]) : setPLayer([opponent, username]);
@@ -100,6 +99,10 @@ function OnlineGame() {
 			clean();
 		};
 	}, [begin, socket]);
+	useEffect(() => {
+		if (text.length && enter)
+			joinRoom(null);
+	}, [text, enter]);
 
 
 	function handleQuit() {
@@ -108,8 +111,10 @@ function OnlineGame() {
 			navigate("/dashboard/play");
 		}
 	}
-	function joinRoom(e: React.FormEvent) {
-		e.preventDefault();
+	function joinRoom(e: React.FormEvent | null) {
+		if (e !== null)
+			e.preventDefault();
+		console.log("the path is " + text);
 		socket?.emit("join quick", { username, text });
 	}
 	return (

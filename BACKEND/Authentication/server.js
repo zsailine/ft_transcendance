@@ -6,7 +6,7 @@ import fastifyJwt from "@fastify/jwt";
 import cors from '@fastify/cors'
 
 dotenv.config();
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 
 await fastify.register(cors, {
   origin: "*"

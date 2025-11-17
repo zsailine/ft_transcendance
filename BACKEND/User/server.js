@@ -5,7 +5,7 @@ import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
 
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 
 await fastify.register(cors, {
   origin: "*",

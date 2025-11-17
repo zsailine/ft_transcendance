@@ -16,7 +16,7 @@ export default function OverlayLoading({ text, buttonText, onQuit, hoverEffect }
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: -30 }}
 			transition={{ duration: 1, ease: "easeOut" }}
-			className="absolute z-10 top-0 w-full h-full flex flex-col items-center justify-center 
+			className="absolute z-10 top-0 h-full w-full flex flex-col items-center justify-center 
 			bg-black/30 backdrop-blur-[2px] text-white"
 		>
 			<h1 className="text-4xl text-center font-bold mb-6">
