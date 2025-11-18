@@ -33,7 +33,12 @@ function process(socket) {
     socket.on("join quick", data => {
         joinRoom(AllMode, privateRooms, socket, data);
     })
-
+    socket.on("invite", (data) => {
+        if (privateRooms.has(data.room))
+            joinRoom(AllMode, privateRooms, socket, data);
+        else
+            createRoom(AllMode, privateRooms, socket, data);
+    })
     socket.on("disconnect", () => {
         removeSocket(socket, AllMode, waitingPlayers, privateRooms);
     });
