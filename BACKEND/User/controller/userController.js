@@ -77,15 +77,15 @@ const updateUser = async (req, rep) => {
 }
 
 const getAvatar = async (req, rep) => {
-    const username = req.params;
-    console.log( "\n\n",username);
-    try {
-        const avatar = db.prepare("SELECT avatar FROM users WHERE username = ?").get(username);
-        console.log(avatar);
-    } catch(error) {
-        console.log("DN", error.message);
-    }
-    rep.send(avatar);
+    const { username } = req.params;
+    const avatar = db.prepare("SELECT avatar FROM users WHERE username = ?").get(username);
+    return rep.status(200).send(avatar);
 }
 
-export { createUser, getAllUsers, getUserByUsername, updateUser, getAvatar };
+const getId = async (req, rep) => {
+    const { username } = req.params;
+    const id = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
+    return rep.status(200).send(id);
+}
+
+export { createUser, getAllUsers, getUserByUsername, updateUser, getAvatar, getId };

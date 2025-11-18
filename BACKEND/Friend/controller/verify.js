@@ -33,16 +33,22 @@ const getWhat = async (req, rep, status) => {
 }
 
 const friendsList = async (req, rep, friends) => {
-	let allFriends;
+	let allFriends = [];
 	const loggedInUsername = await getUsername(req, rep);
 
-	friends.map(async friend => {
+	const friendPromises = friends.map(async friend => {
 		let user;
 		friend.username_first === loggedInUsername ?
 			user = friend.username_second : user = friend.username_first;
 		const avatar = await axios.get(`http://localhost:3001/users/${user}/avatar`);
-		console.log(avatar);
+		const id = await axios.get(`http://localhost:3001/users/${user}/id`);
+		return ({
+			id: id.data.id,
+			username: user,
+			avatar: avatar.data.avatar
+		});
 	});
+	allFriends = await Promise.all(friendPromises);
 	return allFriends;
 }
 

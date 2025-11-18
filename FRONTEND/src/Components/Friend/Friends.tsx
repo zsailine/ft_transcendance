@@ -4,8 +4,9 @@ import FriendsList from "../Chat/FriendsList";
 import SearchBar from "../Chat/SearchBar";
 
 function Friends() {
-	const { friendsList } = useChat();
-	const { searchValue, setSearchValue, setSelectedUser } = useFriend();
+	const { friendsList, setSelectedUser } = useChat();
+	const { searchValue, setSearchValue } = useFriend();
+
   return (
 	<div className="flex flex-col gap-10">
 		<SearchBar
@@ -14,7 +15,8 @@ function Friends() {
 		<FriendsList
 			friendsList={friendsList}
 			searchValue={searchValue}
-			setSelectedUser={setSelectedUser}/>
+			setSelectedUser={setSelectedUser}
+			message={false}/>
 	</div>
   )
 }

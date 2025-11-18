@@ -8,18 +8,12 @@ interface FriendProviderProps {
 	children: ReactNode;
 };
 
-// interface UserFriendInterface {
-// 	od
-// }
-
 interface FriendInterface {
-	// friendsList
 	friendRequests: UserInterface[],
 	setFriendRequests: (friendRequests: UserInterface[]) => void,
-	selectedUser: UserInterface | null,
-	setSelectedUser: (user: UserInterface | null) => void,
 	searchValue: string,
-	setSearchValue: (searchValue: string) => void
+	setSearchValue: (searchValue: string) => void,
+	notFriends: (search: string) => UserInterface[]
 };
 
 const FriendContext = createContext<FriendInterface | null>(null);
@@ -28,7 +22,6 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 
 	const [ friendRequests, setFriendRequests ] = useState<UserInterface[]>([]);
 	const [ searchValue, setSearchValue ] = useState<string>("");
-	const [ selectedUser, setSelectedUser ] = useState<UserInterface | null>(null);
 	const { user } = useAuth();
 
 	const fetchFriendRequests = async () => {
@@ -42,11 +35,22 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			toast.error(`Something went wrong`);
 		}
 	}
+
+	const notFriends = async (search: string) => {
+		try {
+			const response = await api.get("/users/all");
+			if (response) {
+				
+			}
+		} catch(error) {
+			console.log("Error in getting search");
+			toast.error("Something went wrong");
+		}
+	}
 	
 	useEffect(() => {
 		if (user) {
 			setSearchValue("");
-			setSelectedUser(null);
 			fetchFriendRequests();
 		}
 	}, [user]);
@@ -54,7 +58,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const value = {
 		friendRequests, setFriendRequests,
 		searchValue, setSearchValue,
-		selectedUser, setSelectedUser
+		notFriends
 	};
 
 	return (
