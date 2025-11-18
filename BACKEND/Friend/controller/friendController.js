@@ -53,16 +53,11 @@ const getRelationship = async (req, rep) => {
 const getAllFriends = async (req, rep) => {
 	try {
 		const friends = await getWhat(req, rep, "accepted");
-		// friends = friends.forEach(friend => {
-		// 	friend['avatar_first'] = await api
-		// });
-		console.log(friends);
 		const listFriends = await friendsList(req, rep, friends);
-		//console.log(listFriends);
-		if (!friends) {
+		if (!listFriends) {
 			return rep.status(200).send([]);
 		} else {
-			return rep.status(200).send(friends);
+			return rep.status(200).send(listFriends);
 		}
 	} catch(error) {
 		rep.status(500).send({

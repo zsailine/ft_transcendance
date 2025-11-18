@@ -1,4 +1,10 @@
-import { createUser , getAllUsers , getAvatar, getUserByUsername, updateUser } from "../controller/userController.js";
+import {  createUser,
+          getAllUsers,
+          getAvatar,
+          getUserByUsername,
+          updateUser,
+          getId
+} from "../controller/userController.js";
 
 export default async function userRoutes(fastify) {
   const db = fastify.db;
@@ -8,6 +14,8 @@ export default async function userRoutes(fastify) {
   fastify.get("/users/:username", { handler: getUserByUsername });
 
   fastify.get("/users/:username/avatar", { handler: getAvatar });
+
+  fastify.get("/users/:username/id", { handler: getId });
 
   fastify.post("/users/register", { handler: createUser });
 

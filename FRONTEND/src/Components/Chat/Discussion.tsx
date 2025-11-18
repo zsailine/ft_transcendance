@@ -20,7 +20,8 @@ function Discussion() {
 					<FriendsList
 						friendsList={friendsList}
 						searchValue={searchValue}
-						setSelectedUser={setSelectedUser}/>
+						setSelectedUser={setSelectedUser}
+						message={true} />
 				</div>
 
 				<div className="w-px border-1 border-cyan-500/20 h-full"></div>
