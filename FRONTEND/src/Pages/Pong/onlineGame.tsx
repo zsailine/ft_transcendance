@@ -23,6 +23,7 @@ function OnlineGame() {
 	const [role, setRole] = useState<string>("");
 	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
 	const [enter, setEnter] = useState(false);
 	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
 	const { theme, username } = useDashboard();
@@ -38,7 +39,6 @@ function OnlineGame() {
 		if (!username) return;
 		const s = io("http://localhost:3005/");
 		setSocket(s);
-		console.log("the mde is "+ mode);
 		if (mode === "create") {
 			const room = path.length > 0 ? path : generateRoom();
 			setLink(room);
@@ -46,8 +46,7 @@ function OnlineGame() {
 			s.emit("create quick", { username, room });
 		}
 		else if (mode === "join") {
-			if (path.length)
-			{
+			if (path.length) {
 				setText(path);
 				setEnter(true);
 			}
@@ -58,6 +57,14 @@ function OnlineGame() {
 			s.emit("quick", username);
 			setLoading(true);
 		}
+		else if (mode === "invite")
+		{
+			const room = path.length ? path : generateRoom();
+			s.emit("invite", {room, username});
+			setLoading(true);
+		}
+		else
+			displayError("Oops an error occured");
 		s.on("ready", () => {
 			setBegin(true);
 		});
@@ -69,11 +76,14 @@ function OnlineGame() {
 			setOpponent(data);
 		})
 		s.on("duplicate", () => {
-			setLoading(false);
-			setJoin(false);
-			setCreate(false);
-			setError(true);
+			displayError("You are already on a match");
 		});
+		s.on("exist", () => {
+			displayError("This room already exist");
+		})
+		s.on("don't exist", () => {
+			displayError("This room doesn't exist");
+		})
 		return () => {
 			s.disconnect();
 		};
@@ -100,11 +110,17 @@ function OnlineGame() {
 		};
 	}, [begin, socket]);
 	useEffect(() => {
-		if (text.length && enter)
+		if (socket && text.length && enter)
 			joinRoom(null);
-	}, [text, enter]);
+	}, [socket, text, enter]);
 
-
+	function displayError(text: string) {
+		setLoading(false);
+		setJoin(false);
+		setCreate(false);
+		setError(true);
+		setErrorMessage(text);
+	}
 	function handleQuit() {
 		if (socket) {
 			socket?.disconnect();
@@ -114,8 +130,8 @@ function OnlineGame() {
 	function joinRoom(e: React.FormEvent | null) {
 		if (e !== null)
 			e.preventDefault();
-		console.log("the path is " + text);
-		socket?.emit("join quick", { username, text });
+		const room = text;
+		socket?.emit("join quick", { username, room });
 	}
 	return (
 		<div className="h-full">
@@ -172,7 +188,7 @@ function OnlineGame() {
 				{error && (
 					<OverlayLoading
 						key="overlay-loading"
-						text="You are already on a match"
+						text={errorMessage}
 						buttonText="Home"
 						onQuit={handleQuit}
 						hoverEffect={hoverEffect}

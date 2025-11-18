@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext, useEffect, useRef } from "react";
 import api from "../Utils/axios";
 import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
@@ -33,6 +33,7 @@ const AuthProvider = ({children} : any) =>
 	const [loading, setLoading] = useState<boolean>(true)
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+	const lastJoinUser = useRef<string | null>(null);
 
 	useEffect(() => {
 	if (user) {
@@ -42,10 +43,28 @@ const AuthProvider = ({children} : any) =>
 	}
 	}, [user]);
 
-	const login = async (username: string , password:string) =>
-	{
-		try
-		{
+	useEffect(() => {
+		if (token)
+			verifyToken()
+		else
+			setLoading(false)
+		const interval = setInterval(() => {
+			lastJoinUser.current = null;
+		}, 10_000);
+		return (() => {
+			clearInterval(interval);
+		})
+	}, []);
+
+	useEffect(() => {
+		if (user && token) {
+			connectSocket()
+		} else if (!user && socket?.connected) {
+			disconnectSocket();
+		}
+	}, [user, token]);
+	const login = async (username: string, password: string) => {
+		try {
 			const postData = {
 				username : username,
 				password :password
@@ -107,6 +126,12 @@ const AuthProvider = ({children} : any) =>
 		newSocket.on("connect", () => { });
 		newSocket.on("onlineUser", (usernames: string[]) => {
 			setOnlineUsers(usernames);
+		});
+		newSocket.on("join", (data) => {
+			if (lastJoinUser.current === data.user) return;
+
+			lastJoinUser.current = data.user;
+			toast.success(`${data.user} invited you to play`);
 		});
 		setSocket(newSocket);
 	};

@@ -55,6 +55,11 @@ export function createRoom(AllMode, privateRooms, socket, data) {
         socket.emit("duplicate");
         return;
     }
+    if (privateRooms.has(room))
+    {
+        socket.emit("exist");
+        return ;
+    }
     socket.username = username;
     AllMode.set(username, socket);
     privateRooms.set(room, {
@@ -65,22 +70,22 @@ export function createRoom(AllMode, privateRooms, socket, data) {
 }
 
 export function joinRoom(AllMode, privateRooms, socket, data) {
-    const { username, text } = data;
+    const { username, room } = data;
 
     if (AllMode.has(username)) {
         socket.emit("duplicate");
         return;
     }
-    const roomData = privateRooms.get(text);
+    const roomData = privateRooms.get(room);
     if (!roomData) {
-        console.error("Room not found:", text);
+        socket.emit("don't exist");
         return;
     }
 
     const { username: username1, owner: player1 } = roomData;
     const username2 = username;
     const player2 = socket;
-    privateRooms.delete(text);
+    privateRooms.delete(room);
 
-    init(text, player1, username1, player2, username2);
+    init(room, player1, username1, player2, username2);
 }
