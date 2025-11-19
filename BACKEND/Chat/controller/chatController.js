@@ -26,9 +26,17 @@ const getAllContacts = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep);
 		const allUsers = await axios.get(`${USER_URL}/all`);
 		const contacts = allUsers.data.filter(user => user.username !== loggedInUsername);
+		let filtered = [];
 
-		if (contacts) {
-			return rep.status(200).send(contacts);	
+		contacts.map((one) => {
+			filtered.push({
+				id: one.id,
+				username: one.username,
+				avatar: one.avatar
+			})
+		});
+		if (filtered) {
+			return rep.status(200).send(filtered);
 		}
 
 	} catch(error) {

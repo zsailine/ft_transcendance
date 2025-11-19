@@ -14,6 +14,7 @@ await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
 	origin: "http://localhost:5173",
+	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });
 

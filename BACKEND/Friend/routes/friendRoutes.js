@@ -1,4 +1,12 @@
-import { acceptRequest, blockUser, declineRequest, getAllFriends, getFriendRequests, getRelationship, sendFriendRequest } from "../controller/friendController.js";
+import {
+	acceptRequest, 
+	blockUser,
+	declineRequest,
+	getAllFriends,
+	getFriendRequests,
+	getRelationship,
+	sendFriendRequest
+} from "../controller/friendController.js";
 
 export default async function friendRoutes(fastify) {
 

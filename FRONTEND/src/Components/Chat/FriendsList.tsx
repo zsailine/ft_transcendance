@@ -4,6 +4,8 @@ import { getImageUrlFromBlob } from "../../Utils/blob";
 import { GrSend } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { IoMdPersonAdd } from "react-icons/io";
+import { BiUserCheck } from "react-icons/bi";
+import { useFriend } from "../../Providers/FriendProvider";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -14,6 +16,8 @@ interface FriendsListProps {
 
 function FriendsList({ friendsList, searchValue, setSelectedUser, message }: FriendsListProps) {
 	const [ filteredFriends, setFilteredFriends ] = useState<UserInterface[]>([]);
+	const [ added, setAdded ] = useState<boolean>(false);
+	const { addFriend } = useFriend();
 	const navigate = useNavigate();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
@@ -22,6 +26,13 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 		setSelectedUser(friend);
 		console.log(friend);
 		navigate("/dashboard/discussion");
+	}
+
+	const handleSent = (friend: UserInterface) => {
+		addFriend(friend);
+		const text = document.getElementById('add-text') as HTMLHeadingElement;
+		text.textContent = "Sent";
+		setAdded(true);
 	}
 	
 	useEffect(() => {
@@ -64,9 +75,12 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 							</div>
 						</div>
 						{message !== "message" ? (message === "research" ?
-						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl">
-							<h1 className="font-helvetica">Add</h1>
-							<IoMdPersonAdd className="text-2xl"/>
+						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
+							onClick={() => handleSent(friend)}>
+							<h1 className="font-helvetica" id="add-text">Add</h1>
+							<div id="add-icon" className="text-2xl">
+								{!added ? <IoMdPersonAdd/> : <BiUserCheck/>}
+							</div>
 						</div> :
 						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
 							onClick={() => handleMessageClick(friend)}>
