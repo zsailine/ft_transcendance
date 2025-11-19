@@ -1,13 +1,14 @@
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { GrSend } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
+import { IoMdPersonAdd } from "react-icons/io";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
 	searchValue: string,
-	message: boolean,
+	message: string,
 	setSelectedUser: (user: UserInterface) => void
 }
 
@@ -62,12 +63,16 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 								{friend.username}
 							</div>
 						</div>
-						{message === false ? 
+						{message !== "message" ? (message === "research" ?
+						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl">
+							<h1 className="font-helvetica">Add</h1>
+							<IoMdPersonAdd className="text-2xl"/>
+						</div> :
 						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
 							onClick={() => handleMessageClick(friend)}>
 							<h1 className="font-helvetica">Message</h1>
 							<GrSend className="text-2xl"/>
-						</div>
+						</div>)
 							: <></>}
 					</li> )}
 			</ul>

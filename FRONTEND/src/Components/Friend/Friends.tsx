@@ -16,7 +16,7 @@ function Friends() {
 			friendsList={friendsList}
 			searchValue={searchValue}
 			setSelectedUser={setSelectedUser}
-			message={false}/>
+			message={"friends"}/>
 	</div>
   )
 }
