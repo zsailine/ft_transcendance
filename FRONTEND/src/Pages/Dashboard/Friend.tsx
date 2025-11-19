@@ -1,10 +1,13 @@
+import FriendTabSwitch from "../../Components/Friend/FriendTabSwitch";
+import ChatBorder from "../Chat/ChatBorder";
 
 const Friend = () => {
-    return (<div>
-        <h1>
-            Friend Page
-        </h1>
-    </div>
+	return (
+	<ChatBorder>
+		<div className="flex justify-center w-full">
+			<FriendTabSwitch/>
+		</div>
+	</ChatBorder>
 );
 }
 export default Friend;

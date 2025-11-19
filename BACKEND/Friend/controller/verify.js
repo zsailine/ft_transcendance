@@ -1,4 +1,7 @@
 import db from "../migration.js";
+import axios from "axios";
+
+const AUTH_URL = "http://localhost:3002/auth/me";
 
 const getUsername = async (req, rep) => {
 	const token = req.cookies?.token;
@@ -17,20 +20,36 @@ const getUsername = async (req, rep) => {
 	}
 }
 
-const isBlocked = (loggedInUsername, checkUsername) => {
+const getWhat = async (req, rep, status) => {
 	try {
-		const blocked = db.prepare(`SELECT * FROM friendship WHERE
-			(username_first=? AND username_second=?) OR
-			(username_first=? AND username_second=?)`)
-			.get(loggedInUsername, checkUsername, checkUsername, loggedInUsername);
-		if (!blocked) {
-			return false;
-		} else {
-			return true;
-		}
+		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
+		const toGet = db.prepare(`SELECT * FROM friendship WHERE
+			(username_first=? OR username_second=?) AND status=?`)
+			.all(loggedInUsername, loggedInUsername, status);
+		return toGet;
 	} catch(error) {
-		console.log("Error in fecthing blocked user:", error);
+		console.log("Something went wrong", error.message);
 	}
-};
+}
 
-export { getUsername, isBlocked };
+const friendsList = async (req, rep, friends) => {
+	let allFriends = [];
+	const loggedInUsername = await getUsername(req, rep);
+
+	const friendPromises = friends.map(async friend => {
+		let user;
+		friend.username_first === loggedInUsername ?
+			user = friend.username_second : user = friend.username_first;
+		const avatar = await axios.get(`http://localhost:3001/users/${user}/avatar`);
+		const id = await axios.get(`http://localhost:3001/users/${user}/id`);
+		return ({
+			id: id.data.id,
+			username: user,
+			avatar: avatar.data.avatar
+		});
+	});
+	allFriends = await Promise.all(friendPromises);
+	return allFriends;
+}
+
+export { getUsername, getWhat, friendsList };
