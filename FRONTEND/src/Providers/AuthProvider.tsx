@@ -1,18 +1,18 @@
-import { useState, createContext, useContext, useEffect } from "react";
+import { useState, createContext, useContext, useEffect, useRef } from "react";
 import api from "../Utils/axios";
 import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
 
 interface AuthInterface {
-    user : string | null,
-    login : (username:string, password:string) => any,
-    register : (username:string, password:string, email:string) => any, 
-    logout : () => void,
-    setUser : (username:string | null) => void,
-    setLoading : (loading : boolean) => void,
-    loading : boolean,
-    isAuthenticated : boolean,
-    socket: Socket | null,
+	user : string | null,
+	login : (username:string, password:string) => any,
+	register : (username:string, password:string, email:string) => any, 
+	logout : () => void,
+	setUser : (username:string | null) => void,
+	setLoading : (loading : boolean) => void,
+	loading : boolean,
+	isAuthenticated : boolean,
+	socket: Socket | null,
 	onlineUsers: string[],
 	connectSocket: () => void,
 	disconnectSocket: () => void
@@ -29,12 +29,27 @@ const useAuth = () => {
 
 const AuthProvider = ({children} : any) =>
 {
-    const [user, setUser] = useState<string | null>(null)
-    const [loading, setLoading] = useState<boolean>(true)
-    const [socket, setSocket] = useState<Socket | null>(null);
+	const [user, setUser] = useState<string | null>(null)
+	const [loading, setLoading] = useState<boolean>(true)
+	const [socket, setSocket] = useState<Socket | null>(null);
 	const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+	const lastJoinUser = useRef<string | null>(null);
 
-    	useEffect(() => {
+	useEffect(() => {
+	if (user) {
+		connectSocket()
+	} else if (!user && socket?.connected) {
+		disconnectSocket();
+	}
+		const interval = setInterval(() => {
+			lastJoinUser.current = null;
+		}, 10_000);
+		return (() => {
+			clearInterval(interval);
+		})
+	}, []);
+
+	useEffect(() => {
 		if (user) {
 			connectSocket()
 		} else if (!user && socket?.connected) {
@@ -42,96 +57,99 @@ const AuthProvider = ({children} : any) =>
 		}
 	}, [user]);
 
-    const login = async (username: string , password:string) =>
-    {
-        try
-        {
-            const postData = {
-                username : username,
-                password :password
-            }
-            const {data} = await api.post("/auth/login", postData)
-            if (!data.username)
-            {
-                toast.error("User not found !")
-                throw new Error("User not found !")
-            }
-            else
-            {
-                setUser(data.username)
-                return ({success : true})
-            }
-        }
-        catch(err : any)
-        {
-            toast.error("User not found !")
-            return({success : false , error : err.message})
-        }
-    }
-
-    const register = async (username: string , password:string, email:string) =>
-    {
-        try
-        {
-            const postData = {
-                username : username,
-                password :password,
-                email : email
-            }
-            await api.post("/users/register", postData)
-            return ({success : true})
-        }
-        catch(err : any)
-        {
-            return({success : false , error : err.message})
-        }
-    }
-    
-    const logout = async() => {
-        try {
-            await api.post("/auth/logout");
-        } catch (error) {
-            console.error("Logout failed:", error);
-        } finally {
-            setUser(null);
-        }
-    }
-
-    
-	const connectSocket = () => {
-        if (!user || socket?.connected) {
-            return;
+	const login = async (username: string , password:string) =>
+	{
+		try
+		{
+			const postData = {
+				username : username,
+				password :password
+			}
+			const {data} = await api.post("/auth/login", postData)
+			if (!data.username)
+			{
+				toast.error("User not found !")
+				throw new Error("User not found !")
+			}
+			setUser(data.username)
+			return ({success : true})
 		}
-        
+		catch(err : any)
+		{
+			toast.error("User not found !")
+			return({success : false , error : err.message})
+		}
+	}
+
+	const register = async (username: string , password:string, email:string) =>
+	{
+		try
+		{
+			const postData = {
+				username : username,
+				password :password,
+				email : email
+			}
+			await api.post("/users/register", postData)
+			return ({success : true})
+		}
+		catch(err : any)
+		{
+			return({success : false , error : err.message})
+		}
+	}
+	
+	const logout = async() => {
+		try {
+			await api.post("/auth/logout");
+		} catch (error) {
+			console.error("Logout failed:", error);
+		} finally {
+			setUser(null);
+		}
+	}
+
+	
+	const connectSocket = () => {
+		if (!user || socket?.connected) {
+			return;
+		}
+		
 		const newSocket = io("http://localhost:3000", {
-            withCredentials: true,
+			withCredentials: true,
+			path: "/message/socket.io",
 			transports: ["websocket"],
 		})
 		newSocket.on("connect", () => { });
 		newSocket.on("onlineUser", (usernames: string[]) => {
-            setOnlineUsers(usernames);
+			setOnlineUsers(usernames);
+		});
+		newSocket.on("join", (data: any) => {
+			if (lastJoinUser.current === data.user) return;
+			lastJoinUser.current = data.user;
+			toast.success(`${data.user} invited you to play`);
 		});
 		setSocket(newSocket);
 	};
-    
+	
 	const disconnectSocket = () => {
-        if (socket?.connected) {
-            socket.disconnect();
+		if (socket?.connected) {
+			socket.disconnect();
 		}
 	}
-    
-    const value = {
-        user,
-        login,
-        logout,
-        register,
-        setUser,
-        setLoading,
-        loading,
-        isAuthenticated: !!user,
-        connectSocket, disconnectSocket,
-        socket, onlineUsers
-    }
+	
+	const value = {
+		user,
+		login,
+		logout,
+		register,
+		setUser,
+		setLoading,
+		loading,
+		isAuthenticated: !!user,
+		connectSocket, disconnectSocket,
+		socket, onlineUsers
+	}
 
 	return (
 		<AuthContext.Provider value={value}>

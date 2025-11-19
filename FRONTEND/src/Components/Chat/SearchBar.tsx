@@ -1,8 +1,9 @@
-import { useChat } from "../../Providers/ChatProvider"
+interface SearchBarProps {
+	searchValue: string,
+	setSearchValue: (searchValue: string) => void
+}
 
-function SearchBar() {
-	const { searchValue, setSearchValue } = useChat();
-
+function SearchBar({ searchValue, setSearchValue }: SearchBarProps) {
 	return (
 	<div>
 		<input placeholder="Search"
