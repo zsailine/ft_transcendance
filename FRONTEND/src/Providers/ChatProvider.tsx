@@ -23,7 +23,7 @@ interface MessageInterface {
 	id: number,
 	created_at: string,
 	sender_username: string | null | undefined,
-	receiver_username: string | null | undefined ,
+	receiver_username: string | null | undefined,
 	text: string | null,
 	image: ImageBuffer | null
 };
@@ -46,12 +46,12 @@ interface ChatInterface {
 
 const ChatContext = createContext<ChatInterface | null>(null);
 
-export const ChatProvider = ({children}: ChatProviderProps) => {
+export const ChatProvider = ({ children }: ChatProviderProps) => {
 
-	const [ friendsList, setFriendsList ] = useState<UserInterface[]>([]);
-	const [ searchValue, setSearchValue ] = useState<string>("");
-	const [ selectedUser, setSelectedUser ] = useState<UserInterface | null>(null);
-	const [ messages, setMessages ] = useState<MessageInterface[]>([]);
+	const [friendsList, setFriendsList] = useState<UserInterface[]>([]);
+	const [searchValue, setSearchValue] = useState<string>("");
+	const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
+	const [messages, setMessages] = useState<MessageInterface[]>([]);
 	const { user, socket } = useAuth();
 
 	const fetchFriends = async () => {
@@ -60,7 +60,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 			if (response) {
 				setFriendsList(response.data);
 			}
-		} catch(error) {
+		} catch (error) {
 			console.log("Error in fetching friends:", error);
 		}
 	}
@@ -71,7 +71,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 			if (response) {
 				setMessages(response.data);
 			}
-		} catch(error) {
+		} catch (error) {
 			console.log("Error in fetching messages:", error);
 		}
 	}
@@ -90,7 +90,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 		try {
 			const response = await api.post(`/message/send/${selectedUser?.username}`, messageData);
 			setMessages(messages.concat(response.data));
-		} catch(error) {
+		} catch (error) {
 			setMessages(messages);
 			toast.error("Something went wrong while sending message");
 			console.log(error);
@@ -98,7 +98,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 	}
 
 	const subscribeMessage = () => {
-		if (!selectedUser) return ;
+		if (!selectedUser) return;
 
 		socket?.on("newMessage", (newMessage) => {
 			if (newMessage.sender_username === selectedUser.username) {
@@ -110,7 +110,7 @@ export const ChatProvider = ({children}: ChatProviderProps) => {
 	const unsubscribeMessage = () => {
 		socket?.off("newMessage");
 	}
-	
+
 	useEffect(() => {
 		if (user) {
 			setMessages([]);
