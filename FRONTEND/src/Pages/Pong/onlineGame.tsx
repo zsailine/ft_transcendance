@@ -37,7 +37,11 @@ function OnlineGame() {
 
 	useEffect(() => {
 		if (!username) return;
-		const s = io("http://localhost:3005/");
+		const s = io("http://localhost:3000", {
+			withCredentials: true,
+			path: "/online/socket.io",
+			transports: ["websocket"],
+		});
 		setSocket(s);
 		if (mode === "create") {
 			const room = path.length > 0 ? path : generateRoom();
