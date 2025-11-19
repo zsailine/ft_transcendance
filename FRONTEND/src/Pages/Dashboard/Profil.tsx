@@ -54,14 +54,17 @@ const Profil = () => {
                 className="size-32 rounded-full border-4 border-cyan-500 ml-6 mt-[-100px] mb-4" 
                 style={{ ...avatarStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
-            <h1 className="text-3xl text-left">Historiques</h1>
-            <div className="sm:flex">
+            <h1 className="text-4xl text-left mb-4">Match story</h1>
+            <div className="sm:flex gap-8">
                 <div className="w-3/4">
                     <Story/>
                     <Story/>
                     <Story/>
+                    <Story/>
+                    <Story/>
+
                 </div>
-                <div className="rounded w-1/4 bg-cyan-50">
+                <div className="hidden md:block bg-[url(/images/aside_01.png)] bg-no-repeat bg-cover bg-center h-[400px] rounded w-1/4">
 
                 </div>
             </div>
