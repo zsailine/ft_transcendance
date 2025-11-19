@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAuth } from "../Providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -26,10 +26,39 @@ export default function Login() {
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [canSubmit, setCanSubmit] = useState<boolean>(true);
+  const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (isLogin) {
+      if (formData.username !== "" || formData.password !== "") {
+        setCanSubmit(true);
+      } else {
+        setCanSubmit(false);
+      }
+    } else {
+      if (
+
+        formData.username !== "" ||
+        formData.password !== "" ||
+        formData.email !== "" ||
+        formData.confirmPassword !== ""
+      ) {
+        if (isSamePassword && formData.confirmPassword !== "") {
+          setCanSubmit(true);
+        }
+        else {
+          setCanSubmit(false);
+        }
+      } else {
+        setCanSubmit(false);
+      }
+    }
+  }, [formData, isLogin, isSamePassword]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,6 +66,10 @@ export default function Login() {
       ...prevData,
       [name]: value,
     }));
+
+    if (e.target.name === "confirmPassword") {
+      setIsSamePassword(value === formData.password);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -48,40 +81,38 @@ export default function Login() {
       email: "",
       confirmPassword: "",
     });
-    try
-    {
+    try {
       if (!isLogin) {
-        const success = await register(formData.username, formData.password, formData.email!);
+        const { success } = await register(formData.username, formData.password, formData.email!);
         setTimeout(() => {
         }, 2000);
-        if (success) 
-        {
+        if (success) {
           navigate("/login");
+          toast.success("User created !");
         }
+        return;
       }
-      const success = await login(formData.username, formData.password);
+      const { success } = await login(formData.username, formData.password);
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       console.log("Done");
-      if (success) 
-      {
+      if (success) {
         navigate("/dashboard");
         toast.success("Successfully logged in !");
       }
+      else
+        toast.error("Username or Password incorect. Please try again.");
     }
-    catch (error)
-    {
+    catch (error) {
       console.error("Authentication error:", error);
     }
-    finally
-    {
+    finally {
       setIsLoading(false);
     }
   };
 
-  const disablesStyle = isLoading ? "opacity-50 cursor-not-allowed" : "";
+  const disablesStyle = !canSubmit ? "opacity-70 cursor-not-allowed" : "";
 
-  const hoverEffect = "hover:z-10 hover:scale-105 ring-2 ring-transparent hover:ring-cyan-500/50 transition-transform transition-colors duration-300 ease-in-out transform-gpu origin-center"
 
   return (
     <>
@@ -123,17 +154,21 @@ export default function Login() {
               onChange={handleChange}
             />
             {!isLogin && (
-              <input
-                type="password"
-                placeholder="confirms password"
-                className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
-                onChange={handleChange}
-                value={formData.confirmPassword}
-              />
+              <>
+                {!isSamePassword && <small className="text-red-700" >Password not identical</small>}
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="confirm password"
+                  className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                  onChange={handleChange}
+                  value={formData.confirmPassword}
+                />
+              </>
             )}
             <button
               type="submit"
-              className={`"cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle} ${hoverEffect} "`}
+              className={`"cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle} "`}
               onClick={handleSubmit}
               disabled={isLoading}
             >
