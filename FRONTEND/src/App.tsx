@@ -20,6 +20,7 @@ import Play from "./Pages/Dashboard/Play";
 import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
+import { OnlineGameProvider } from "./Providers/OnlineGameProvider.tsx";
 
 function App() {
 
@@ -35,7 +36,6 @@ function App() {
               <Route path="/pong" element={<PongGame />} />
               <Route path="/tournament" element={<PongTournament />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/online" element={<OnlineGame />} />
               <Route path="/register" element={<Login />} />
               <Route
                 path="/dashboard"
@@ -55,7 +55,14 @@ function App() {
                   <Route index element={< Menu />} />
                   <Route path="pong" element={<PongGame />} />
                   <Route path="tournament" element={<PongTournament />} />
-                  <Route path="online" element={<OnlineGame />} />
+                  <Route
+                    path="online"
+                    element={
+                      <OnlineGameProvider>
+                        <OnlineGame />
+                      </OnlineGameProvider>
+                    }
+                  />
                   <Route path="onlineTournament" element={<OnlineTournament />} />
                 </Route>
                   <Route path="friends" element={<Friend />} />

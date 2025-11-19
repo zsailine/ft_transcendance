@@ -1,35 +1,74 @@
 import { useEffect, useState } from "react";
 import { start } from "../../OnlinePong/start.ts";
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useDashboard } from "../../Providers/DashboardProvider";
 import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
 import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
-import { AnimatePresence } from "framer-motion";
-
+import { alpha, AnimatePresence } from "framer-motion";
+import { useOnlineGame } from "../../Providers/OnlineGameProvider.tsx";
+import OverlayInput from "../../Components/pong/OverlayInput.tsx";
+import { generateRoom } from "../../Utils/tools.ts";
 
 function OnlineGame() {
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
+	const [create, setCreate] = useState(false);
+	const [join, setJoin] = useState(false);
+	const [link, setLink] = useState("");
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [winner, setWinner] = useState<string>("");
 	const [role, setRole] = useState<string>("");
 	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
+	const [errorMessage, setErrorMessage] = useState("");
+	const [enter, setEnter] = useState(false);
 	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
-	const navigate = useNavigate();
 	const { theme, username } = useDashboard();
+	const { text, setText } = useOnlineGame();
+	const navigate = useNavigate();
+	const location = useLocation();
+
+	const queryParams = new URLSearchParams(location.search);
+	const mode = queryParams.get("mode") || "quick";
+	const path = queryParams.get("link") || "";
 
 	useEffect(() => {
+		if (!username) return;
 		const s = io("http://localhost:3005/");
 		setSocket(s);
-		s.emit("quick", username);
+		if (mode === "create") {
+			const room = path.length > 0 ? path : generateRoom();
+			setLink(room);
+			setCreate(true);
+			s.emit("create quick", { username, room });
+		}
+		else if (mode === "join") {
+			if (path.length) {
+				setText(path);
+				setEnter(true);
+			}
+			else
+				setJoin(true);
+		}
+		else if (mode === "quick") {
+			s.emit("quick", username);
+			setLoading(true);
+		}
+		else if (mode === "invite")
+		{
+			const room = path.length ? path : generateRoom();
+			s.emit("invite", {room, username});
+			setLoading(true);
+		}
+		else
+			displayError("Oops an error occured");
 		s.on("ready", () => {
 			setBegin(true);
 		});
-		
+
 		s.on("role", data => {
 			setRole(data);
 		});
@@ -37,23 +76,30 @@ function OnlineGame() {
 			setOpponent(data);
 		})
 		s.on("duplicate", () => {
-			setLoading(false);
-			setError(true);
+			displayError("You are already on a match");
 		});
+		s.on("exist", () => {
+			displayError("This room already exist");
+		})
+		s.on("don't exist", () => {
+			displayError("This room doesn't exist");
+		})
 		return () => {
 			s.disconnect();
 		};
-	}, []);
+	}, [username]);
 	useEffect(() => {
 		if (opponent.length && role.length && username)
-			role === "player1" ? setPLayer([username, opponent]) :  setPLayer([opponent, username]);
+			role === "player1" ? setPLayer([username, opponent]) : setPLayer([opponent, username]);
 	}, [opponent, role])
 	useEffect(() => {
 		if (!begin || !socket || !theme) return;
+		setLoading(false);
+		setJoin(false);
+		setCreate(false);
 		const clean = start(
 			theme,
 			socket,
-			() => setLoading(false),
 			(winnerRole: string) => {
 				setWinner(winnerRole);
 				setOverlay(true);
@@ -63,14 +109,29 @@ function OnlineGame() {
 			clean();
 		};
 	}, [begin, socket]);
+	useEffect(() => {
+		if (socket && text.length && enter)
+			joinRoom(null);
+	}, [socket, text, enter]);
 
-
+	function displayError(text: string) {
+		setLoading(false);
+		setJoin(false);
+		setCreate(false);
+		setError(true);
+		setErrorMessage(text);
+	}
 	function handleQuit() {
-		if (socket)
-		{
+		if (socket) {
 			socket?.disconnect();
 			navigate("/dashboard/play");
 		}
+	}
+	function joinRoom(e: React.FormEvent | null) {
+		if (e !== null)
+			e.preventDefault();
+		const room = text;
+		socket?.emit("join quick", { username, room });
 	}
 	return (
 		<div className="h-full">
@@ -88,9 +149,10 @@ function OnlineGame() {
 						id="player2"
 						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
 						style={{ color: theme?.paddle2 }}
-					>{player[1]}</p>
+					>{player[1]} </p>
 				</div>
 			</div>
+
 			<AnimatePresence mode="wait">
 				{overlay && (
 					<OverlayResult
@@ -110,16 +172,39 @@ function OnlineGame() {
 						hoverEffect={hoverEffect}
 					/>
 				)}
-				{error && (
+				{create && (
 					<OverlayLoading
 						key="overlay-loading"
-						text="You are already on a match"
+						text=<>
+							{link}
+							<br />
+							Copy to join
+						</>
 						buttonText="Home"
 						onQuit={handleQuit}
 						hoverEffect={hoverEffect}
 					/>
 				)}
+				{error && (
+					<OverlayLoading
+						key="overlay-loading"
+						text={errorMessage}
+						buttonText="Home"
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
+				{join && (
+					<OverlayInput
+						key="overlay-input"
+						buttonText="Home"
+						handleSubmit={joinRoom}
+						onQuit={handleQuit}
+						hoverEffect={hoverEffect}
+					/>
+				)}
 			</AnimatePresence>
+
 		</div>
 	);
 }
