@@ -1,6 +1,7 @@
 import { useDashboard } from "../../Providers/DashboardProvider";
 import { useState , useEffect } from "react";
 import { getImageUrlFromBlob } from "../../Utils/blob";
+import Story from "../../Components/Profil/Story";
 
 const Profil = () => {
     const { avatar, coverImage, username } = useDashboard();
@@ -53,6 +54,17 @@ const Profil = () => {
                 className="size-32 rounded-full border-4 border-cyan-500 ml-6 mt-[-100px] mb-4" 
                 style={{ ...avatarStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
+            <h1 className="text-3xl text-left">Historiques</h1>
+            <div className="sm:flex">
+                <div className="w-3/4">
+                    <Story/>
+                    <Story/>
+                    <Story/>
+                </div>
+                <div className="rounded w-1/4 bg-cyan-50">
+
+                </div>
+            </div>
         </div>
     );
 };
