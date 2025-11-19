@@ -62,7 +62,14 @@ fastify.register(httpProxy, {
 
 fastify.register(httpProxy, {
   upstream: "http://localhost:3004",
-  prefix: "/socket.io",
+  prefix: "/message/socket.io",
+  rewritePrefix: '/socket.io',
+  websocket: true
+});
+
+fastify.register(httpProxy, {
+  upstream: "http://localhost:3005",
+  prefix: "/online/socket.io",
   rewritePrefix: '/socket.io',
   websocket: true
 });
