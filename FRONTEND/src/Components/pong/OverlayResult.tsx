@@ -14,7 +14,7 @@ export default function OverlayResult({ buttonText, winner, onQuit, hoverEffect 
 			initial={{ opacity: 0, y: 30 }}
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: -30 }}
-			transition={{ duration: 0.4, ease: "easeOut" }}
+			transition={{ duration: 1, ease: "easeOut" }}
 			className="absolute z-10 top-0 w-full h-full flex flex-col items-center justify-center 
 			bg-black/30 backdrop-blur-[2px] text-white"
 		>

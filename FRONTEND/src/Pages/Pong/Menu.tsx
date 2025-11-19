@@ -9,7 +9,7 @@ export const Menu = () => {
 	const [option, setOPtion] = useState(0);
 	function local() { setOPtion(1); }
 	function online() { setOPtion(2); }
-	function back() {setOPtion(0);}
+	function back() { setOPtion(0); }
 	return (
 		<>
 			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
@@ -29,11 +29,19 @@ export const Menu = () => {
 					}
 					{option === 2 &&
 						<>
-							<ButtonOnline />
+							<ButtonOption onClick={() => setOPtion(3)} content="Multiplayer" />
 							<ButtonOnlineTournament />
 							<ButtonOption onClick={back} content="Back" />
 						</>
 					}
+					{option === 3 && (
+						<>
+							<ButtonOnline type="quick" text="Quick Match" />
+							<ButtonOnline type="create" text="Create Room" />
+							<ButtonOnline type="join" text="Join Room" />
+							<ButtonOption onClick={() => setOPtion(2)} content="Back" />
+						</>
+					)}
 				</div>
 			</div>
 		</>

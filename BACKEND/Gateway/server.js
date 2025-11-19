@@ -6,7 +6,7 @@ import cors from '@fastify/cors'
 import cookie from "fastify-cookie";
 
 dotenv.config();
-const fastify = Fastify({ logger: true });  
+const fastify = Fastify({ logger: false });
 
 fastify.register(cookie);
 
@@ -25,7 +25,7 @@ fastify.register(fastifyJwt ,
   }
 );
 
-fastify.decorate("authenticate", async function(request, reply) {
+fastify.decorate("authenticate", async function (request, reply) {
   try {
     if (request.url.startsWith("/auth") || request.url === "/users/register" ||
       request.url.startsWith("/socket.io")) {
@@ -33,7 +33,7 @@ fastify.decorate("authenticate", async function(request, reply) {
     }
     if (request.method === 'OPTIONS') {
       return;
-  }
+    }
     await request.jwtVerify();
   } catch (err) {
     reply.code(401).send({ error: "Unauthorized" });

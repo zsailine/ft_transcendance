@@ -9,7 +9,7 @@ import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: false });
 const userSocketMap = {};
 
 await fastify.register(fastifySocketIo, {
@@ -34,7 +34,18 @@ fastify.ready().then(() => {
 		const userName = socket.username;
 		userSocketMap[userName] = socket.id;
 		fastify.io.emit("onlineUser", Object.keys(userSocketMap));
-	
+		socket.on("invite", (data) => {
+			const receiverSocket = userSocketMap[data.toInvite]
+			const room = data.room;
+			const user = data.user;
+			if (receiverSocket)
+				fastify.io.to(receiverSocket).emit("join", {room, user});
+		});
+		socket.on("received", data => {
+			const receiverSocket = userSocketMap[data];
+			if (receiverSocket)
+				fastify.io.to(receiverSocket).emit("received");
+		})
 		socket.on("disconnect", () => {
 			delete userSocketMap[userName];
 			fastify.io.emit("onlineUser", Object.keys(userSocketMap));
