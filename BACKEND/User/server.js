@@ -8,9 +8,8 @@ import fastifyMultipart from "@fastify/multipart";
 const fastify = Fastify({ logger: false });
 
 await fastify.register(cors, {
-  origin: "*",
-  allowedHeaders: ["Authorization","Content-Type"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: "http://localhost:5173",
+    credentials: true
 })
 
 fastify.decorate("db", new Database("./data/users.db"));
