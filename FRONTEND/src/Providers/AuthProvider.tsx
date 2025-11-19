@@ -117,6 +117,7 @@ const AuthProvider = ({children} : any) =>
 		
 		const newSocket = io("http://localhost:3000", {
 			withCredentials: true,
+			path: "/message/socket.io",
 			transports: ["websocket"],
 		})
 		newSocket.on("connect", () => { });
