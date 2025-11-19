@@ -10,7 +10,7 @@ const Dashboard = () => {
                 <div className="w-max lg:w-1/6 ">
                     <Sidebar/>
                 </div>
-                <div className="w-full lg:w-5/6">
+                <div className="w-full lg:w-5/6 relative">
                     <div className="flex justify-end h-max mb-10">
                         <Navbar />
                     </div>
