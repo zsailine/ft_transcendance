@@ -5,11 +5,11 @@ const Story = () => {
     return (
         <div className="flex items-center justify-between rounded-lg p-4 mb-4 border border-cyan-300">
             <div className="flex items-center gap-4">
-                <img className="rounded-[50%]" width={50} height={50} src="/images/avatar.jpg" alt="avatar" />
+                <img className="rounded-[50%]" width={40} height={40} src="/images/avatar.jpg" alt="avatar" />
                 <h1>Tournament name</h1>
             </div>
             <p> "You win ! 🏆"</p>
-            <div className="flex items-center">
+            <div className="flex items-center gap-2 text-amber-400">
                 <MdDateRange />
                 <p> Date</p>
             </div>
