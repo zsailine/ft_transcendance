@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import Database from "better-sqlite3";
 import userRoutes from "./routes/userRoutes.js";
+import matchesRoutes from "./routes/matchesRoutes.js";
 import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
 
@@ -19,6 +20,8 @@ fastify.register(fastifyMultipart,{
 });
 
 fastify.register(userRoutes);
+fastify.register(matchesRoutes);
+
 
 fastify.addHook('onSend', (request, reply, payload, next) => {
   next();
