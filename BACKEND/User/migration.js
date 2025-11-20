@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS migrations (
 )
 `);
 
+db.pragma('foreign_keys = ON');
+
 const migrationDir = "./migrations";
 const appliedMigrations = db.prepare("SELECT name FROM migrations").all().map(m => m.name);
 
