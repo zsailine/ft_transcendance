@@ -4,20 +4,22 @@ import axios from "axios";
 const AUTH_URL = "http://localhost:3002/auth/me";
 
 const getUsername = async (req, rep) => {
-	const token = req.cookies?.token;
-	if (!token)
-		console.log("\n\nMISSING TOKEN\n\n");
-
-	try {
-		const decoded = req.server.jwt.decode(token);
-		if (decoded)
-			return decoded.username;
-	} catch(error) {
-		console.log(error.message);
-		rep.status(500).send({
-			error: "Verification service error, failed to fetch username"
-		});
+	const cookies = await getCookies(req);
+	const user = await axios.get("http://localhost:3002/auth/me", {
+		headers: {
+			'Cookie': cookies
+		}
+	});
+	if (user) {
+		return user.data.user;
 	}
+	return "";
+}
+
+const getCookies = async (req) => {
+	const cookies = req.cookies;
+	const realCookies = Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join("; ");
+	return realCookies;
 }
 
 const getWhat = async (req, rep, status) => {
@@ -73,4 +75,4 @@ const thoseWhoSentMe = async (req, rep, friends) => {
 	return allRequests;
 }
 
-export { getUsername, getWhat, friendsList, thoseWhoSentMe };
+export { getUsername, getWhat, friendsList, thoseWhoSentMe, getCookies };
