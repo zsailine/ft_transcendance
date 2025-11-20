@@ -12,7 +12,7 @@ function PongGame() {
 		const clean = initGame(theme);
 
 		return () => clean();
-	}, []);
+	}, [theme]);
 
 	function handleQuit() {
 		navigate("/dashboard/play");
