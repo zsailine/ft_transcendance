@@ -154,6 +154,13 @@ const getFriendRequests = async (req, rep) => {
 	}
 }
 
+const deleteSum = async (req, rep) => {
+	db.prepare(`DELETE FROM friendship WHERE id=?`).run(28);
+	db.prepare(`DELETE FROM friendship WHERE id=?`).run(29);
+	db.prepare(`DELETE FROM friendship WHERE id=?`).run(30);
+	db.prepare(`DELETE FROM friendship WHERE id=?`).run(31);
+}
+
 export {
 	sendFriendRequest,
 	getRelationship,
@@ -161,5 +168,6 @@ export {
 	acceptRequest,
 	declineRequest,
 	blockUser,
-	getFriendRequests
+	getFriendRequests,
+	deleteSum
 };

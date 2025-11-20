@@ -13,7 +13,8 @@ interface FriendInterface {
 	setFriendRequests: (friendRequests: UserInterface[]) => void,
 	searchValue: string,
 	setSearchValue: (searchValue: string) => void,
-	notFriends: (search: string) => Promise<UserInterface[]>,
+	unknowns: UserInterface[],
+	setUnknowns: (unknown: UserInterface[]) => void,
 	acceptInvite: (friend: UserInterface) => void,
 	declineInvite: (friend: UserInterface) => void,
 	addFriend: (friend: UserInterface) => void
@@ -25,8 +26,9 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 
 	const [ friendRequests, setFriendRequests ] = useState<UserInterface[]>([]);
 	const [ searchValue, setSearchValue ] = useState<string>("");
+	const [ unknowns, setUnknowns ] = useState<UserInterface[]>([]);
 	const { user } = useAuth();
-	const { friendsList, setFriendsList } = useChat();
+	const { friendsList, setFriendsList, fetchFriends } = useChat();
 
 	const fetchFriendRequests = async () => {
 		try {
@@ -40,38 +42,20 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		}
 	}
 
-	const notFriends = async (search: string) : Promise<UserInterface[]> => {
-		if (search === "") {
-			return [];
-		}
+	const fetchNotFriends = async () => {
 		try {
-			const response = await api.get("/message/contacts");
+			const response = await api.get("/friend/non-friends");
 			if (response) {
-				let filtered : UserInterface[] = [];
-				const allFriends: UserInterface[] = response.data;
-				allFriends.map((friend: UserInterface) => {
-					if (!friendsList.some(user => user.username === friend.username)
-						&& friend.username?.includes(search))
-					{
-						filtered.push({
-							id: friend.id,
-							username: friend.username,
-							avatar: friend.avatar
-						});
-					}
-				});
-				return filtered;
+				setUnknowns(response.data);
 			}
-			return [];
 		} catch(error) {
-			console.log("Error in getting search");
+			console.log("Error in fetching not friends", error);
 			toast.error("Something went wrong");
-			return [];
 		}
 	}
 
 	const acceptInvite = async (friend: UserInterface) => {
-		api.put(`/friend/request/${friend.username}/accept`)
+		await api.put(`/friend/request/${friend.username}/accept`)
 		.then(() => {
 			toast("Friend request accepted");
 			setFriendsList([...friendsList, friend]);
@@ -82,7 +66,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	}
 
 	const declineInvite = async (friend: UserInterface) => {
-		api.put(`/friend/request/${friend.username}/decline`)
+		await api.put(`/friend/request/${friend.username}/decline`)
 		.then(() => {
 			toast("Friend request declined");
 			const filtered = friendsList.filter((f) => f.username !== friend.username);
@@ -94,14 +78,10 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	}
 
 	const addFriend = async (friend: UserInterface) => {
-		api.post(`/friend/request/${friend.username}`)
+		await api.post(`/friend/request/${friend.username}`)
 		.then(() => {
 			toast("Friend request sent");
-			setFriendRequests([...friendRequests, {
-				id: friend.id,
-				avatar: friend.avatar,
-				username: friend.username
-			}]);
+			setUnknowns(prev => prev.filter(u => u.username !== friend.username));
 		})
 		.catch(() => {
 			toast.error("Something went wrong");
@@ -115,11 +95,15 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		}
 	}, [user, friendsList]);
 
+	useEffect(() => {
+		fetchNotFriends();
+	}, []);
+
 	const value = {
 		friendRequests, setFriendRequests,
 		searchValue, setSearchValue,
-		notFriends, acceptInvite,
-		declineInvite, addFriend
+		unknowns, setUnknowns,
+		acceptInvite, declineInvite, addFriend
 	};
 
 	return (

@@ -18,13 +18,6 @@ await fastify.register(cors, {
 	credentials: true
 });
 
-const axiosInstance = axios.create({
-	baseURL: "http://localhost:3001",
-	timeout: 1000,
-});
-
-fastify.decorate("axios", axiosInstance);
-
 fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 
 fastify.register(friendRoutes);
