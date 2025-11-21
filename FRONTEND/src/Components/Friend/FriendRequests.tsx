@@ -1,6 +1,7 @@
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
 import { useFriend } from "../../Providers/FriendProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
+import NoFriendRequests from "../../Pages/Friend/NoFriendRequests";
 
 function FriendRequests() {
 	const { friendRequests, acceptInvite, declineInvite } = useFriend();
@@ -9,8 +10,14 @@ function FriendRequests() {
 	const acceptButton = "bg-green-500/20 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out shadow-md";
 	const declineButton = "bg-red-500/20 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out shadow-md";
 
-  return (
-	<div className="flex flex-col h-full overflow-y-auto font-helvetica mb-8">
+	if (friendRequests.length === 0) {
+		return (
+			<NoFriendRequests />
+		);
+	}
+
+	return (
+	<div className="flex flex-col h-full overflow-y-auto font-helvetica mb-8 w-full">
 		<ul className="text-white">
 			{friendRequests.map((friend) =>
 				<li key={friend.id} className={`flex items-center gap-50 p-2 rounded-lg cursor-pointer ${hoverEffect}`}>

@@ -22,8 +22,8 @@ export interface UserInterface {
 interface MessageInterface {
 	id: number,
 	created_at: string,
-	sender_username: string | null | undefined,
-	receiver_username: string | null | undefined,
+	sender_username: string | null,
+	receiver_username: string | null,
 	text: string | null,
 	image: ImageBuffer | null
 };
@@ -77,9 +77,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	}
 
 	const sendMessages = async (messageData: MessageDataInterface) => {
-		const optimisticMessage = {
+		const optimisticMessage: MessageInterface = {
 			id: Math.floor(Date.now() / 1000),
-			receiver_username: selectedUser?.username,
+			receiver_username: selectedUser?.username || null,
 			sender_username: user,
 			text: messageData.text,
 			image: messageData.image,

@@ -28,7 +28,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const [ searchValue, setSearchValue ] = useState<string>("");
 	const [ unknowns, setUnknowns ] = useState<UserInterface[]>([]);
 	const { user } = useAuth();
-	const { friendsList, setFriendsList, fetchFriends } = useChat();
+	const { friendsList, setFriendsList } = useChat();
 
 	const fetchFriendRequests = async () => {
 		try {
