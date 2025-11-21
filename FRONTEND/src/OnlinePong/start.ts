@@ -3,6 +3,7 @@
 import { Socket } from "socket.io-client";
 import type { ThemeColors } from "../Providers/DashboardProvider";
 import { drawBall, drawPaddles, clearBoard, drawScore } from "../Pong/draw";
+import api from "../Utils/axios";
 
 
 const sounds = {
@@ -10,10 +11,11 @@ const sounds = {
 };
 
 export function start(
+	player: string[],
+	role: string,
 	theme: ThemeColors,
 	socket: Socket,
-	onEnd: (winner: string) => void,): () => void 
-{
+	onEnd: (winner: string) => void,): () => void {
 	const board = document.getElementById("board") as HTMLCanvasElement;
 	const ctx = board.getContext("2d") as CanvasRenderingContext2D;
 	resizeBoard();
@@ -119,23 +121,38 @@ export function start(
 	socket.on("score", (data) => {
 		paddle1Score = data.paddle1Score;
 		paddle2Score = data.paddle2Score;
-});
-	socket.on("finish", data => {
-		socket.disconnect();
+	});
+
+	async function addMatch(winner: string) {
+		if (role !== winner)
+			return;
+		const body = {
+			player1: player[0],
+			player2: player[1],
+			score_p1: paddle1Score,
+			score_p2: paddle2Score,
+			winner: winner === "player1" ? player[0] : player[1]
+		};
+
+		await api.post('/matches/add', body)
+			.then(() => {
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}
+	const finish = (data: string) => {
 		clearBoard(ctx, board, theme.boardBackground);
 		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
 		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
 		onEnd(data);
-	});
-	socket.on("stop", data => {
-		socket.disconnect();
-		clearBoard(ctx, board, theme.boardBackground);
-		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
-		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
-		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
-		onEnd(data);
-	});
+		addMatch(data);
+	};
+	socket.on("finish", finish);
+
+	socket.on("stop", finish);
+
 	window.addEventListener("keydown", keyHandler);
 	clearInterval(interval);
 	socket.on("pong", () => {
