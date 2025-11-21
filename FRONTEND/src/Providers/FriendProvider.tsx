@@ -96,7 +96,9 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	}, [user, friendsList]);
 
 	useEffect(() => {
-		fetchNotFriends();
+		if (user) {
+			fetchNotFriends();
+		}
 	}, []);
 
 	const value = {
