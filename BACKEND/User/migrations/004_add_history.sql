@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS matches (
     duration INTEGER,
     played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (player1) REFERENCES users(username),
-    FOREIGN KEY (player2) REFERENCES users(username),
-    FOREIGN KEY (winner) REFERENCES users(username)
+    FOREIGN KEY (player1) REFERENCES users(username)  ON DELETE CASCADE ,
+    FOREIGN KEY (player2) REFERENCES users(username)  ON DELETE CASCADE,
+    FOREIGN KEY (winner) REFERENCES users(username)  ON DELETE CASCADE
 );
