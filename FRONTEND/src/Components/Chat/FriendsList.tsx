@@ -3,6 +3,7 @@ import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useNavigate } from "react-router-dom";
 import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
+import NoContacts from "../../Pages/Friend/NoContacts";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -34,7 +35,7 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 	if (friendsList.length === 0 ||
 		(filteredFriends.length === 0 && searchValue !== "")) {
 		return (
-			<p className="text-cyan-200/50 p-3 text-center">No friends to show</p>
+			<NoContacts message={message}/>
 		);
 	}
 
