@@ -35,7 +35,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
         }
       });
 
-      socket.once("disconnect", () => {
+      socket.on("disconnect", () => {
         if (gameOver) return;
 
         const winner = (socket.id === player1Id) ? "player2" : "player1";
@@ -80,7 +80,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     board.height = 900;
   }
 
-  ballSpeed = board.width * 0.001;
+  function createBall(){
+   ballSpeed = board.width * 0.001;
 
     const minY = board.height / 3;
     const maxY = (board.height * 3) / 4;
@@ -95,6 +96,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
 
     ballXDirection = Math.cos(angle) * direction;
     ballYDirection = Math.sin(angle);
+  }
 
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
@@ -151,9 +153,6 @@ export async function initGame(io, roomName, player1Id, player2Id) {
           ? "player1"
           : "player2";
       io.to(roomName).emit("finish", winner);
-      io.in(roomName).fetchSockets().then((sockets) => {
-        sockets.forEach((s) => s.removeAllListeners("disconnect"));
-      });
     }
   }
 
