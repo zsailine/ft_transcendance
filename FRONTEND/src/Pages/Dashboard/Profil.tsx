@@ -6,27 +6,33 @@ import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
 import api from "../../Utils/axios";
 
 interface statInterface {
-    id: number;
-    username: string;
     total_matches: number;
     total_losses: number;
     total_wins: number;
 }
+
 const Profil = () => {
+    const defaultStats: statInterface = {
+    total_matches: 0,
+    total_losses: 0,
+    total_wins: 0,
+};
     const { avatar, coverImage, username } = useDashboard();
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
-    const [stats, setStats] = useState<statInterface | null>(null);
+    const [stats, setStats] = useState<statInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
     const [overlay, setOverlay] = useState(false);
 
     async function getStats() {
         const response = await api.get(`/matches/stats/${username}`);
-        setStats(response.data);
+        if (response.data.total_matches)
+            setStats(response.data);
     }
     async function getRecentMatches() {
         const response = await api.get(`/matches/${username}`);
-        setMatches(response.data);
+        if (response.data.length)
+            setMatches(response.data);
     }
     useEffect(() => {
         if (!username) return;
@@ -116,7 +122,7 @@ const Profil = () => {
                         {matches && matches.map((match: any) => (
                             <Story key={match.id} username={username} match={match} />
                         ))}
-                        {!matches && <p>Chargement des matchs...</p>}
+                        {!matches && <p>No matches to show</p>}
 
                     </div>
                     {/* <div className="hidden md:block bg-[url(/images/aside_01.png)] bg-no-repeat bg-cover bg-center h-[400px] rounded w-1/4">
@@ -127,7 +133,7 @@ const Profil = () => {
             {
                 overlay && (
                     <h1>Hello</h1>
-            )
+                )
             }
         </>
     );

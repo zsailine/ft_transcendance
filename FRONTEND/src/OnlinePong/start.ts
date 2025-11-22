@@ -126,6 +126,7 @@ export function start(
 	async function addMatch(winner: string) {
 		if (role !== winner)
 			return;
+		console.log("yo");
 		const body = {
 			player1: player[0],
 			player2: player[1],
@@ -133,7 +134,7 @@ export function start(
 			score_p2: paddle2Score,
 			winner: winner === "player1" ? player[0] : player[1]
 		};
-
+		console.log("the winner is " + body.winner + " player1 " + player[0] + " player2 " + player[1]);
 		await api.post('/matches/add', body)
 			.then(() => {
 			})
