@@ -3,6 +3,7 @@ import { init } from "./logic/init.js";
 export function removeSocket(socket, AllMode, waitingPlayers, privateRoom) {
     if (!socket.username)
         return;
+    console.log("miditra");
     if (AllMode.has(socket.username)) {
         AllMode.delete(socket.username);
     }
