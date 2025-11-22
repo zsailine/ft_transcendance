@@ -1,8 +1,15 @@
 import db from "./migration.js";
-const stat =  db.prepare("SELECT * FROM matches \
-	WHERE player1 = ? OR player2 = ? \
-	ORDER BY played_at DESC \
-	LIMIT ?").all("test0", "test0", 5);
+db.prepare("DROP TABLE IF EXISTS user_stats").run();
+db.prepare(`
+ CREATE TABLE IF NOT EXISTS user_stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	username TEXT UNIQUE NOT NULL,
+    total_matches INTEGER DEFAULT 0,
+    total_wins INTEGER DEFAULT 0,
+    total_losses INTEGER DEFAULT 0,
 
-	console.log(stat);
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+)
+`).run();
+
 
