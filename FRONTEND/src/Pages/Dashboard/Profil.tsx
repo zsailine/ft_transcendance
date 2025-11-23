@@ -2,6 +2,7 @@ import { useDashboard } from "../../Providers/DashboardProvider";
 import { useState, useEffect } from "react";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import Story from "../../Components/Profil/Story";
+import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
 import api from "../../Utils/axios";
 
@@ -30,7 +31,7 @@ const Profil = () => {
             setStats(response.data);
     }
     async function getRecentMatches() {
-        const response = await api.get(`/matches/${username}`);
+        const response = await api.get(`/matches/${username}?size=5`);
         if (response.data.length)
             setMatches(response.data);
     }
@@ -132,7 +133,7 @@ const Profil = () => {
             </div>
             {
                 overlay && (
-                    <h1>Hello</h1>
+                    <OverlayMatch />
                 )
             }
         </>

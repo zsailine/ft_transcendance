@@ -165,7 +165,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   function startGameLoop() {
     intervalID = setInterval(() => {
       moveBall();
-    }, 10);
+    }, 10 );
   }
 
   function stopGameLoop() {
