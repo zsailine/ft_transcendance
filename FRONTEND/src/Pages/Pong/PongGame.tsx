@@ -20,7 +20,7 @@ function PongGame() {
 
 	return (
 		<>
-			<div className="bg-gray-900 text-white flex flex-col items-center justify-center h-full font-sans">
+			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
 				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
 					<p
 						id="player1"
