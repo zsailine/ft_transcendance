@@ -3,6 +3,7 @@ import {  createUser,
           getAvatar,
           getUserByUsername,
           updateUser,
+          updateColor,
           getId
 } from "../controller/userController.js";
 
@@ -20,4 +21,6 @@ export default async function userRoutes(fastify) {
   fastify.post("/users/register", { handler: createUser });
 
   fastify.post("/users/update" , { handler: updateUser });
+
+  fastify.post("/users/:username/updateColor" , { handler: updateColor });
 }

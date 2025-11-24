@@ -76,12 +76,23 @@ export function start(
     paddleSpeed = board.height / 7;
   }
 
+
   function createBall(): void {
     ballSpeed = board.width * 0.001;
-    ballXDirection = Math.random() > 0.5 ? 1 : -1;
-    ballYDirection = Math.random() > 0.5 ? 1 : -1;
+
+    const minY = board.height / 3;
+    const maxY = (board.height * 3) / 4;
+    ballY = minY + Math.random() * (maxY - minY);
     ballX = board.width / 2;
-    ballY = board.height / 2;
+
+    const minAngle = 30 * (Math.PI / 180);
+    const maxAngle = 70 * (Math.PI / 180);
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    
+    const angle = minAngle + Math.random() * (maxAngle - minAngle);
+
+    ballXDirection = Math.cos(angle) * direction;
+    ballYDirection = Math.sin(angle);
   }
 
   function moveBall(): void {

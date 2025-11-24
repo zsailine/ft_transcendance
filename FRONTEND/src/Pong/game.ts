@@ -14,9 +14,9 @@ const sounds = {
   paddle: new Audio("/sounds/pong.wav"),
 };
 
-export function initGame(theme: ThemeColors): () => void  {
+export function initGame(theme: ThemeColors): () => void {
   const board = document.getElementById("board") as HTMLCanvasElement;
-  let ctx = board.getContext("2d") as CanvasRenderingContext2D ;
+  let ctx = board.getContext("2d") as CanvasRenderingContext2D;
   if (!ctx) throw new Error("Canvas context not found");
 
   resizeBoard();
@@ -44,7 +44,7 @@ export function initGame(theme: ThemeColors): () => void  {
   let ballXDirection: number;
   let ballYDirection: number;
   let intervalID: number;
-  let paddleSpeed = board.height / 7;
+  let paddleSpeed = board.height / 13;
 
   function resizeBoard(): void {
     board.width = window.innerWidth * 0.8;
@@ -53,16 +53,26 @@ export function initGame(theme: ThemeColors): () => void  {
 
   function resizePaddle(paddle: Paddle): void {
     paddleSpeed = board.height / 7;
-    paddle.width = board.width * 0.02;
+    paddle.width = board.width * 0.02
     paddle.height = board.height * 0.15;
   }
 
   function createBall(): void {
-    ballSpeed = board.width * 0.001;
-    ballXDirection = Math.random() > 0.5 ? 1 : -1;
-    ballYDirection = Math.random() > 0.5 ? 1 : -1;
+   ballSpeed = board.width * 0.001;
+
+    const minY = board.height / 3;
+    const maxY = (board.height * 3) / 4;
+    ballY = minY + Math.random() * (maxY - minY);
     ballX = board.width / 2;
-    ballY = board.height / 2;
+
+    const minAngle = 30 * (Math.PI / 180);
+    const maxAngle = 70 * (Math.PI / 180);
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    
+    const angle = minAngle + Math.random() * (maxAngle - minAngle);
+
+    ballXDirection = Math.cos(angle) * direction;
+    ballYDirection = Math.sin(angle);
   }
 
   function moveBall(): void {
@@ -116,7 +126,7 @@ export function initGame(theme: ThemeColors): () => void  {
       drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
       drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
       nextTick();
-    }, 10);
+    }, 1);
   }
 
   function keyHandler(e: KeyboardEvent): void {
