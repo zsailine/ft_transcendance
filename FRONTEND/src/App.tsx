@@ -63,8 +63,8 @@ function App() {
                       </OnlineGameProvider>
                     }
                   />
-                  <Route path="onlineTournament" element={<OnlineTournament />} />
                 </Route>
+                  <Route path="tournament" element={<OnlineTournament />}/>
                   <Route path="friends" element={<Friend />} />
                   <Route path="discussion" element={<Discussion />} />
               </Route>

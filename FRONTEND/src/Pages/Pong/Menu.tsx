@@ -1,47 +1,33 @@
-import ButtonClassic from "../../Components/pong/ButtonClassic.tsx"
-import ButtonTournament from "../../Components/pong/ButtonTournament.tsx"
-import ButtonOnline from "../../Components/pong/ButtonOnline.tsx"
-import ButtonOption from "../../Components/pong/ButtonOption.tsx"
-import ButtonOnlineTournament from "../../Components/pong/ButtonOnlineTournament.tsx"
-import { useState } from "react"
+import MenuCard from "../../Components/pong/menuCard.tsx"
+import { useNavigate } from "react-router-dom"
 
 export const Menu = () => {
-	const [option, setOPtion] = useState(0);
-	function local() { setOPtion(1); }
-	function online() { setOPtion(2); }
-	function back() { setOPtion(0); }
+	const navigate = useNavigate();
 	return (
 		<>
 			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
-				<div className="flex flex-col items-center justify-center space-y-6 ">
-					{option === 0 &&
-						<>
-							<ButtonOption onClick={local} content="Local" />
-							<ButtonOption onClick={online} content="Online" />
-						</>
-					}
-					{option === 1 &&
-						<>
-							<ButtonClassic />
-							<ButtonTournament />
-							<ButtonOption onClick={back} content="Back" />
-						</>
-					}
-					{option === 2 &&
-						<>
-							<ButtonOption onClick={() => setOPtion(3)} content="Multiplayer" />
-							<ButtonOnlineTournament />
-							<ButtonOption onClick={back} content="Back" />
-						</>
-					}
-					{option === 3 && (
-						<>
-							<ButtonOnline type="quick" text="Quick Match" />
-							<ButtonOnline type="create" text="Create Room" />
-							<ButtonOnline type="join" text="Join Room" />
-							<ButtonOption onClick={() => setOPtion(2)} content="Back" />
-						</>
-					)}
+				<div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
+					<MenuCard
+						title="Local Play"
+						description="Challenge a friend on the same device."
+						onClick={() => navigate("/dashboard/play/pong")}
+						buttonContent="Start"
+						bgColor="bg-blue-800"
+					/>
+					<MenuCard
+						title="Local Tournament"
+						description="Challenge your friends to see who is the best on the same device."
+						onClick={() => navigate("/dashboard/play/tournament")}
+						buttonContent="Start"
+						bgColor="bg-blue-800"
+					/>
+					<MenuCard
+						title="Online Play"
+						description="Compete against players from around the world to climb the rankings."
+						onClick={() => navigate("/dashboard/play/online")}
+						buttonContent="Start"
+						bgColor="bg-blue-800"
+					/>
 				</div>
 			</div>
 		</>

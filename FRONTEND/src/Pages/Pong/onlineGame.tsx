@@ -6,7 +6,7 @@ import io, { Socket } from "socket.io-client";
 import { hoverEffect } from "../../Utils/style.ts";
 import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
-import { alpha, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useOnlineGame } from "../../Providers/OnlineGameProvider.tsx";
 import OverlayInput from "../../Components/pong/OverlayInput.tsx";
 import { generateRoom } from "../../Utils/tools.ts";
@@ -43,6 +43,7 @@ function OnlineGame() {
 			transports: ["websocket"],
 		});
 		setSocket(s);
+		console.log(s);
 		if (mode === "create") {
 			const room = path.length > 0 ? path : generateRoom();
 			setLink(room);
