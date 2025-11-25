@@ -55,13 +55,13 @@ const updateUser = async (req, rep) => {
 
         const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
         const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
-        
+
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });
         }
 
-        rep.code(200).send({ 
-            message: "Success", 
+        rep.code(200).send({
+            message: "Success",
             changes: result.changes,
             avatarUpdated: !!avatarBuffer,
             coverImageUpdated: !!coverImageBuffer
@@ -69,9 +69,48 @@ const updateUser = async (req, rep) => {
 
     } catch (error) {
         console.error("Error processing files:", error);
-        rep.code(500).send({ 
+        rep.code(500).send({
             error: "Error processing upload",
-            details: error.message 
+            details: error.message
+        });
+    }
+}
+
+
+const updateColor = async (req, rep) => {
+    try {
+        const { paddle1, paddle2, ball, boardBackground, boardBorder, score } = req.body;
+        const stmt = db.prepare(`
+            UPDATE users SET 
+                paddle1_color = ?, 
+                paddle2_color = ?, 
+                ball_color = ?, 
+                board_background = ?, 
+                board_border = ?, 
+                score_color = ? 
+            WHERE username = ?
+        `);
+        const { username } = req.params;
+        const result = stmt.run(
+            paddle1,
+            paddle2,
+            ball,
+            boardBackground,
+            boardBorder,
+            score,
+            username
+        );
+        if (result.changes === 0) {
+            return rep.code(404).send({ error: "User not found" });
+        }
+
+        rep.send({ success: true, message: "Theme colors updated successfully" });
+
+    } catch (error) {
+        console.error("Error updating colors:", error);
+        rep.code(500).send({
+            error: "Error updating colors",
+            details: error.message
         });
     }
 }
@@ -88,4 +127,4 @@ const getId = async (req, rep) => {
     return rep.status(200).send(id);
 }
 
-export { createUser, getAllUsers, getUserByUsername, updateUser, getAvatar, getId };
+export { createUser, getAllUsers, getUserByUsername, updateColor, updateUser, getAvatar, getId };

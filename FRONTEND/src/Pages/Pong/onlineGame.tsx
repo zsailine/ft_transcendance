@@ -97,11 +97,13 @@ function OnlineGame() {
 			role === "player1" ? setPLayer([username, opponent]) : setPLayer([opponent, username]);
 	}, [opponent, role])
 	useEffect(() => {
-		if (!begin || !socket || !theme) return;
+		if (!begin || !socket || !theme || player[0] === "player1") return;
 		setLoading(false);
 		setJoin(false);
 		setCreate(false);
 		const clean = start(
+			player,
+			role,
 			theme,
 			socket,
 			(winnerRole: string) => {
@@ -112,7 +114,7 @@ function OnlineGame() {
 		return () => {
 			clean();
 		};
-	}, [begin, socket]);
+	}, [begin, socket, player]);
 	useEffect(() => {
 		if (socket && text.length && enter)
 			joinRoom(null);
