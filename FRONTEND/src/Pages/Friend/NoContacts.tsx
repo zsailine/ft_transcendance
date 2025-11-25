@@ -24,10 +24,7 @@ export function NotFound() {
 		<div className="size-15 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10  rounded-full flex items-center justify-center mb-6">
 			<FaUserPlus className="size-5 text-cyan-400" /> 
 		</div>
-		<h3 className="text-md font-semibold text-slate-200 mb-2 font-helvetica-b">No friends yet</h3>
-		<p className={`text-slate-400 max-w-md font-helvetica ${message === "friends" ? "" : "text-sm"}`}>
-			Add new friends
-		</p>
+		<h3 className="text-md font-semibold text-slate-200 mb-2 font-helvetica-b">No result</h3>
 	</div>
 	);
 }

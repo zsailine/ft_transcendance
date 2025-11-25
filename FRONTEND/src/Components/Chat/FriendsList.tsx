@@ -3,7 +3,7 @@ import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useNavigate } from "react-router-dom";
 import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
-import NoContacts from "../../Pages/Friend/NoContacts";
+import { NoContacts } from "../../Pages/Friend/NoContacts";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
