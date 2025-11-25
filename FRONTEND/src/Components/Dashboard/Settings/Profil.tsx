@@ -1,6 +1,11 @@
 import Avatar from "./Avatar";
 import CoverInput from "./Cover";
 import InputText from "./InputText";
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
+import { useEffect, useState } from "react";
+
 
 interface ProfilProps {
     handleSubmit: (e: any) => void;
@@ -8,6 +13,15 @@ interface ProfilProps {
 }
 
 export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
+    
+    const [checked, setChecked] = useState(false);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setChecked(event.target.checked);
+    };
+    useEffect(() => {
+        console.log("Two-factor auth is now:", checked ? "Enabled" : "Disabled")
+    }, [checked]);
     return (
         <>
             <div className="rounded-lg text-white text-center ml-4 mr-3 my-8">
@@ -22,6 +36,21 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
                 </div>
                 <div className="mt-4 col-span-full">
                     <CoverInput />
+                </div>
+                <div>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={checked}
+                                onChange={handleChange}
+                            />
+                        }
+                        label="Enable two-factor" className="text-white mt-6"
+                        labelPlacement="start"
+                        color="#000000"
+                        style={{ marginLeft: 0 }}
+                        
+                    />
                 </div>
                 <div className="mt-6 flex items-center justify-end gap-x-6">
                     <button
