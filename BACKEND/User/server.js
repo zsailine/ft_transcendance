@@ -4,7 +4,8 @@ import userRoutes from "./routes/userRoutes.js";
 import matchesRoutes from "./routes/matchesRoutes.js";
 import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
-
+import speakeasy from "@fastify/speakeasy";
+import qrcode from "qrcode";
 
 const fastify = Fastify({ logger: false });
 
