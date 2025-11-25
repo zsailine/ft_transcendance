@@ -119,17 +119,12 @@ export function initGame(theme: ThemeColors): () => void {
   }
 
   function movePaddles(): void {
-    // Mouvement de la Raquette 1
     if (paddle1Direction !== 0) {
       let newY = paddle1.y + paddleSpeed * paddle1Direction;
-      // Limiter le mouvement dans les bords du canvas (0 et board.height - paddle1.height)
       paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
     }
-
-    // Mouvement de la Raquette 2
     if (paddle2Direction !== 0) {
       let newY = paddle2.y + paddleSpeed * paddle2Direction;
-      // Limiter le mouvement dans les bords du canvas
       paddle2.y = Math.max(0, Math.min(newY, board.height - paddle2.height));
     }
   }
@@ -144,25 +139,25 @@ export function initGame(theme: ThemeColors): () => void {
       nextTick();
     }, 1);
   }
-  let paddle1Direction = 0; // -1: up, 1: down, 0: stop
-  let paddle2Direction = 0; // -1: up, 1: down, 0: stop
+  let paddle1Direction = 0;
+  let paddle2Direction = 0;
   function keyHandler(e: KeyboardEvent): void {
     switch (e.key) {
       case "w":
       case "W":
-        paddle1Direction = -1; // Vers le haut
+        paddle1Direction = -1;
         break;
       case "s":
       case "S":
-        paddle1Direction = 1; // Vers le bas
+        paddle1Direction = 1;
         break;
       case "o":
       case "O":
-        paddle2Direction = -1; // Vers le haut
+        paddle2Direction = -1;
         break;
       case "l":
       case "L":
-        paddle2Direction = 1; // Vers le bas
+        paddle2Direction = 1;
         break;
     }
   }
@@ -173,13 +168,13 @@ export function initGame(theme: ThemeColors): () => void {
       case "W":
       case "s":
       case "S":
-        paddle1Direction = 0; // Arrêt
+        paddle1Direction = 0;
         break;
       case "o":
       case "O":
       case "l":
       case "L":
-        paddle2Direction = 0; // Arrêt
+        paddle2Direction = 0;
         break;
     }
   }
@@ -221,7 +216,6 @@ export function initGame(theme: ThemeColors): () => void {
   }
   window.addEventListener("resize", ft_resize);
 
-  // Initialisation
   createBall();
   drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   nextTick();

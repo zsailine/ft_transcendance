@@ -10,7 +10,7 @@ const mockTournaments = [
     { id: 6, name: "Devs Battle", currentPlayers: 6, maxPlayers: 10, status: "Open" },
 ];
 
-const TournamentCard = ({ name, currentPlayers, maxPlayers, status }) => {
+const TournamentCard = ({ name, currentPlayers, maxPlayers, status }: any) => {
     const isFull = currentPlayers >= maxPlayers;
     const progressPercentage = (currentPlayers / maxPlayers) * 100;
 

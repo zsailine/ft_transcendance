@@ -16,25 +16,38 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       socket.on("arrowUp", () => {
         if (gameOver) return;
         if (socket.id === player1Id) {
-          paddle1.y = Math.max(0, paddle1.y - paddleSpeed);
-          io.to(roomName).emit("up1");
+          paddle1Direction = -1;
         } else {
-          paddle2.y = Math.max(0, paddle2.y - paddleSpeed);
-          io.to(roomName).emit("up2");
+          paddle2Direction = -1;
         }
       });
 
       socket.on("arrowDown", () => {
         if (gameOver) return;
         if (socket.id === player1Id) {
-          paddle1.y = Math.min(board.height - paddle1.height, paddle1.y + paddleSpeed);
-          io.to(roomName).emit("down1");
+          paddle1Direction = 1;
         } else {
-          paddle2.y = Math.min(board.height - paddle2.height, paddle2.y + paddleSpeed);
-          io.to(roomName).emit("down2");
+          paddle2Direction = 1;
         }
       });
 
+      socket.on("arrowUpRelease", () => {
+        if (gameOver) return;
+        if (socket.id === player1Id) {
+          paddle1Direction = 0;
+        } else {
+          paddle2Direction = 0;
+        }
+      });
+
+      socket.on("arrowDownRelease", () => {
+        if (gameOver) return;
+        if (socket.id === player1Id) {
+          paddle1Direction = 0;
+        } else {
+          paddle2Direction = 0;
+        }
+      });
       socket.on("disconnect", () => {
         if (gameOver) return;
 
@@ -73,7 +86,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   let ballYDirection;
   let intervalID;
   let ballRadius = board.width * 0.0125;
-  let paddleSpeed = board.height / 7;
+  let paddleSpeed = board.height / 200;
 
   function resizeBoard() {
     board.width = 1600;
@@ -98,6 +111,21 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     ballYDirection = Math.sin(angle);
   }
 
+  let paddle1Direction = 0;
+  let paddle2Direction = 0;
+
+  function movePaddles() {
+    if (paddle1Direction !== 0) {
+      let newY = paddle1.y + paddleSpeed * paddle1Direction;
+      paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
+      io.to(roomName).emit("paddle1", paddle1.y);
+    }
+    if (paddle2Direction !== 0) {
+      let newY = paddle2.y + paddleSpeed * paddle2Direction;
+      paddle2.y = Math.max(0, Math.min(newY, board.height - paddle2.height));
+      io.to(roomName).emit("paddle2", paddle2.y);
+    }
+  }
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
     ballY += ballSpeed * ballYDirection;
@@ -164,6 +192,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
 
   function startGameLoop() {
     intervalID = setInterval(() => {
+      movePaddles();
       moveBall();
     }, 10 );
   }

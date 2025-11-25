@@ -70,6 +70,16 @@ export function start(
 				break;
 		}
 	}
+	function keyUpHandler(e: KeyboardEvent): void {
+		switch (e.key) {
+		  case "ArrowUp":
+			socket.emit("arrowUpRelease");
+			break;
+		  case "ArrowDown":
+			socket.emit("arrowDownRelease");
+			break;
+		}
+	  }
 	const ft_resize = () => {
 		const oldWidth = board.width;
 		const oldHeight = board.height;
@@ -106,17 +116,11 @@ export function start(
 		drawBall(ctx, ballRadius, theme.ball, convert(1, data.ballX), convert(0, data.ballY));
 		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 	});
-	socket.on("up1", () => {
-		paddle1.y = Math.max(paddle1.y - paddleSpeed, 0);
+	socket.on("paddle1", (data) => {
+		paddle1.y = convert(0, data);
 	});
-	socket.on("up2", () => {
-		paddle2.y = Math.max(paddle2.y - paddleSpeed, 0);
-	});
-	socket.on("down1", () => {
-		paddle1.y = Math.min(paddle1.y + paddleSpeed, board.height - paddle1.height);
-	});
-	socket.on("down2", () => {
-		paddle2.y = Math.min(board.height - paddle2.height, paddle2.y + paddleSpeed);
+	socket.on("paddle2", (data) => {
+		paddle2.y = convert(0, data);;
 	});
 	socket.on("score", (data) => {
 		paddle1Score = data.paddle1Score;
@@ -153,6 +157,7 @@ export function start(
 	socket.on("stop", finish);
 
 	window.addEventListener("keydown", keyHandler);
+	window.addEventListener("keyup", keyUpHandler);
 	clearInterval(interval);
 	socket.on("pong", () => {
 		sounds.paddle.currentTime = 0;
@@ -160,8 +165,9 @@ export function start(
 	})
 	return (() => {
 		socket.disconnect();
-		window.removeEventListener("resize", ft_resize);
 		window.removeEventListener("keydown", keyHandler);
+		window.removeEventListener("keyup", keyUpHandler);
+		window.removeEventListener("resize", ft_resize);
 	}
 	)
 }

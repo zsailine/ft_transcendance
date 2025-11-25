@@ -47,7 +47,7 @@ export function start(
   let ballXDirection: number;
   let ballYDirection: number;
   let intervalID: number;
-  let paddleSpeed = board.height / 7;
+  let paddleSpeed = board.height / 190;
   let gameOver = false;
 
   function resizeBoard(): void {
@@ -61,6 +61,7 @@ export function start(
       gameOver = true;
       clearTimeout(intervalID);
       window.removeEventListener("keydown", keyHandler);
+      window.removeEventListener("keyup", keyUpHandler);
       window.removeEventListener("resize", ft_resize);
       const winner =
         paddle1Score === 5
@@ -73,7 +74,7 @@ export function start(
   function resizePaddle(paddle: Paddle): void {
     paddle.width = board.width * 0.02;
     paddle.height = board.height * 0.15;
-    paddleSpeed = board.height / 7;
+    paddleSpeed = board.height / 190;
   }
 
 
@@ -88,7 +89,7 @@ export function start(
     const minAngle = 30 * (Math.PI / 180);
     const maxAngle = 70 * (Math.PI / 180);
     const direction = Math.random() > 0.5 ? 1 : -1;
-    
+
     const angle = minAngle + Math.random() * (maxAngle - minAngle);
 
     ballXDirection = Math.cos(angle) * direction;
@@ -140,35 +141,63 @@ export function start(
     checkWinner();
   }
 
+  function movePaddles(): void {
+    if (paddle1Direction !== 0) {
+      let newY = paddle1.y + paddleSpeed * paddle1Direction;
+      paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
+    }
+    if (paddle2Direction !== 0) {
+      let newY = paddle2.y + paddleSpeed * paddle2Direction;
+      paddle2.y = Math.max(0, Math.min(newY, board.height - paddle2.height));
+    }
+  }
   function nextTick(): void {
-    if (gameOver) return;
     intervalID = window.setTimeout(() => {
       clearBoard(ctx, board, theme.boardBackground);
+      movePaddles();
       drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
-      drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
       moveBall();
+      drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
       drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
       nextTick();
-    }, 10);
+    }, 1);
   }
-
+  let paddle1Direction = 0;
+  let paddle2Direction = 0;
   function keyHandler(e: KeyboardEvent): void {
     switch (e.key) {
       case "w":
       case "W":
-        paddle1.y = Math.max(paddle1.y - paddleSpeed, 0);
+        paddle1Direction = -1;
         break;
       case "s":
       case "S":
-        paddle1.y = Math.min(paddle1.y + paddleSpeed, board.height - paddle1.height);
+        paddle1Direction = 1;
         break;
       case "o":
       case "O":
-        paddle2.y = Math.max(paddle2.y - paddleSpeed, 0);
+        paddle2Direction = -1;
         break;
       case "l":
       case "L":
-        paddle2.y = Math.min(paddle2.y + paddleSpeed, board.height - paddle2.height);
+        paddle2Direction = 1;
+        break;
+    }
+  }
+
+  function keyUpHandler(e: KeyboardEvent): void {
+    switch (e.key) {
+      case "w":
+      case "W":
+      case "s":
+      case "S":
+        paddle1Direction = 0;
+        break;
+      case "o":
+      case "O":
+      case "l":
+      case "L":
+        paddle2Direction = 0;
         break;
     }
   }
@@ -204,10 +233,12 @@ export function start(
   drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   nextTick();
   window.addEventListener("keydown", keyHandler);
+  window.addEventListener("keyup", keyUpHandler);
   return () => {
     gameOver = true;
     clearInterval(intervalID);
     window.removeEventListener("keydown", keyHandler);
+    window.removeEventListener("keyup", keyUpHandler);
     window.removeEventListener("resize", ft_resize);
   };
 }
