@@ -17,52 +17,52 @@ const themes: ThemeOption[] = [
     { name: "Default", colors: defaultTheme },
     {
         name: "Neon", colors: {
-            paddle1: "#ff00ff", 
+            paddle1: "#ff00ff",
             paddle2: "#ff66ff",
-            ball: "#ffffff",
+            ball: "#ff88ff",
             boardBackground: "#000000",
             boardBorder: "#ff00ff",
-            score: "#ff00ff",    
+            score: "#ff00ff",
         }
     },
     {
         name: "Golden", colors: {
-            paddle1: "#ff9900", 
-            paddle2: "#ffcc00", 
-            ball: "#ffffff",
+            paddle1: "#ff9900",
+            paddle2: "#ffcc00",
+            ball: "#ffda66",
             boardBackground: "#222222",
             boardBorder: "#ff9900",
-            score: "#ff9900",    
+            score: "#ff9900",
         }
     },
     {
         name: "Forest", colors: {
             paddle1: "#32cd32",
-            paddle2: "#90ee90", 
-            ball: "#ffffff",
+            paddle2: "#90ee90",
+            ball: "#b3f0b3",
             boardBackground: "#0a1f0a",
             boardBorder: "#228b22",
-            score: "#228b22",  
+            score: "#228b22",
         }
     },
     {
         name: "Crimson", colors: {
-            paddle1: "#dc143c", 
-            paddle2: "#ff6b6b", 
-            ball: "#ffffff",
-            boardBackground: "#2b0505", 
+            paddle1: "#dc143c",
+            paddle2: "#ff6b6b",
+            ball: "#ff8888",
+            boardBackground: "#2b0505",
             boardBorder: "#dc143c",
-            score: "#dc143c",    
+            score: "#dc143c",
         }
     },
     {
         name: "Amethyst", colors: {
-            paddle1: "#9932cc", 
+            paddle1: "#9932cc",
             paddle2: "#ba55d3",
-            ball: "#ffffff",
-            boardBackground: "#15052b", 
+            ball: "#cc99e6",
+            boardBackground: "#15052b",
             boardBorder: "#8a2be2",
-            score: "#8a2be2",   
+            score: "#8a2be2",
         }
     },
 ];
@@ -77,14 +77,14 @@ export default function ThemeSelector() {
                     <button
                         onClick={() => setTheme(t.colors)}
                         className={`
-                        w-10 h-10 rounded-full border-4 transition 
+                        w-5 h-5 lg:w-10 lg:h-10 rounded-full border-4 transition 
                         ${theme?.boardBorder === t.colors.boardBorder
-                                ? "border-cyan-400 scale-110"
+                                ? "border-cyan-400 scale-80"
                                 : "border-transparent opacity-70 hover:opacity-100"}
                             `}
                         style={{ backgroundColor: t.colors.boardBorder }}
                     />
-                    <h1 className="flex justify-center text-white ml-1">
+                    <h1 className="flex justify-center text-white text-xs sm:text-sm md:text-base ml-1">
                         {t.name}
                     </h1>
                 </div>

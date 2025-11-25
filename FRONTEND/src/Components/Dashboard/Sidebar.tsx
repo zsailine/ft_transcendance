@@ -7,6 +7,7 @@ import {
 import { FaUsers } from "react-icons/fa6";
 import { RiPingPongLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { FaTrophy } from "react-icons/fa6";
 
 const Sidebar = () => {
 
@@ -19,7 +20,7 @@ const Sidebar = () => {
             <div className="flex flex-col ">
                 <div
                     className="text-amber-400 flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10">
-                    <h2 className="hidden text-xl lg:block">Trascendence</h2>
+                    <h2 className="hidden text-xl lg:block">Transcendence</h2>
                     <RiPingPongLine/>
                 </div>
                 <div
@@ -39,6 +40,12 @@ const Sidebar = () => {
                     className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
                     <IoGameController className="text-cyan-500" />
                     <h2 className="hidden lg:block">Play Games</h2>
+                </div>
+                <div
+                    onClick={() => navigate("/dashboard/tournament")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                    <FaTrophy className="text-cyan-500" />
+                    <h2 className="hidden lg:block">Tournament</h2>
                 </div>
                 <div
                     onClick={() => navigate("/dashboard/friends")}

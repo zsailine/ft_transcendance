@@ -6,8 +6,8 @@ const board = {
   height: 0
 }
 
-let gameOver = false; 
 export async function initGame(io, roomName, player1Id, player2Id) {
+  let gameOver = false; 
   io.in(roomName).fetchSockets().then((sockets) => {
     sockets.forEach((socket) => {
       if (socket.data.listenersAttached) return;
