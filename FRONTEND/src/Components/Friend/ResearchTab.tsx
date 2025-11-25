@@ -1,19 +1,20 @@
 import { useState, type FormEvent } from "react"
 import SearchBar from "../Chat/SearchBar"
-import type { UserInterface } from "../../Providers/ChatProvider";
 import { useFriend } from "../../Providers/FriendProvider";
+import type { UserInterface } from "../../Providers/ChatProvider";
 import FriendsList from "../Chat/FriendsList";
 
 function ResearchTab() {
 	const [ searchValue, setSearchValue ] = useState<string>("");
-	const [ selectedUser, setSelectedUser ] = useState<UserInterface | null>(null);
-	const [ foundUser, setFoundUser ] = useState<UserInterface[]>([]);
-	const { notFriends } = useFriend();
+	const { unknowns } = useFriend();
+	const [ foundUsers, setFoundUsers ] = useState<UserInterface[]>([]);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setSearchValue(searchValue);
-		setFoundUser(await notFriends(searchValue));
+		if (searchValue !== "") {
+			setFoundUsers(unknowns.filter((user : UserInterface) =>
+				user.username?.toLowerCase().includes(searchValue.toLowerCase())));
+		}
 	}
 
   return (
@@ -23,13 +24,16 @@ function ResearchTab() {
 				searchValue={searchValue}
 				setSearchValue={setSearchValue}/>
 		</form>
-		{foundUser.length !== 0 ?
-			<FriendsList
-				friendsList={foundUser}
-				searchValue=""
-				setSelectedUser={setSelectedUser}
-				message={"research"}/>
-			: <></>}
+		{foundUsers.length !== 0 ?
+		
+		<FriendsList
+			friendsList={foundUsers}
+			searchValue=""
+			setSelectedUser={()=>{}}
+			message="research"
+		/>
+
+		: <></>}
 	</div>
   )
 }

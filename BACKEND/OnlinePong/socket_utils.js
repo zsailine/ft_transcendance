@@ -16,7 +16,7 @@ export function removeSocket(socket, AllMode, waitingPlayers, privateRoom) {
     }
 }
 
-function generateRoom() {
+export function generateRoom() {
     const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMBNOPQRSTUVWXYZ123456789"
     let i = 0;
     let result = "";

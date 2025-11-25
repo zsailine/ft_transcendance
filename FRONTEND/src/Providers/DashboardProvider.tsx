@@ -26,6 +26,7 @@ interface DashboardInterface {
     coverImage: ImageBuffer | null,
     setCoverImage: (coverImage: ImageBuffer) => void,
     theme: ThemeColors | null,
+    setTheme: (theme: ThemeColors) => void,
     refreshUserData: () => void,
 }
 
@@ -94,7 +95,8 @@ export const DashboardProvider = ({ children }: any) => {
         coverImage,
         setCoverImage,
         refreshUserData,
-        theme
+        theme,
+        setTheme
     }
 
     return (

@@ -14,15 +14,9 @@ await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
 	origin: "http://localhost:5173",
+	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });
-
-const axiosInstance = axios.create({
-	baseURL: "http://localhost:3001",
-	timeout: 1000,
-});
-
-fastify.decorate("axios", axiosInstance);
 
 fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 

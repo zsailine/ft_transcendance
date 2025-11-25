@@ -1,4 +1,4 @@
-type Paddle = {
+export type Paddle = {
     width: number;
     height: number;
     x: number;
@@ -14,12 +14,10 @@ export function drawBall(
     y: number
 ): void {
     ctx.fillStyle = ballColor;
-    ctx.strokeStyle = "black";
 
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.stroke();
     ctx.closePath();
 }
 
@@ -30,15 +28,11 @@ export function drawPaddles(
     paddle1: Paddle,
     paddle2: Paddle
 ): void {
-    ctx.strokeStyle = "black";
-
     ctx.fillStyle = paddle1Color;
     ctx.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
-    ctx.strokeRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
 
     ctx.fillStyle = paddle2Color;
     ctx.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
-    ctx.strokeRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
 }
 
 export function clearBoard(

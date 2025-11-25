@@ -10,21 +10,17 @@ export function init(roomName, player1, username1, player2, username2) {
     const p2 = random ? player2 : player1;
     const u2 = random ? username2 : username1;
 
-    // Join room
     p1.join(roomName);
     p2.join(roomName);
 
-    // Assigner les rôles
     p1.emit("role", "player1");
     p1.emit("opponent", u2);
 
     p2.emit("role", "player2");
     p2.emit("opponent", u1);
 
-    // Envoyer prêts
     p1.emit("ready");
     p2.emit("ready");
 
-    // Et lancer le jeu
     initGame(io, roomName, p1.id, p2.id);
 }

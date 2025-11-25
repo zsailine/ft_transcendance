@@ -5,20 +5,17 @@ import { fastify, getReceiverSocket } from "../server.js";
 const USER_URL = "http://localhost:3001/users";
 
 const getUsername = async (req, rep) => {
-	const token = req.cookies?.token;
-	if (!token)
-		console.log("\n\nMISSING TOKEN\n\n");
-
-	try {
-		const decoded = req.server.jwt.decode(token);
-		if (decoded)
-			return decoded.username;
-	} catch(error) {
-		console.log(error.message);
-		rep.status(500).send({
-			error: "Verification service error, failed to fetch username"
-		});
+	const cookies = req.cookies;
+	const realCookies = Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join("; ");
+	const user = await axios.get("http://localhost:3002/auth/me", {
+		headers: {
+			'Cookie': realCookies
+		}
+	});
+	if (user) {
+		return user.data.user;
 	}
+	return "";
 }
 
 const getAllContacts = async (req, rep) => {
@@ -26,9 +23,17 @@ const getAllContacts = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep);
 		const allUsers = await axios.get(`${USER_URL}/all`);
 		const contacts = allUsers.data.filter(user => user.username !== loggedInUsername);
+		let filtered = [];
 
-		if (contacts) {
-			return rep.status(200).send(contacts);	
+		contacts.map((one) => {
+			filtered.push({
+				id: one.id,
+				username: one.username,
+				avatar: one.avatar
+			})
+		});
+		if (filtered) {
+			return rep.status(200).send(filtered);
 		}
 
 	} catch(error) {

@@ -2,13 +2,49 @@ import { useDashboard } from "../../Providers/DashboardProvider";
 import { useState, useEffect } from "react";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import Story from "../../Components/Profil/Story";
+import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
+import api from "../../Utils/axios";
+
+interface statInterface {
+    total_matches: number;
+    total_losses: number;
+    total_wins: number;
+}
 
 const Profil = () => {
+    const defaultStats: statInterface = {
+    total_matches: 0,
+    total_losses: 0,
+    total_wins: 0,
+};
     const { avatar, coverImage, username } = useDashboard();
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
+    const [stats, setStats] = useState<statInterface>(defaultStats);
+    const [matches, setMatches] = useState<any>(null);
+    const [overlay, setOverlay] = useState(false);
 
+    async function getStats() {
+        const response = await api.get(`/matches/stats/${username}`);
+        if (response.data.total_matches)
+            setStats(response.data);
+    }
+    async function getRecentMatches() {
+        const response = await api.get(`/matches/${username}?size=5`);
+        if (response.data.length)
+            setMatches(response.data);
+    }
+    useEffect(() => {
+        if (!username) return;
+        try {
+            getStats();
+            getRecentMatches();
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }, [username]);
     useEffect(() => {
         let url: string | null = getImageUrlFromBlob(avatar?.data);
         setAvatarURL(url);
@@ -41,52 +77,66 @@ const Profil = () => {
     };
 
     return (
-        <div className=" text-white text-center ml-4 mr-2 my-8">
-            <div className="flex flex-col md:flex-row gap-8 items-end">
-                <div className="w-full md:w-1/2">
-                    <div
-                        className="rounded-lg h-80"
-                        style={{ ...coverStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                    >
-                        <div className="flex justify-between text-left p-3 rounded-lg h-full bg-linear-65 from-cyan-200/15 to-cyan-800/30">
-                            <div>
-                                <h1 className="text-3xl font-bold">{username}</h1>
-                                <p>More information</p>
-                            </div>
-                            <div className="text-right ">
-                                <p>Score</p>
-                                <p className="text-amber-400 text-3xl">450</p>
-                                <p>Victory</p>
-                                <p className="text-amber-400 text-3xl">120</p>
-                                <p>Defeat</p>
-                                <p className="text-amber-400 text-3xl">35</p>
+        <>
+            <div className=" text-white text-center ml-4 mr-2 my-8">
+                <div className="flex flex-col md:flex-row gap-8 items-end">
+                    <div className="w-full md:w-1/2">
+                        <div
+                            className="rounded-lg h-80"
+                            style={{ ...coverStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                        >
+                            <div className="flex justify-between text-left p-3 rounded-lg h-full bg-linear-65 from-cyan-200/15 to-cyan-800/30">
+                                <div>
+                                    <h1 className="text-3xl font-bold">{username}</h1>
+                                    <p>More information</p>
+                                </div>
+                                <div className="text-right ">
+                                    <p>Score</p>
+                                    <p className="text-amber-400 text-3xl">{stats?.total_matches}</p>
+                                    <p>Victory</p>
+                                    <p className="text-amber-400 text-3xl">{stats?.total_wins}</p>
+                                    <p>Defeat</p>
+                                    <p className="text-amber-400 text-3xl">{stats?.total_losses}</p>
+                                </div>
                             </div>
                         </div>
+                        <div
+                            className="size-32 rounded-full border-4 border-cyan-500 ml-6 mt-[-100px] mb-4"
+                            style={{ ...avatarStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                        />
                     </div>
-                    <div
-                        className="size-32 rounded-full border-4 border-cyan-500 ml-6 mt-[-100px] mb-4"
-                        style={{ ...avatarStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                    />
+                    <div className="w-full md:w-1/2">
+                        <GraphDisplayed />
+                    </div>
                 </div>
-                <div className="w-full md:w-1/2">
-                    <GraphDisplayed />
+                <div className="flex justify-between items-baseline">
+                    <h1 className="text-4xl mb-4">Match history</h1>
+                    <h1
+                        className="text-xl text-blue-500 hover:text-blue-700 cursor-pointer mb-4"
+                        onClick={() => setOverlay(true)}
+                    >
+                        ... view all
+                    </h1>
+                </div>
+                <div className="sm:flex gap-8">
+                    <div className="w-full">
+                        {matches && matches.map((match: any) => (
+                            <Story key={match.id} username={username} match={match} />
+                        ))}
+                        {!matches && <p>No matches to show</p>}
+
+                    </div>
+                    {/* <div className="hidden md:block bg-[url(/images/aside_01.png)] bg-no-repeat bg-cover bg-center h-[400px] rounded w-1/4">
+
+</div> */}
                 </div>
             </div>
-            <h1 className="text-4xl text-left mb-4">Match story</h1>
-            <div className="sm:flex gap-8">
-                <div className="w-3/4">
-                    <Story />
-                    <Story />
-                    <Story />
-                    <Story />
-                    <Story />
-
-                </div>
-                <div className="hidden md:block bg-[url(/images/aside_01.png)] bg-no-repeat bg-cover bg-center h-[400px] rounded w-1/4">
-
-                </div>
-            </div>
-        </div>
+            {
+                overlay && (
+                    <OverlayMatch />
+                )
+            }
+        </>
     );
 };
 

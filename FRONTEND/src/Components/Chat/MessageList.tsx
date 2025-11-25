@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useChat } from "../../Providers/ChatProvider"
 import { getImageUrlFromBlob } from "../../Utils/blob";
+import NoChatHistory from "../../Pages/Chat/NoChatHistory";
 
 const senderStyle = "self-end bg-cyan-500 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mb-3 mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/15 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow mb-3 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
@@ -35,7 +36,7 @@ function MessageList() {
 
 	if (messages.length === 0) {
 		return (
-			<div className="text-white">NO message to show</div>
+			<NoChatHistory name={selectedUser?.username || ""}/>
 		);
 	}
 

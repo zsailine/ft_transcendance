@@ -9,9 +9,10 @@ function Friends() {
 
   return (
 	<div className="flex flex-col gap-10">
+		{friendsList.length === 0 ? <></> :
 		<SearchBar
-	  		searchValue={searchValue}
-			setSearchValue={setSearchValue}/>
+			searchValue={searchValue}
+			setSearchValue={setSearchValue}/>}
 		<FriendsList
 			friendsList={friendsList}
 			searchValue={searchValue}

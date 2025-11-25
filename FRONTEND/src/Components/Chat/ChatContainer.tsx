@@ -1,3 +1,4 @@
+import NoConversation from "../../Pages/Chat/NoConversation";
 import { useChat } from "../../Providers/ChatProvider";
 import MessageInput from "./MessageInput";
 import MessageList from "./MessageList";
@@ -9,7 +10,7 @@ function ChatContainer() {
 
 	if (selectedUser === null) {
 		return (
-			<div className="text-white font-helvetica">Select someone to Chat with</div>
+			<NoConversation/>
 		);
 	}
 
