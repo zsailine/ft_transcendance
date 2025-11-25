@@ -41,7 +41,7 @@ function MessageList() {
 	}
 
 	return (
-	<div className="p-4 text-white overflow-y-auto h-[600px]">
+	<div className="p-4 text-white overflow-y-auto flex-1">
 		<ul className="flex flex-col gap-5 font-helvetica">
 		{messages.map(message => 
 			<li key={message.id}
