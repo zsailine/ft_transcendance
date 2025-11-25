@@ -11,11 +11,11 @@ const Dashboard = () => {
                     <Sidebar />
                 </div>
                 <div className=" relative w-full lg:w-5/6 overflow-y-auto">
-                    <div className="mx-6">
+                    <div className="mx-6 h-[85vh]">
                         <div className="flex justify-end h-max mb-10">
                             <Navbar />
                         </div>
-                        <div className="flex-1 min-h-0 mb-6">
+                        <div className="flex-1 min-h-0 mb-6 h-full">
                             < Outlet />
                         </div>
                     </div>
