@@ -32,22 +32,44 @@ fastify.ready().then(() => {
 	
 	fastify.io.on("connection", (socket) => {
 		const userName = socket.username;
-		userSocketMap[userName] = socket.id;
+
+		if (!userSocketMap[userName]) {
+			userSocketMap[userName] = [];
+		}
+		userSocketMap[userName].push(socket.id);
 		fastify.io.emit("onlineUser", Object.keys(userSocketMap));
+
 		socket.on("invite", (data) => {
-			const receiverSocket = userSocketMap[data.toInvite]
+			const receiverSockets = userSocketMap[data.toInvite];
 			const room = data.room;
 			const user = data.user;
-			if (receiverSocket)
-				fastify.io.to(receiverSocket).emit("join", {room, user});
+
+			if (receiverSockets && receiverSockets.length > 0) {
+				receiverSockets.forEach(socketId => {
+					fastify.io.to(socketId).emit("join", { room, user });
+				});
+			}
 		});
 		socket.on("received", data => {
-			const receiverSocket = userSocketMap[data];
-			if (receiverSocket)
-				fastify.io.to(receiverSocket).emit("received");
+			const receiverSockets = userSocketMap[data];
+			if (receiverSockets && receiverSockets.length > 0) {
+				receiverSockets.forEach(socketId => {
+					fastify.io.to(socketId).emit("received");
+				});
+			}
 		})
+
 		socket.on("disconnect", () => {
-			delete userSocketMap[userName];
+			if (userSocketMap[userName]) {
+				const index = userSocketMap[userName].indexOf(socket.id);
+				if (index > -1) {
+					userSocketMap[userName].splice(index, 1);
+				}
+				if (userSocketMap[userName].length === 0) {
+					delete userSocketMap[userName];
+				}
+			}
+
 			fastify.io.emit("onlineUser", Object.keys(userSocketMap));
 		});
 	});

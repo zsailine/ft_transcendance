@@ -44,7 +44,7 @@ export function initGame(theme: ThemeColors): () => void {
   let ballXDirection: number;
   let ballYDirection: number;
   let intervalID: number;
-  let paddleSpeed = board.height / 13;
+  let paddleSpeed = board.height / 200;
 
   function resizeBoard(): void {
     board.width = window.innerWidth * 0.8;
@@ -52,13 +52,13 @@ export function initGame(theme: ThemeColors): () => void {
   }
 
   function resizePaddle(paddle: Paddle): void {
-    paddleSpeed = board.height / 7;
+    paddleSpeed = board.height / 200;
     paddle.width = board.width * 0.02
     paddle.height = board.height * 0.15;
   }
 
   function createBall(): void {
-   ballSpeed = board.width * 0.001;
+    ballSpeed = board.width * 0.001;
 
     const minY = board.height / 3;
     const maxY = (board.height * 3) / 4;
@@ -68,7 +68,7 @@ export function initGame(theme: ThemeColors): () => void {
     const minAngle = 30 * (Math.PI / 180);
     const maxAngle = 70 * (Math.PI / 180);
     const direction = Math.random() > 0.5 ? 1 : -1;
-    
+
     const angle = minAngle + Math.random() * (maxAngle - minAngle);
 
     ballXDirection = Math.cos(angle) * direction;
@@ -118,9 +118,25 @@ export function initGame(theme: ThemeColors): () => void {
     drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   }
 
+  function movePaddles(): void {
+    // Mouvement de la Raquette 1
+    if (paddle1Direction !== 0) {
+      let newY = paddle1.y + paddleSpeed * paddle1Direction;
+      // Limiter le mouvement dans les bords du canvas (0 et board.height - paddle1.height)
+      paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
+    }
+
+    // Mouvement de la Raquette 2
+    if (paddle2Direction !== 0) {
+      let newY = paddle2.y + paddleSpeed * paddle2Direction;
+      // Limiter le mouvement dans les bords du canvas
+      paddle2.y = Math.max(0, Math.min(newY, board.height - paddle2.height));
+    }
+  }
   function nextTick(): void {
     intervalID = window.setTimeout(() => {
       clearBoard(ctx, board, theme.boardBackground);
+      movePaddles();
       drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
       moveBall();
       drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
@@ -128,24 +144,42 @@ export function initGame(theme: ThemeColors): () => void {
       nextTick();
     }, 1);
   }
-
+  let paddle1Direction = 0; // -1: up, 1: down, 0: stop
+  let paddle2Direction = 0; // -1: up, 1: down, 0: stop
   function keyHandler(e: KeyboardEvent): void {
     switch (e.key) {
       case "w":
       case "W":
-        paddle1.y = Math.max(paddle1.y - paddleSpeed, 0);
+        paddle1Direction = -1; // Vers le haut
         break;
       case "s":
       case "S":
-        paddle1.y = Math.min(paddle1.y + paddleSpeed, board.height - paddle1.height);
+        paddle1Direction = 1; // Vers le bas
         break;
       case "o":
       case "O":
-        paddle2.y = Math.max(paddle2.y - paddleSpeed, 0);
+        paddle2Direction = -1; // Vers le haut
         break;
       case "l":
       case "L":
-        paddle2.y = Math.min(paddle2.y + paddleSpeed, board.height - paddle2.height);
+        paddle2Direction = 1; // Vers le bas
+        break;
+    }
+  }
+
+  function keyUpHandler(e: KeyboardEvent): void {
+    switch (e.key) {
+      case "w":
+      case "W":
+      case "s":
+      case "S":
+        paddle1Direction = 0; // Arrêt
+        break;
+      case "o":
+      case "O":
+      case "l":
+      case "L":
+        paddle2Direction = 0; // Arrêt
         break;
     }
   }
@@ -192,9 +226,11 @@ export function initGame(theme: ThemeColors): () => void {
   drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
   nextTick();
   window.addEventListener("keydown", keyHandler);
+  window.addEventListener("keyup", keyUpHandler);
   return () => {
     clearInterval(intervalID);
     window.removeEventListener("keydown", keyHandler);
+    window.removeEventListener("keyup", keyUpHandler);
     window.removeEventListener("resize", ft_resize);
   };
 }
