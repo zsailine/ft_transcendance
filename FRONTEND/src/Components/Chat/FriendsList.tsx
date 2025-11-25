@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
-import { GrSend } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
-import { IoMdPersonAdd } from "react-icons/io";
+import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
+import NoContacts from "../../Pages/Friend/NoContacts";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -20,7 +20,6 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 
 	const handleMessageClick = (friend: UserInterface) => {
 		setSelectedUser(friend);
-		console.log(friend);
 		navigate("/dashboard/discussion");
 	}
 	
@@ -36,7 +35,7 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 	if (friendsList.length === 0 ||
 		(filteredFriends.length === 0 && searchValue !== "")) {
 		return (
-			<p className="text-cyan-200/50 p-3 text-center">No friends to show</p>
+			<NoContacts message={message}/>
 		);
 	}
 
@@ -63,16 +62,9 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 								{friend.username}
 							</div>
 						</div>
-						{message !== "message" ? (message === "research" ?
-						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl">
-							<h1 className="font-helvetica">Add</h1>
-							<IoMdPersonAdd className="text-2xl"/>
-						</div> :
-						<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
-							onClick={() => handleMessageClick(friend)}>
-							<h1 className="font-helvetica">Message</h1>
-							<GrSend className="text-2xl"/>
-						</div>)
+						{message !== "message" ? (message === "research" ? 
+							<AddFriendButton friend={friend}/> :
+							<MessageFriendButton handleClick={() => handleMessageClick(friend)}/> )
 							: <></>}
 					</li> )}
 			</ul>

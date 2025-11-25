@@ -9,25 +9,31 @@ function Discussion() {
 	const { searchValue, setSearchValue, friendsList, setSelectedUser } = useChat()
 
 	return (
-		<div className="flex justify-center">
+		<div className="flex justify-center h-full w-full">
 			<ChatBorder>
+				<div className="flex w-full h-full max-h-[750px]" id="message-box">
 
-				<div className="ml-8 mt-8 w-1/6 mr-8 flex flex-col gap-10">
-					<ChatTitle />
-					<SearchBar 
-						searchValue={searchValue}
-						setSearchValue={setSearchValue}/>
-					<FriendsList
-						friendsList={friendsList}
-						searchValue={searchValue}
-						setSelectedUser={setSelectedUser}
-						message={"message"} />
+					<div className="md:w-80 shrink-0 flex flex-col gap-6 p-6 h-full w-full" id="message-sidebar">
+						<ChatTitle />
+						<SearchBar 
+							searchValue={searchValue}
+							setSearchValue={setSearchValue}/>
+						<div className="flex-1 overflow-y-auto">
+						<FriendsList
+							friendsList={friendsList}
+							searchValue={searchValue}
+							setSelectedUser={setSelectedUser}
+							message={"message"} />
+						</div>
+					</div>
+
+					<div className="w-px md:block bg-cyan-500/20 h-full flex-none"></div>
+
+					<div className="hidden md:flex flex-1 h-full min-w-0">
+						<ChatContainer/>
+					</div>
+
 				</div>
-
-				<div className="w-px border-1 border-cyan-500/20 h-full"></div>
-
-				<ChatContainer/>
-
 			</ChatBorder>
 		</div>
 	);
