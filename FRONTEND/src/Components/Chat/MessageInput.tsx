@@ -42,10 +42,10 @@ function MessageInput() {
 	const removeImage = () => setImage(null);
 
 	return (
-	<div className="ml-8 mr-8 font-helvetica mb-8">
+	<div className="p-4 font-helvetica flex-1 shrink-0 min-w-0">
 
 		{image && (
-			<div className="max-w-3xl mx-auto mb-3 ml-16 flex items-center">
+			<div className="max-w-3xl mb-3 ml-16 flex items-center flex-1">
 				<div className="relative">
 					<img alt="Preview"
 						src={getImageUrlFromBlob(image?.data) || ""}
@@ -59,10 +59,10 @@ function MessageInput() {
 			</div>
 		)}
 
-		<form className="flex justify-center gap-4 h-[50px]" onSubmit={handleSubmit}>
+		<form className="flex justify-center gap-4 h-[50px] min-h-[50px] flex-1 shrink-0" onSubmit={handleSubmit}>
 			<label
 				htmlFor="image-upload"
-				className="w-12 text-sm text-white bg-slate-800 border-none rounded-lg flex justify-center items-center hover:ring-1 focus:ring-white cursor-pointer">
+				className="min-w-12 shrink-0 w-12 text-sm text-white bg-slate-800 border-none rounded-lg flex justify-center items-center hover:ring-1 focus:ring-white cursor-pointer">
 				<AiFillPicture />
 			</label>
 			<input
@@ -72,14 +72,14 @@ function MessageInput() {
 				className="hidden"
 				onChange={handleImage}/>
 
-			<input placeholder="Type Message"
+			<input placeholder="Aa"
 				type="text"
-				className="py-2 pl-10 pr-4 text-md text-white bg-slate-800 border-none rounded-lg flex-1"
+				className="min-w-0 py-2 pl-4 pr-4 text-md font-helvetica italic text-white bg-slate-800 border-none rounded-lg flex-1"
 				value={text}
 				onChange={(e) => setText(e.target.value)} />
 
 			<button type="submit"
-				className="w-12 text-sm text-white bg-slate-800 border-none rounded-lg flex justify-center items-center hover:ring-1 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
+				className="min-w-12 shrink-0 w-12 text-sm text-white bg-slate-800 border-none rounded-lg flex justify-center items-center hover:ring-1 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
 				disabled={!text && !image}>
 				<FaPaperPlane />
 			</button>
