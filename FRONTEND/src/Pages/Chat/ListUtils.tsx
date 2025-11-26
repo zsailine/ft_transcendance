@@ -17,7 +17,7 @@ export function MessageFriendButton({ handleClick }: MessageFriendProps) {
 	return (
 	<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
 		onClick={handleClick}>
-		<h1 className="font-helvetica">Message</h1>
+		<h1 className="font-helvetica hidden lg:block">Message</h1>
 		<GrSend className="text-2xl"/>
 	</div>
 	);
@@ -35,7 +35,7 @@ export function AddFriendButton({ friend }: AddFriendButtonProps) {
 	return (
 	<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
 		onClick={() => handleClick()}>
-		<h1 className="font-helvetica">{sent ? "Sent" : "Add"}</h1>
+		<h1 className="font-helvetica hidden md:block">{sent ? "Sent" : "Add"}</h1>
 		{sent ?
 		<BiUserCheck className="text-2xl"/> :
 		<IoMdPersonAdd className="text-2xl"/>}

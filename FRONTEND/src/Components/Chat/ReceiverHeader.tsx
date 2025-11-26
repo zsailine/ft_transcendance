@@ -61,7 +61,7 @@ function ReceiverHeader() {
 	return (
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
-			<div id="friends-avatar" className="w-15 h-15">
+			<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
 				{selectedUser?.avatar ?
 					<img alt={selectedUser.username?.at(0)?.toUpperCase()}
 						src={getImageUrlFromBlob(selectedUser.avatar.data)?.toString()}

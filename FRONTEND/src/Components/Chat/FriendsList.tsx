@@ -39,20 +39,21 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 	}
 
 	return (
-		<div className="flex flex-col flex-1 overflow-y-auto font-helvetica mb-8">
+		<div className={`flex flex-col flex-1 overflow-y-auto font-helvetica mb-8 ${message !== "friends" && message !== "research" ? ""
+			: "w-full md:w-[50%]"}`}>
 			<ul className="text-white">
 				{filteredFriends.map((friend) =>
-					<li key={friend.id} className={`flex items-center gap-150 p-2 rounded-lg cursor-pointer ${hoverEffect}`}>
-						<div className="flex gap-5 items-center w-full"
+					<li key={friend.id} className={`flex items-center p-2 rounded-lg cursor-pointer ${hoverEffect}`}>
+						<div className="flex gap-2 md:gap-5 items-center w-full"
 						onClick={() => setSelectedUser(friend)}>
 
-							<div id="friends-avatar" className="w-15 h-15">
+							<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
 								{friend.avatar ?
 								<img	alt={friend.username?.at(0)?.toUpperCase()}
 											src={getImageUrlFromBlob(friend.avatar)?.toString()}
 											className="w-full h-full rounded-full object-cover border border-cyan-500/20"
 								/> :
-								<div className="font-helvetica w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-lg font-semibold border border-cyan-500/20">
+								<div className="font-helvetica w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-md md:text-lg font-semibold border border-cyan-500/20">
 									{friend.username?.at(0)?.toUpperCase()}
 								</div>}
 							</div>
@@ -61,10 +62,12 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 								{friend.username}
 							</div>
 						</div>
+						<div>
 						{message !== "message" ? (message === "research" ? 
 							<AddFriendButton friend={friend}/> :
 							<MessageFriendButton handleClick={() => handleMessageClick(friend)}/> )
 							: <></>}
+						</div>
 					</li> )}
 			</ul>
 		</div>
