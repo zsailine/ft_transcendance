@@ -21,6 +21,7 @@ export function init(roomName, player1, username1, player2, username2) {
 
     p1.emit("ready");
     p2.emit("ready");
-
+    console.log('the socket id of p1 ' + p1.id);
+    console.log('the socket id pf p2 ' + p2.id);
     initGame(io, roomName, p1.id, p2.id);
 }

@@ -69,7 +69,7 @@ const Settings = () => {
 
             </div>
             <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 border border-amber-100/10 
-            rounded-lg shadow-md shadow-amber-100/20 py-6 bg-cyan-800/5  ">
+            rounded-lg shadow-md shadow-amber-100/20 py-6 bg-cyan-800/5 ">
                 {activeTab === "profil" && (
                     <Profil handleSubmit={handleSubmit} hoverEffect={hoverEffect} />
                 )}

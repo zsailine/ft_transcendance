@@ -99,7 +99,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		if (user) {
 			fetchNotFriends();
 		}
-	}, []);
+	}, [user]);
 
 	const value = {
 		friendRequests, setFriendRequests,
