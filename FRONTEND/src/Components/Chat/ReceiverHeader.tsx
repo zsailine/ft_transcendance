@@ -55,7 +55,7 @@ function ReceiverHeader() {
 	}, [link, socket]);
 
 	return (
-		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8">
+		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
 			<div id="friends-avatar" className="w-15 h-15">
 				{selectedUser?.avatar ?
