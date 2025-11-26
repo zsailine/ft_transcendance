@@ -74,12 +74,12 @@ function ReceiverHeader() {
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica">
 				{selectedUser?.username}
 			</div>
-			<div className=" flex ml-auto mr-6 gap-2 sm:gap-4">
+			<div className=" flex ml-auto mr-6 gap-2 md:gap-4">
 				{join && (
 					<AiFillNotification className="size-6 mt-1 mr-4 text-cyan-500" onClick={joinRoom} />
 				)}
-				<GiConsoleController className="size-6 sm:size-8 text-cyan-500" onClick={invite} />
-				<BsBoxArrowInRight className="size-6 sm:size-8 text-cyan-500"
+				<GiConsoleController className="size-6 md:size-8 text-cyan-500" onClick={invite} />
+				<BsBoxArrowInRight className="size-6 md:size-8 text-cyan-500"
 					onClick={() => setSelectedUser(null)} />
 			</div>
 		</div>

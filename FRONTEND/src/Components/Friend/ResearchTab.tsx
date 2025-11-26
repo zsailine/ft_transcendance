@@ -19,11 +19,12 @@ function ResearchTab() {
 	}
 
   return (
-	<div className="flex flex-col gap-5">
-		<form onSubmit={handleSubmit}>
+	<div className="flex flex-col gap-10 items-center">
+		<form onSubmit={handleSubmit} className="w-full flex justify-center">
 			<SearchBar
 				searchValue={searchValue}
-				setSearchValue={setSearchValue}/>
+				setSearchValue={setSearchValue}
+				className="md:w-[50%] w-full"/>
 		</form>
 		{foundUsers.length !== 0 ?
 		

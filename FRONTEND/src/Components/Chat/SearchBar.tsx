@@ -1,11 +1,12 @@
 interface SearchBarProps {
 	searchValue: string,
-	setSearchValue: (searchValue: string) => void
+	setSearchValue: (searchValue: string) => void,
+	className: string
 }
 
-function SearchBar({ searchValue, setSearchValue }: SearchBarProps) {
+function SearchBar({ searchValue, setSearchValue, className }: SearchBarProps) {
 	return (
-	<div>
+	<div className={className}>
 		<input placeholder="Search"
 			type="text"
 			value={searchValue}

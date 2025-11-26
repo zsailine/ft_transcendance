@@ -22,7 +22,8 @@ function Discussion() {
 						<ChatTitle />
 						<SearchBar 
 							searchValue={searchValue}
-							setSearchValue={setSearchValue}/>
+							setSearchValue={setSearchValue}
+							className=""/>
 						<div className="flex-1 overflow-y-auto">
 						<FriendsList
 							friendsList={friendsList}
