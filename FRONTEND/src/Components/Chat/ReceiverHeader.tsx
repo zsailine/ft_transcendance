@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../Providers/AuthProvider";
 import { generateRoom } from "../../Utils/tools";
 import { useNavigate } from "react-router-dom";
+import { BsBoxArrowInRight } from "react-icons/bs";
 
 function ReceiverHeader() {
 	const { socket, user } = useAuth();
 	const navigate = useNavigate();
-	const { selectedUser } = useChat();
+	const { selectedUser, setSelectedUser } = useChat();
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
 
@@ -21,10 +22,12 @@ function ReceiverHeader() {
 		socket.emit("invite", { user, toInvite, room });
 		setLink(room);
 	}
+
 	function joinRoom() {
 		if (!link) return;
 		navigate(`/dashboard/play/online?mode=invite&link=${link}`);
 	}
+
 	useEffect(() => {
 		if (!socket || !selectedUser) return;
 		setJoin(false);
@@ -39,6 +42,7 @@ function ReceiverHeader() {
 			socket.off("join", handler);
 		};
 	}, [socket, selectedUser]);
+
 	useEffect(() => {
 		if (!link.length || !socket) return;
 
@@ -70,11 +74,13 @@ function ReceiverHeader() {
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica">
 				{selectedUser?.username}
 			</div>
-			<div className=" flex ml-auto mr-6">
+			<div className=" flex ml-auto mr-6 gap-2 sm:gap-4">
 				{join && (
 					<AiFillNotification className="size-6 mt-1 mr-4 text-cyan-500" onClick={joinRoom} />
 				)}
-				<GiConsoleController className="size-8 text-cyan-500" onClick={invite} />
+				<GiConsoleController className="size-6 sm:size-8 text-cyan-500" onClick={invite} />
+				<BsBoxArrowInRight className="size-6 sm:size-8 text-cyan-500"
+					onClick={() => setSelectedUser(null)} />
 			</div>
 		</div>
 	);

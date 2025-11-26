@@ -17,7 +17,8 @@ interface FriendInterface {
 	setUnknowns: (unknown: UserInterface[]) => void,
 	acceptInvite: (friend: UserInterface) => void,
 	declineInvite: (friend: UserInterface) => void,
-	addFriend: (friend: UserInterface) => void
+	addFriend: (friend: UserInterface) => void,
+	fetchNotFriends: () => void
 };
 
 const FriendContext = createContext<FriendInterface | null>(null);
@@ -105,7 +106,8 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		friendRequests, setFriendRequests,
 		searchValue, setSearchValue,
 		unknowns, setUnknowns,
-		acceptInvite, declineInvite, addFriend
+		acceptInvite, declineInvite, addFriend,
+		fetchNotFriends
 	};
 
 	return (

@@ -6,14 +6,19 @@ import ChatContainer from "./ChatContainer";
 import { useChat } from "../../Providers/ChatProvider";
 
 function Discussion() {
-	const { searchValue, setSearchValue, friendsList, setSelectedUser } = useChat()
+	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat()
+
+	const exist = !!selectedUser?.username;
+	const leftClass = `md:w-75 shrink-0 flex flex-col gap-10 p-6 h-full w-full ${exist ? 'hidden md:flex' : 'flex'} ${exist && 'w-0 p-0'}`;
+	const separatorClass = "w-px md:block bg-cyan-500/20 h-full flex-none";
+	const chatClass = `w-full h-full min-w-0 ${exist ? 'flex' : 'hidden md:flex'} ${exist ? 'flex-1' : 'w-full'}`;
 
 	return (
 		<div className="flex justify-center h-full w-full min-h-[450px]">
 			<ChatBorder>
 				<div className="flex w-full h-full" id="message-box">
 
-					<div className="md:w-75 shrink-0 flex flex-col gap-10 p-6 h-full w-full" id="message-sidebar">
+					<div className={leftClass} id="message-sidebar">
 						<ChatTitle />
 						<SearchBar 
 							searchValue={searchValue}
@@ -27,9 +32,9 @@ function Discussion() {
 						</div>
 					</div>
 
-					<div className="w-px md:block bg-cyan-500/20 h-full flex-none"></div>
+					<div className={separatorClass}></div>
 
-					<div className="hidden md:flex flex-1 h-full min-w-0 w-full">
+					<div className={chatClass}>
 						<ChatContainer/>
 					</div>
 

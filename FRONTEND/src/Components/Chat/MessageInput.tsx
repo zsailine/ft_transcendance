@@ -75,7 +75,7 @@ function MessageInput() {
 
 			<input placeholder="Aa"
 				type="text"
-				className="min-w-0 py-2 pl-4 pr-4 text-md font-helvetica italic text-white bg-slate-800 border-none rounded-lg flex-1"
+				className="min-w-0 py-2 pl-4 pr-4 text-md font-helvetica placeholder:italic text-white bg-slate-800 border-none rounded-lg flex-1"
 				value={text}
 				onChange={(e) => setText(e.target.value)} />
 

@@ -6,11 +6,12 @@ import FriendsList from "../Chat/FriendsList";
 
 function ResearchTab() {
 	const [ searchValue, setSearchValue ] = useState<string>("");
-	const { unknowns } = useFriend();
+	const { unknowns, fetchNotFriends } = useFriend();
 	const [ foundUsers, setFoundUsers ] = useState<UserInterface[]>([]);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		fetchNotFriends();
 		if (searchValue !== "") {
 			setFoundUsers(unknowns.filter((user : UserInterface) =>
 				user.username?.toLowerCase().includes(searchValue.toLowerCase())));
