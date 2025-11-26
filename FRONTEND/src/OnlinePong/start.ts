@@ -46,8 +46,7 @@ export function start(
 	let ballRadius = board.width * 0.0125;
 	let ballX: number;
 	let ballY: number;
-	let paddleSpeed = board.height / 7;
-
+	const paddleSpeed = theme.paddleSpeed ? theme.paddleSpeed : 250;
 
 	function resizeBoard(): void {
 		board.width = window.innerWidth * 0.8;
@@ -57,7 +56,6 @@ export function start(
 	function resizePaddle(paddle: Paddle): void {
 		paddle.width = board.width * 0.02;
 		paddle.height = board.height * 0.15;
-		paddleSpeed = board.height / 7;
 	}
 
 	function keyHandler(e: KeyboardEvent): void {
@@ -71,6 +69,7 @@ export function start(
 		}
 	}
 	function keyUpHandler(e: KeyboardEvent): void {
+		if (theme.slide) return ;
 		switch (e.key) {
 		  case "ArrowUp":
 			socket.emit("arrowUpRelease");
@@ -159,6 +158,7 @@ export function start(
 	window.addEventListener("keydown", keyHandler);
 	window.addEventListener("keyup", keyUpHandler);
 	clearInterval(interval);
+	socket.emit("speed", paddleSpeed);
 	socket.on("pong", () => {
 		sounds.paddle.currentTime = 0;
 		sounds.paddle.play();

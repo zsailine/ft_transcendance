@@ -7,7 +7,9 @@ const board = {
 }
 
 export async function initGame(io, roomName, player1Id, player2Id) {
-  let gameOver = false; 
+  let gameOver = false;
+  let paddle1Speed = board.height / 250;
+  let paddle2Speed = board.height / 250;
   io.in(roomName).fetchSockets().then((sockets) => {
     sockets.forEach((socket) => {
       if (socket.data.listenersAttached) return;
@@ -28,6 +30,14 @@ export async function initGame(io, roomName, player1Id, player2Id) {
           paddle1Direction = 1;
         } else {
           paddle2Direction = 1;
+        }
+      });
+      socket.on("speed", (speed) => {
+        if (gameOver) return;
+        if (socket.id === player1Id) {
+          paddle1Speed = board.height / speed;
+        } else {
+          paddle2Speed = board.height / speed;
         }
       });
 
@@ -116,12 +126,12 @@ export async function initGame(io, roomName, player1Id, player2Id) {
 
   function movePaddles() {
     if (paddle1Direction !== 0) {
-      let newY = paddle1.y + paddleSpeed * paddle1Direction;
+      let newY = paddle1.y + paddle1Speed * paddle1Direction;
       paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
       io.to(roomName).emit("paddle1", paddle1.y);
     }
     if (paddle2Direction !== 0) {
-      let newY = paddle2.y + paddleSpeed * paddle2Direction;
+      let newY = paddle2.y + paddle2Speed * paddle2Direction;
       paddle2.y = Math.max(0, Math.min(newY, board.height - paddle2.height));
       io.to(roomName).emit("paddle2", paddle2.y);
     }

@@ -79,7 +79,9 @@ const updateUser = async (req, rep) => {
 
 const updateColor = async (req, rep) => {
     try {
-        const { paddle1, paddle2, ball, boardBackground, boardBorder, score } = req.body;
+        const { paddle1, paddle2, ball, boardBackground, boardBorder, score, paddleSpeed, slide} = req.body;
+        console.log(req.body);
+        const slideValueForDB = slide ? 1 : 0;
         const stmt = db.prepare(`
             UPDATE users SET 
                 paddle1_color = ?, 
@@ -87,7 +89,10 @@ const updateColor = async (req, rep) => {
                 ball_color = ?, 
                 board_background = ?, 
                 board_border = ?, 
-                score_color = ? 
+                score_color = ?,
+                paddle_speed = ?,
+                slide = ?
+
             WHERE username = ?
         `);
         const { username } = req.params;
@@ -98,7 +103,9 @@ const updateColor = async (req, rep) => {
             boardBackground,
             boardBorder,
             score,
-            username
+            paddleSpeed,
+            slideValueForDB,
+            username,
         );
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });

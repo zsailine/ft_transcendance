@@ -43,22 +43,7 @@ function OnlineGame() {
 			transports: ["websocket"],
 		});
 		setSocket(s);
-		console.log(s);
-		if (mode === "create") {
-			const room = path.length > 0 ? path : generateRoom();
-			setLink(room);
-			setCreate(true);
-			s.emit("create quick", { username, room });
-		}
-		else if (mode === "join") {
-			if (path.length) {
-				setText(path);
-				setEnter(true);
-			}
-			else
-				setJoin(true);
-		}
-		else if (mode === "quick") {
+		if (mode === "quick") {
 			s.emit("quick", username);
 			setLoading(true);
 		}

@@ -25,14 +25,6 @@ function process(socket) {
     socket.on("quick", (username) => {
         generateQuick(AllMode, waitingPlayers, socket, username);
     });
-
-    socket.on("create quick", (data) => {
-        createRoom(AllMode, privateRooms, socket, data);
-    });
-
-    socket.on("join quick", data => {
-        joinRoom(AllMode, privateRooms, socket, data);
-    })
     socket.on("invite", (data) => {
         if (privateRooms.has(data.room))
             joinRoom(AllMode, privateRooms, socket, data);

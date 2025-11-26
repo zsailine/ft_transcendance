@@ -47,7 +47,8 @@ export function start(
   let ballXDirection: number;
   let ballYDirection: number;
   let intervalID: number;
-  let paddleSpeed = board.height / 190;
+  const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
+  let paddleSpeed = board.height / speedRatio;
   let gameOver = false;
 
   function resizeBoard(): void {
@@ -137,6 +138,7 @@ export function start(
   }
 
   function resetBall(): void {
+    if (gameOver) return ;
     createBall();
     checkWinner();
   }
@@ -153,6 +155,7 @@ export function start(
   }
   function nextTick(): void {
     intervalID = window.setTimeout(() => {
+      if (gameOver) return ;
       clearBoard(ctx, board, theme.boardBackground);
       movePaddles();
       drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
@@ -186,6 +189,7 @@ export function start(
   }
 
   function keyUpHandler(e: KeyboardEvent): void {
+    if (theme.slide) return ;
     switch (e.key) {
       case "w":
       case "W":

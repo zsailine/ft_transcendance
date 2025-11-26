@@ -44,7 +44,8 @@ export function initGame(theme: ThemeColors): () => void {
   let ballXDirection: number;
   let ballYDirection: number;
   let intervalID: number;
-  let paddleSpeed = board.height / 200;
+  const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
+  let paddleSpeed = board.height / speedRatio;
 
   function resizeBoard(): void {
     board.width = window.innerWidth * 0.8;
@@ -52,7 +53,7 @@ export function initGame(theme: ThemeColors): () => void {
   }
 
   function resizePaddle(paddle: Paddle): void {
-    paddleSpeed = board.height / 200;
+    paddleSpeed = board.height / speedRatio;
     paddle.width = board.width * 0.02
     paddle.height = board.height * 0.15;
   }
@@ -163,19 +164,21 @@ export function initGame(theme: ThemeColors): () => void {
   }
 
   function keyUpHandler(e: KeyboardEvent): void {
-    switch (e.key) {
-      case "w":
-      case "W":
-      case "s":
-      case "S":
-        paddle1Direction = 0;
-        break;
-      case "o":
-      case "O":
-      case "l":
-      case "L":
-        paddle2Direction = 0;
-        break;
+    if (!theme.slide) {
+      switch (e.key) {
+        case "w":
+        case "W":
+        case "s":
+        case "S":
+          paddle1Direction = 0;
+          break;
+        case "o":
+        case "O":
+        case "l":
+        case "L":
+          paddle2Direction = 0;
+          break;
+      }
     }
   }
 

@@ -26,7 +26,7 @@ export const Menu = () => {
 						description="Compete against players from around the world to climb the rankings."
 						onClick={() => navigate("/dashboard/play/online")}
 						buttonContent="Start"
-						bgColor="bg-blue-800"
+						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"
 					/>
 				</div>
 			</div>
