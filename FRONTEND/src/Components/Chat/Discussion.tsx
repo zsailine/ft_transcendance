@@ -13,7 +13,7 @@ function Discussion() {
 			<ChatBorder>
 				<div className="flex w-full h-full" id="message-box">
 
-					<div className="md:w-75 shrink-0 flex flex-col gap-6 p-6 h-full w-full" id="message-sidebar">
+					<div className="md:w-75 shrink-0 flex flex-col gap-10 p-6 h-full w-full" id="message-sidebar">
 						<ChatTitle />
 						<SearchBar 
 							searchValue={searchValue}

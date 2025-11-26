@@ -3,7 +3,7 @@ import { type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useNavigate } from "react-router-dom";
 import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
-import { NoContacts } from "../../Pages/Friend/NoContacts";
+import { NoContacts, NotFound } from "../../Pages/Friend/NoContacts";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -32,15 +32,14 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message }: Fri
 		}
 	}, [searchValue, friendsList]);
 
-	if (friendsList.length === 0 ||
-		(filteredFriends.length === 0 && searchValue !== "")) {
-		return (
-			<NoContacts message={message}/>
-		);
+	if (friendsList.length === 0 && searchValue === "") {
+		return (<NoContacts message={message}/>)
+	} else if (filteredFriends.length === 0 && searchValue !== "") {
+		return (<NotFound />);
 	}
 
 	return (
-		<div className="flex flex-col h-full overflow-y-auto font-helvetica mb-8">
+		<div className="flex flex-col flex-1 overflow-y-auto font-helvetica mb-8">
 			<ul className="text-white">
 				{filteredFriends.map((friend) =>
 					<li key={friend.id} className={`flex items-center gap-150 p-2 rounded-lg cursor-pointer ${hoverEffect}`}>

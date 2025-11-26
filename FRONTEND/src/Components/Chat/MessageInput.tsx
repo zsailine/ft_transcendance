@@ -35,6 +35,7 @@ function MessageInput() {
 			const arrayBuffer = reader.result as ArrayBuffer;
 			const bufferArray = Array.from(new Uint8Array(arrayBuffer));
 			setImage({ type: "Buffer", data: bufferArray });
+			e.target.value = "";
 		}
 		reader.readAsArrayBuffer(file);
 	}
@@ -42,14 +43,14 @@ function MessageInput() {
 	const removeImage = () => setImage(null);
 
 	return (
-	<div className="p-4 font-helvetica shrink-0 min-w-0 h-[70px]">
+	<div className="p-4 font-helvetica shrink-0 min-w-0 h-[70px] relative">
 
 		{image && (
-			<div className="max-w-3xl mb-3 ml-16 flex items-center flex-1">
+			<div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 z-10 p-3 bg-slate-900/70 backdrop-blur-sm rounded-xl shadow-2xl border border-slate-600/50 flex items-center transition-all">
 				<div className="relative">
 					<img alt="Preview"
 						src={getImageUrlFromBlob(image?.data) || ""}
-						className="w-20 h-20 object-cover rounded-lg border border-slate-700" />
+						className="w-20 h-20 object-cover rounded-lg border border-slate-600" />
 					<button type="button"
 						className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 hover:bg-slate-700"
 						onClick={removeImage} >

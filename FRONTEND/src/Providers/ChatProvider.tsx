@@ -56,7 +56,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	const fetchFriends = async () => {
 		try {
-			const response = await api.get('/friend/all');
+			const response = await api.get('/message/contacts');
 			if (response) {
 				setFriendsList(response.data);
 			}
