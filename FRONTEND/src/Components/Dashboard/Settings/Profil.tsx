@@ -5,6 +5,7 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { useEffect, useState } from "react";
+import api from "../../../Utils/axios";
 
 
 interface ProfilProps {
@@ -19,9 +20,28 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setChecked(event.target.checked);
     };
+
+    const verify2FAStatus =  async () => {
+        try {
+            const response = await api.get('/users/2fa/setup');
+            console.log("2FA status response:", response.data);
+            setChecked(response.data.enabled);
+        } catch (error) {
+            console.error("Error fetching 2FA status:", error);
+        }
+    };
+
     useEffect(() => {
-        console.log("Two-factor auth is now:", checked ? "Enabled" : "Disabled")
-    }, [checked]);
+        verify2FAStatus();
+    }, []);
+
+    // useEffect(() => {
+    //     api.get('/users/2fa/setup').then((response) => {
+    //         console.log("2FA status response:", response.data);
+    //     }).catch((error) => {
+    //         console.error("Error fetching 2FA status:", error);
+    //     });
+    // }, []);
     return (
         <>
             <div className="rounded-lg text-white text-center ml-4 mr-3 my-8">

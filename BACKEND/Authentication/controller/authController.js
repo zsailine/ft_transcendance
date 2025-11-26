@@ -12,7 +12,6 @@ const loggedUser = async (req , rep) => {
         return rep.code(401).send({ error: "invalid password" });
 
     const token = req.server.jwt.sign({ username: user.data.username , id: user.data.id });
-    // rep.header("Authorization" , `Bearer ${token}`);
     rep.setCookie("token" , token , {
         httpOnly : true,
         sameSite : "lax",
@@ -40,7 +39,7 @@ const verify = async (req , rep) => {
         rep.code(401).send({error: "No token"})
     }
     try{
-        const decodedToken = req.server.jwt.decode(token)
+        const decodedToken = req.server.jwt.decode(token);
         const username = decodedToken.username
         const user = await req.server.axios.get(`users/${username}`)
         if (!user.data)

@@ -68,7 +68,6 @@ const AuthProvider = ({children} : any) =>
 			const {data} = await api.post("/auth/login", postData)
 			if (!data.username)
 			{
-				toast.error("User not found !")
 				throw new Error("User not found !")
 			}
 			setUser(data.username)

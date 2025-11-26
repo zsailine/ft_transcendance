@@ -16,16 +16,25 @@ await fastify.register(cors, {
 
 await fastify.register(fastifyCookie);
 
+fastify.register(fastifyJwt , 
+  {
+    secret : process.env.JWT_SECRET,
+    cookie: {
+      cookieName: 'token',
+      signed: false
+    } 
+  }
+);
+
 const axiosInstance = axios.create({
 baseURL: "http://localhost:3001",
+withCredentials: true,
 timeout: 1000,
 });
 
 
 
 fastify.decorate("axios", axiosInstance);
-
-fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
 
 fastify.register(authRoutes);
 

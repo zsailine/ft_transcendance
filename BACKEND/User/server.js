@@ -2,19 +2,30 @@ import Fastify from "fastify";
 import Database from "better-sqlite3";
 import userRoutes from "./routes/userRoutes.js";
 import matchesRoutes from "./routes/matchesRoutes.js";
+import twoFactorRoutes from "./routes/2FARoutes.js";
 import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
-import speakeasy from "@fastify/speakeasy";
-import qrcode from "qrcode";
+import axios from "axios";
+import fastifyCookie from "@fastify/cookie";
 
 const fastify = Fastify({ logger: false });
+
+await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
     origin: "http://localhost:5173",
     credentials: true
 })
 
+
+const axiosInstance = axios.create({
+baseURL: "http://localhost:3002",
+withCredentials: true,
+timeout: 1000,
+});
+
 fastify.decorate("db", new Database("./data/users.db"));
+fastify.decorate("axios", axiosInstance);
 
 fastify.register(fastifyMultipart,{
   attachFieldsToBody : true
@@ -22,6 +33,8 @@ fastify.register(fastifyMultipart,{
 
 fastify.register(userRoutes);
 fastify.register(matchesRoutes);
+fastify.register(twoFactorRoutes);
+
 
 
 fastify.addHook('onSend', (request, reply, payload, next) => {
