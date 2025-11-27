@@ -34,26 +34,26 @@ services:
     networks:
       - webnet
 
-  # chat_service:
-  #   build: ./BACKEND/Chat
-  #   ports:
-  #     - "3003:3003"
-  #   networks:
-  #     - webnet
+  chatservice:
+    build: ./BACKEND/Chat
+    ports:
+      - "3004:3004"
+    networks:
+      - webnet
 
-  # OnlinePong_service:
-  #   build: ./BACKEND/OnlinePong
-  #   ports:
-  #     - "3004:3004"
-  #   networks:
-  #     - webnet
+  onlinepongservice:
+    build: ./BACKEND/OnlinePong
+    ports:
+      - "3005:3005"
+    networks:
+      - webnet
 
-  # Friend_service:
-  #   build: ./BACKEND/Friend
-  #   ports:
-  #     - "3005:3005"
-  #   networks:
-  #     - webnet
+  friendservice:
+    build: ./BACKEND/Friend
+    ports:
+      - "3006:3006"
+    networks:
+      - webnet
 
 networks:
   webnet:

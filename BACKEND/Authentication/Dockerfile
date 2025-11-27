@@ -1,10 +1,11 @@
-FROM node:22-alpine
+FROM node:22
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
+RUN npm install googleapis
 
 
 
