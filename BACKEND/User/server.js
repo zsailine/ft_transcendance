@@ -7,7 +7,10 @@ import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
 import axios from "axios";
 import fastifyCookie from "@fastify/cookie";
+import fastifyJwt from "@fastify/jwt";
+import dotenv from "dotenv";
 
+dotenv.config();
 const fastify = Fastify({ logger: false });
 
 await fastify.register(fastifyCookie);
@@ -17,6 +20,15 @@ await fastify.register(cors, {
     credentials: true
 })
 
+fastify.register(fastifyJwt , 
+  {
+    secret : process.env.JWT_SECRET,
+    cookie: {
+      cookieName: 'token',
+      signed: false
+    } 
+  }
+);
 
 const axiosInstance = axios.create({
 baseURL: "http://localhost:3002",
