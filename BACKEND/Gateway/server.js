@@ -11,7 +11,7 @@ const fastify = Fastify({ logger: false });
 fastify.register(cookie);
 
 await fastify.register(cors, {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:8080",
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true
 })
@@ -87,7 +87,7 @@ fastify.register(httpProxy, {
   rewritePrefix: '/friend'
 });
 
-fastify.listen({ port: 3000 }, (err, address) => {
+fastify.listen({ port: 3000, host: '0.0.0.0' }, (err, address) => {
   if (err) {
     fastify.log.error(err);
     process.exit(1);

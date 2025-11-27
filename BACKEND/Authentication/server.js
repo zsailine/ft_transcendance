@@ -11,7 +11,7 @@ dotenv.config();
 const fastify = Fastify({ logger: false });
 
 await fastify.register(cors, {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:8080",
     credentials: true
 })
 
@@ -32,7 +32,7 @@ fastify.register(authGoogleRoutes);
 
 fastify.register(authRoutes);
 
-fastify.listen({ port: 3002 }, (err, address) => {
+fastify.listen({ port: 3002, host: '0.0.0.0' }, (err, address) => {
   if (err) {
     fastify.log.error(err);
     process.exit(1);

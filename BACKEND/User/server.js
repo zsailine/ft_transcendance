@@ -9,7 +9,7 @@ import fastifyMultipart from "@fastify/multipart";
 const fastify = Fastify({ logger: false });
 
 await fastify.register(cors, {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:8080",
     credentials: true
 })
 
@@ -27,7 +27,7 @@ fastify.addHook('onSend', (request, reply, payload, next) => {
   next();
 });
 
-fastify.listen({ port: 3001 }, (err, address) => {
+fastify.listen({ port: 3001, host: '0.0.0.0' }, (err, address) => {
   if (err) {
     fastify.log.error(err);
     process.exit(1);

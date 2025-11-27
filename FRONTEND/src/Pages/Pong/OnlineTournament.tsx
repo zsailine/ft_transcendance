@@ -1,4 +1,11 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
+
+interface TournamentProps {
+    name: string;
+    currentPlayers: number;
+    maxPlayers: number;
+    status: string;
+}
 
 // Données fictives
 const mockTournaments = [
@@ -10,7 +17,7 @@ const mockTournaments = [
     { id: 6, name: "Devs Battle", currentPlayers: 6, maxPlayers: 10, status: "Open" },
 ];
 
-const TournamentCard = ({ name, currentPlayers, maxPlayers, status }) => {
+const TournamentCard = ({ name, currentPlayers, maxPlayers, status } : TournamentProps) => {
     const isFull = currentPlayers >= maxPlayers;
     const progressPercentage = (currentPlayers / maxPlayers) * 100;
 
@@ -109,7 +116,6 @@ export default function TournamentList() {
                 </div>
             </div>
 
-            {/* GRILLE DES TOURNOIS */}
             {filteredTournaments.length > 0 ? (
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredTournaments.map((tournament) => (

@@ -11,7 +11,8 @@ const scopes = ["openid", "email", "profile"];
 
 
 const loginWithGoogle = async (request, reply) => {   
-    const state = crypto.randomBytes(16).toString('hex');
+  console.log("Initiating Google OAuth2 login process");  
+  const state = crypto.randomBytes(16).toString('hex');
     const authUrl = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: scopes,

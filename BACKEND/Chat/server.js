@@ -19,7 +19,7 @@ await fastify.register(fastifySocketIo, {
 await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
-	origin: "http://localhost:5173",
+	origin: "http://localhost:8080",
 	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });
@@ -76,7 +76,7 @@ fastify.ready().then(() => {
 	});
 });
 
-fastify.listen({ port: 3004 }, (err, address) => {
+fastify.listen({ port: 3004, host: '0.0.0.0' }, (err, address) => {
 	if(err) {
 		console.log(err);
 		process.exit(1);
