@@ -181,7 +181,10 @@ export default function Login() {
                 <p>or</p>
               </div>
               <div className="mt-4 flex justify-center space-x-4">
-                <button className="cursor-pointer w-full flex justify-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition">
+                <button className="cursor-pointer w-full flex justify-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition"
+                  onClick= {() => { window.location.href = `/auth/google`; }}
+                  // onClick={ () => { loginWhithGoogle() }
+                >
                   <FaGoogle size={20} />
                 </button>
               </div>

@@ -1,14 +1,14 @@
-FROM node:alpine
+FROM node:22
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
-RUN node migration.js
+RUN npm ci
+COPY .env .env
 
 COPY . .
 
-EXPOSE 3001
+EXPOSE 3000
 
 CMD ["npm", "run", "dev"]
