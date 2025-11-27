@@ -6,9 +6,7 @@ import { drawBall, drawPaddles, clearBoard, drawScore } from "../Pong/draw";
 import api from "../Utils/axios";
 
 
-const sounds = {
-	paddle: new Audio("/sounds/pong.wav"),
-};
+
 
 export function start(
 	player: string[],
@@ -160,8 +158,7 @@ export function start(
 	clearInterval(interval);
 	socket.emit("speed", paddleSpeed);
 	socket.on("pong", () => {
-		sounds.paddle.currentTime = 0;
-		sounds.paddle.play();
+		
 	})
 	return (() => {
 		socket.disconnect();

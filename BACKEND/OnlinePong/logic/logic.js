@@ -103,8 +103,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     board.height = 900;
   }
 
-  function createBall(){
-   ballSpeed = board.width * 0.001;
+  function createBall() {
+    ballSpeed = board.width * 0.004;
 
     const minY = board.height / 3;
     const maxY = (board.height * 3) / 4;
@@ -112,9 +112,9 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     ballX = board.width / 2;
 
     const minAngle = 30 * (Math.PI / 180);
-    const maxAngle = 70 * (Math.PI / 180);
+    const maxAngle = 50 * (Math.PI / 180);
     const direction = Math.random() > 0.5 ? 1 : -1;
-    
+
     const angle = minAngle + Math.random() * (maxAngle - minAngle);
 
     ballXDirection = Math.cos(angle) * direction;
@@ -136,10 +136,26 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       io.to(roomName).emit("paddle2", paddle2.y);
     }
   }
+  function add(board, ballSpeed){
+    if (ballSpeed < board.width * 0.004)
+    {
+      ballSpeed += board.width * 0.0005;
+    }
+  }
+
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
     ballY += ballSpeed * ballYDirection;
 
+    if (ballSpeed === 0)
+    {
+      io.to(roomName).emit("update", {
+        ballX, ballY,
+        paddle1Y: paddle1.y,
+        paddle2Y: paddle2.y
+      });
+      return;
+    }
     if (ballY - ballRadius < 0) {
       ballYDirection = -ballYDirection;
       ballY = 0 + ballRadius;
@@ -152,26 +168,24 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       ballX - ballRadius <= paddle1.x + paddle1.width &&
       ballY > paddle1.y &&
       ballY < paddle1.y + paddle1.height) {
-      ballSpeed += board.width * 0.0005;
+      add(board, ballSpeed);
       ballX = paddle1.x + paddle1.width + ballRadius;
       ballXDirection = -ballXDirection;
-      io.to(roomName).emit("pong");
     }
 
     if (
       ballX + ballRadius >= paddle2.x &&
       ballY > paddle2.y &&
       ballY < paddle2.y + paddle2.height) {
-      ballSpeed += board.width * 0.0005;
+      add(board, ballSpeed);
       ballX = paddle2.x - ballRadius;
       ballXDirection = -ballXDirection;
-      io.to(roomName).emit("pong");
     }
 
-    if (ballX - ballRadius < 0) {
+    if (ballX + ballRadius < 0) {
       paddle2Score++;
       resetBall();
-    } else if (ballX + ballRadius > board.width) {
+    } else if (ballX - ballRadius > board.width) {
       paddle1Score++;
       resetBall();
     }
@@ -195,8 +209,11 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   }
 
   function resetBall() {
-    createBall();
     io.to(roomName).emit("score", { paddle1Score, paddle2Score });
+    ballSpeed = 0;
+    setTimeout(() => {
+      createBall();
+    }, 500);
     checkWinner();
   }
 
@@ -204,7 +221,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     intervalID = setInterval(() => {
       movePaddles();
       moveBall();
-    }, 10 );
+    }, 10);
   }
 
   function stopGameLoop() {

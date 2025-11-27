@@ -8,15 +8,11 @@ import OverlayLoading from "../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../Components/pong/OverlayResult.tsx";
 import { AnimatePresence } from "framer-motion";
 import { useOnlineGame } from "../../Providers/OnlineGameProvider.tsx";
-import OverlayInput from "../../Components/pong/OverlayInput.tsx";
 import { generateRoom } from "../../Utils/tools.ts";
 
 function OnlineGame() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
-	const [create, setCreate] = useState(false);
-	const [join, setJoin] = useState(false);
-	const [link, setLink] = useState("");
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [winner, setWinner] = useState<string>("");
@@ -24,10 +20,8 @@ function OnlineGame() {
 	const [opponent, setOpponent] = useState("");
 	const [begin, setBegin] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
-	const [enter, setEnter] = useState(false);
 	const [player, setPLayer] = useState<string[]>(["player1", "player2"])
 	const { theme, username } = useDashboard();
-	const { text, setText } = useOnlineGame();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -85,8 +79,6 @@ function OnlineGame() {
 	useEffect(() => {
 		if (!begin || !socket || !theme || player[0] === "player1") return;
 		setLoading(false);
-		setJoin(false);
-		setCreate(false);
 		const clean = start(
 			player,
 			role,
@@ -101,15 +93,9 @@ function OnlineGame() {
 			clean();
 		};
 	}, [begin, socket, player]);
-	useEffect(() => {
-		if (socket && text.length && enter)
-			joinRoom(null);
-	}, [socket, text, enter]);
 
 	function displayError(text: string) {
 		setLoading(false);
-		setJoin(false);
-		setCreate(false);
 		setError(true);
 		setErrorMessage(text);
 	}
@@ -118,12 +104,6 @@ function OnlineGame() {
 			socket?.disconnect();
 			navigate("/dashboard/play");
 		}
-	}
-	function joinRoom(e: React.FormEvent | null) {
-		if (e !== null)
-			e.preventDefault();
-		const room = text;
-		socket?.emit("join quick", { username, room });
 	}
 	return (
 		<div className="h-full">
@@ -164,33 +144,11 @@ function OnlineGame() {
 						hoverEffect={hoverEffect}
 					/>
 				)}
-				{create && (
-					<OverlayLoading
-						key="overlay-loading"
-						text=<>
-							{link}
-							<br />
-							Copy to join
-						</>
-						buttonText="Home"
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
 				{error && (
 					<OverlayLoading
 						key="overlay-loading"
 						text={errorMessage}
 						buttonText="Home"
-						onQuit={handleQuit}
-						hoverEffect={hoverEffect}
-					/>
-				)}
-				{join && (
-					<OverlayInput
-						key="overlay-input"
-						buttonText="Home"
-						handleSubmit={joinRoom}
 						onQuit={handleQuit}
 						hoverEffect={hoverEffect}
 					/>
