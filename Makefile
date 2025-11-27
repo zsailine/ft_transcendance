@@ -7,6 +7,27 @@ down:
 prune :
 	docker system prune -a --volumes -f
 
+web:
+	docker compose up -d --build web
+
+gateway:
+	docker compose up -d --build gateway
+
+auth:
+	docker compose up -d --build authservice
+
+chat:
+	docker compose up -d --build chatservice
+
+online:
+	docker compose up -d --build onlinepongservice
+
+user:
+	docker compose up -d --build userservice
+
+friend:
+	docker compose up -d --build friendservice
+
 re: down prune start
 
 .PHONY: start down

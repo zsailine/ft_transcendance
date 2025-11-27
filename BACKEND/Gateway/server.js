@@ -44,45 +44,45 @@ fastify.decorate("authenticate", async function (request, reply) {
 fastify.addHook("onRequest", fastify.authenticate);
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3002",
+  upstream: "http://authservice:3000",
   prefix: "/auth",
   rewritePrefix: '/auth'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3001",
+  upstream: "http://userservice:3000",
   prefix: "/users",
   rewritePrefix: '/users'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3001",
+  upstream: "http://userservice:3000",
   prefix: "/matches",
   rewritePrefix: '/matches'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3004",
+  upstream: "http://chatservice:3004",
   prefix: "/message",
   rewritePrefix: '/message'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3004",
+  upstream: "http://chatservice:3004",
   prefix: "/message/socket.io",
   rewritePrefix: '/socket.io',
   websocket: true
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3005",
+  upstream: "http://onlinepongservice:3005",
   prefix: "/online/socket.io",
   rewritePrefix: '/socket.io',
   websocket: true
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3006",
+  upstream: "http://friendservice:3006",
   prefix: "/friend",
   rewritePrefix: '/friend'
 });

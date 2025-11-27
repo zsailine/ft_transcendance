@@ -1,13 +1,11 @@
-FROM node:22
+FROM node:22-bullseye
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
-RUN npm install googleapis
-
-
+RUN npm install
+RUN npm install googleapis --save
 
 COPY . .
 # RUN node migration.js
