@@ -3,12 +3,26 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const getToken = (token) => {
+	if (token.startsWith("token=")) {
+		return token;
+	}
+	const cookies = token.split(";").map(t => t.trim());
+	for(const c of cookies) {
+		if (c.startsWith("token=")) {
+			return c;
+		}
+	}
+	return token;
+}
+
 export const socketAuth = async (socket, next) => {
 	try {
-		const token = socket.handshake.headers.cookie;
-		if (!token) {
+		let token = socket.handshake.headers.cookie;
+		if (!token || !token.includes("token=")) {
 			return next(new Error("Unauthorized"));
 		}
+		token = getToken(token);
 		
 		const decoded = jwt.verify(token.substr(6), process.env.JWT_SECRET);
 		if (!decoded) {

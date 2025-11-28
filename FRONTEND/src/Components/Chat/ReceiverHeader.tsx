@@ -76,7 +76,7 @@ function ReceiverHeader() {
 			</div>
 			<div className=" flex ml-auto mr-6 gap-2 md:gap-4">
 				{join && (
-					<AiFillNotification className="size-6 mt-1 mr-4 text-cyan-500" onClick={joinRoom} />
+					<AiFillNotification className="size-6 md:size-8 text-cyan-500" onClick={joinRoom} />
 				)}
 				<GiConsoleController className="size-6 md:size-8 text-cyan-500" onClick={invite} />
 				<BsBoxArrowInRight className="size-6 md:size-8 text-cyan-500"
