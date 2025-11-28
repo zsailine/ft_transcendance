@@ -8,7 +8,11 @@ import { generateRoom } from "../../Utils/tools";
 import { useNavigate } from "react-router-dom";
 import { BsBoxArrowInRight } from "react-icons/bs";
 
-function ReceiverHeader() {
+interface ReceiverHeaderProps {
+	click: () => void
+}
+
+function ReceiverHeader({click}: ReceiverHeaderProps) {
 	const { socket, user } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
@@ -71,7 +75,8 @@ function ReceiverHeader() {
 				</div> }
 			</div>
 
-			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica">
+			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica hover:underline"
+				onClick={click}>
 				{selectedUser?.username}
 			</div>
 			<div className=" flex ml-auto mr-6 gap-2 md:gap-4">
