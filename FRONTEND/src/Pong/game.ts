@@ -16,7 +16,7 @@ export function initGame(theme: ThemeColors): () => void {
   let paddle1: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: 75,
+    x: board.width * 0.04,
     y: board.height / 2 - board.height * 0.075,
     Direction: 0,
     Score: 0
@@ -25,7 +25,7 @@ export function initGame(theme: ThemeColors): () => void {
   let paddle2: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: board.width - board.width * 0.02 - 50,
+    x: board.width - board.width * 0.06,
     y: board.height / 2 - board.height * 0.075,
     Direction: 0,
     Score: 0
@@ -96,7 +96,7 @@ export function initGame(theme: ThemeColors): () => void {
     const oldX = ball.X;
     const oldY = ball.Y;
     const paddle1X = paddle1.x;
-    // const paddle2X = paddle2.x;
+    const paddle2X = paddle2.x;
     const paddle1Y = paddle1.y;
     const paddle2Y = paddle2.y;
 
@@ -108,7 +108,7 @@ export function initGame(theme: ThemeColors): () => void {
     ball.Radius = board.width * 0.0125;
 
     paddle1.x = paddle1X * (board.width / oldWidth);
-    paddle2.x = board.width - board.width * 0.02
+    paddle2.x = paddle2X * (board.width / oldWidth);
     paddle1.y = paddle1Y * (board.height / oldHeight);
     paddle2.y = paddle2Y * (board.height / oldHeight);
 

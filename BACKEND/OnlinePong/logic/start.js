@@ -76,20 +76,24 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   let paddle1 = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: 0,
+    x: board.width * 0.04,
     y: board.height / 2 - board.height * 0.075,
+    Direction: 0,
+    Score: 0
   };
 
   let paddle2 = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: board.width - board.width * 0.02,
+    x: board.width - board.width * 0.06,
     y: board.height / 2 - board.height * 0.075,
+    Direction: 0,
+    Score: 0
   };
 
   let paddle1Score = 0;
   let paddle2Score = 0;
-  let ballSpeed;
+  let ballSpeed = 0;
   let ballX;
   let ballY;
   let ballXDirection;
@@ -104,7 +108,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   }
 
   function createBall() {
-    ballSpeed = board.width * 0.004;
+    ballSpeed = board.width * 0.002;
 
     const minY = board.height / 3;
     const maxY = (board.height * 3) / 4;
@@ -136,12 +140,53 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       io.to(roomName).emit("paddle2", paddle2.y);
     }
   }
-  function add(board, ballSpeed){
-    if (ballSpeed < board.width * 0.004)
+  function add(board){
+    if (ballSpeed < board.width * 0.006)
     {
       ballSpeed += board.width * 0.0005;
     }
   }
+
+  const checkPaddleCollision = (paddle) => {
+
+    const closestX = Math.max(paddle.x, Math.min(ballX, paddle.x + paddle.width));
+    const closestY = Math.max(paddle.y, Math.min(ballY, paddle.y + paddle.height));
+  
+    const distanceX = ballX - closestX;
+    const distanceY = ballY - closestY;
+    const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+  
+    if (distanceSquared < (ballRadius * ballRadius)) {
+  
+      const paddleCenterX = paddle.x + paddle.width / 2;
+      const paddleCenterY = paddle.y + paddle.height / 2;
+  
+      const overlapX = (paddle.width / 2 + ballRadius) - Math.abs(ballX - paddleCenterX);
+      const overlapY = (paddle.height / 2 + ballRadius) - Math.abs(ballY - paddleCenterY);
+  
+      if (overlapY < overlapX) {
+        ballYDirection = -ballYDirection;
+  
+        if (ballY < paddleCenterY) {
+          ballY = paddle.y - ballRadius;
+        } else {
+          ballY = paddle.y + paddle.height + ballRadius;
+        }
+  
+        ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
+  
+      } else {
+        ballXDirection = -ballXDirection;
+        add(board);
+  
+        if (ballX < paddleCenterX) {
+          ballX = paddle.x - ballRadius;
+        } else {
+          ballX = paddle.x + paddle.width + ballRadius;
+        }
+      }
+    }
+  };
 
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
@@ -150,7 +195,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     if (ballSpeed === 0)
     {
       io.to(roomName).emit("update", {
-        ballX, ballY,
+        ballX: 1700, ballY: 1000,
         paddle1Y: paddle1.y,
         paddle2Y: paddle2.y
       });
@@ -164,23 +209,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       ballYDirection = -ballYDirection;
       ballY = board.height - ballRadius;
     }
-    if (
-      ballX - ballRadius <= paddle1.x + paddle1.width &&
-      ballY > paddle1.y &&
-      ballY < paddle1.y + paddle1.height) {
-      add(board, ballSpeed);
-      ballX = paddle1.x + paddle1.width + ballRadius;
-      ballXDirection = -ballXDirection;
-    }
-
-    if (
-      ballX + ballRadius >= paddle2.x &&
-      ballY > paddle2.y &&
-      ballY < paddle2.y + paddle2.height) {
-      add(board, ballSpeed);
-      ballX = paddle2.x - ballRadius;
-      ballXDirection = -ballXDirection;
-    }
+    checkPaddleCollision(paddle1);
+    checkPaddleCollision(paddle2);
 
     if (ballX + ballRadius < 0) {
       paddle2Score++;
@@ -227,6 +257,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
   function stopGameLoop() {
     clearInterval(intervalID);
   }
-  createBall();
+  setTimeout(() => {
+    createBall();
+  }, 1000);
   startGameLoop();
 }

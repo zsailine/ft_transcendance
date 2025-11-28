@@ -21,6 +21,7 @@ import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
 import { OnlineGameProvider } from "./Providers/OnlineGameProvider.tsx";
+import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
 
 function App() {
 
@@ -55,12 +56,11 @@ function App() {
                   <Route index element={< Menu />} />
                   <Route path="pong" element={<PongGame />} />
                   <Route path="tournament" element={<PongTournament />} />
+                  <Route path = "multiplayer" element={<OnlineMulti />} />
                   <Route
                     path="online"
                     element={
-                      <OnlineGameProvider>
                         <OnlineGame />
-                      </OnlineGameProvider>
                     }
                   />
                 </Route>

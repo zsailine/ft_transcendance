@@ -64,7 +64,6 @@ const checkPaddleCollision = (board:HTMLCanvasElement, paddle: Paddle, ball: Bal
 		const overlapY = (paddle.height / 2 + ball.Radius) - Math.abs(ball.Y - paddleCenterY);
 
 		if (overlapY < overlapX) {
-			// COLLISION VERTICALE
 			ball.YDirection = -ball.YDirection;
 
 			if (ball.Y < paddleCenterY) {
@@ -73,11 +72,9 @@ const checkPaddleCollision = (board:HTMLCanvasElement, paddle: Paddle, ball: Bal
 				ball.Y = paddle.y + paddle.height + ball.Radius;
 			}
 
-			// Empêche d'être hors du canvas
 			ball.Y = Math.max(ball.Radius, Math.min(ball.Y, board.height - ball.Radius));
 
 		} else {
-			// COLLISION HORIZONTALE
 			ball.XDirection = -ball.XDirection;
 			add(board, ball);
 
@@ -92,10 +89,10 @@ const checkPaddleCollision = (board:HTMLCanvasElement, paddle: Paddle, ball: Bal
 
 
 function add(board: HTMLCanvasElement, ball: BallInterface){
-	// if (ball.Speed < board.width * 0.004)
-	// {
-	// 	ball.Speed += board.width * 0.0005;
-	// }
+	if (ball.Speed < board.width * 0.004)
+	{
+		ball.Speed += board.width * 0.0005;
+	}
 }
 
 function moveBall(mode: number, ball:BallInterface, board: HTMLCanvasElement, ctx: CanvasRenderingContext2D, boardBoarder: string,
@@ -112,11 +109,11 @@ function moveBall(mode: number, ball:BallInterface, board: HTMLCanvasElement, ct
 	checkPaddleCollision(board, paddle2, ball);
 	if (ball.X + ball.Radius < 0) {
 		paddle2.Score++;
-		// finished = resetBall(mode, ball, board, ctx, paddle1.Score, paddle2.Score, boardBoarder);
+		finished = resetBall(mode, ball, board, ctx, paddle1.Score, paddle2.Score, boardBoarder);
 		ball.XDirection = -ball.XDirection;
 	} else if (ball.X - ball.Radius > board.width) {
 		paddle1.Score++;
-		// finished = resetBall(mode, ball, board, ctx, paddle1.Score, paddle2.Score, boardBoarder);
+		finished = resetBall(mode, ball, board, ctx, paddle1.Score, paddle2.Score, boardBoarder);
 		ball.XDirection = -ball.XDirection;
 	}
 	return (finished);

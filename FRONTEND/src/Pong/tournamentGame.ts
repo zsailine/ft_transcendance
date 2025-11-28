@@ -19,7 +19,7 @@ export function start(
   let paddle1: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: 0,
+    x: board.width * 0.04,
     y: board.height / 2 - board.height * 0.075,
     Direction: 0,
     Score: 0
@@ -28,7 +28,7 @@ export function start(
   let paddle2: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: board.width - board.width * 0.02,
+    x: board.width - board.width * 0.06,
     y: board.height / 2 - board.height * 0.075,
     Direction: 0,
     Score: 0
