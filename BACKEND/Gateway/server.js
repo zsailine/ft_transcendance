@@ -56,6 +56,12 @@ fastify.register(httpProxy, {
 });
 
 fastify.register(httpProxy, {
+  upstream: "http://localhost:3001",
+  prefix: "/matches",
+  rewritePrefix: '/matches'
+});
+
+fastify.register(httpProxy, {
   upstream: "http://localhost:3004",
   prefix: "/message",
   rewritePrefix: '/message'

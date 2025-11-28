@@ -15,7 +15,7 @@ const Dashboard = () => {
                         <div className="flex justify-end h-max mb-10">
                             <Navbar />
                         </div>
-                        <div className="flex-1 min-h-0 mb-6">
+                        <div className="flex-1 min-h-0 mb-6 h-full">
                             < Outlet />
                         </div>
                     </div>

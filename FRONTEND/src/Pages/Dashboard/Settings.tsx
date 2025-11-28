@@ -1,74 +1,84 @@
 
 import { useNavigate } from "react-router-dom";
-import Avatar from "../../Components/Dashboard/Settings/Avatar";
-import CoverInput from "../../Components/Dashboard/Settings/Cover";
-import InputText from "../../Components/Dashboard/Settings/InputText";
+import Profil from "../../Components/Dashboard/Settings/Profil";
+import Game from "../../Components/Dashboard/Settings/Game";
 import { useDashboard } from "../../Providers/DashboardProvider";
 import api from "../../Utils/axios";
+import { useState } from "react";
 
 
 const Settings = () => {
 
     const navigate = useNavigate()
-    const { 
-            username,
-            avatar, 
-            coverImage,
-            nickname,
-            refreshUserData
-           } = useDashboard();
+    const [activeTab, setActiveTab] = useState<"profil" | "game">("profil");
+    const {
+        username,
+        avatar,
+        coverImage,
+        nickname,
+        refreshUserData,
+        theme
+    } = useDashboard();
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         const body = new FormData();
         body.append('username', username as string);
         body.append('nickname', nickname as string);
-        body.append('avatar', avatar as any); ;
-        body.append('cover_image', coverImage as any); ;
-        await api.post('/users/update' , body)
-        .then(() => {
-            refreshUserData && refreshUserData();
-            navigate('/dashboard/')
-        })
-        .catch((error) => {
-            console.error("Error updating profile:", error);
-        });
+        body.append('avatar', avatar as any);;
+        body.append('cover_image', coverImage as any);;
+        await api.post('/users/update', body)
+            .then(() => {
+                refreshUserData && refreshUserData();
+                navigate('/dashboard/')
+            })
+            .catch((error) => {
+                console.error("Error updating profile:", error);
+            });
+    }
+    const updateColors =  async (e: any) => {
+        if (!theme || !username) return ;
+        e.preventDefault();
+        await api.post(`/users/${username}/updateColor`, theme)
+            .then(() => {
+                refreshUserData && refreshUserData();
+                navigate('/dashboard/')
+            })
+            .catch((error) => {
+                console.error("Error updating profile:", error);
+            });
     }
 
-       const hoverEffect = "hover:z-10 hover:scale-105 transition-transform transition-colors duration-300 ease-in-out transform-gpu origin-center"
+    const hoverEffect = "hover:z-10 hover:scale-105 transition-transform transition-colors duration-300 ease-in-out transform-gpu origin-center"
 
 
     return (
-        <>
-            <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 border border-amber-100/10 rounded-lg shadow-md shadow-amber-100/20 py-6 bg-cyan-800/5  ">
-                <div className="rounded-lg text-white text-center ml-4 mr-3 my-8">
-                    <h1 className="text-3xl">Profil management</h1>
+        <div>
+            <div className="flex items-center justify-center text-white font-semibold text-lg mb-4">
+
+                <div
+                    className={`cursor-pointer px-3 py-1 ${activeTab === "profil" ? "text-cyan-400 border-b-2 border-cyan-400" : "text-gray-300"}`}
+                    onClick={() => setActiveTab("profil")}>
+                    Profil
                 </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="sm:col-span-4">
-                        <InputText />
-                    </div>
-                    <div className="mt-4 col-span-full">
-                        <Avatar />
-                    </div>
-                    <div className="mt-4 col-span-full">
-                        <CoverInput />
-                    </div>
-                    <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <button 
-                            type="button" 
-                            className={`cursor-pointer text-sm/6 font-semibold text-white ${hoverEffect}`}
-                            >
-                            Cancel</button>
-                        <button
-                            onClick = {handleSubmit}
-                            type="submit" 
-                            className={`cursor-pointer rounded-md bg-cyan-400 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${hoverEffect}`}>Update</button>
-                    </div>
-                </form>
+                <div
+                    className={`cursor-pointer px-3 py-1 ${activeTab === "game" ? "text-cyan-400 border-b-2 border-cyan-400" : "text-gray-300"}`}
+                    onClick={() => setActiveTab("game")}>
+                    Game
+                </div>
+
+            </div>
+            <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 border border-amber-100/10 
+            rounded-lg shadow-md shadow-amber-100/20 py-6 bg-cyan-800/5 ">
+                {activeTab === "profil" && (
+                    <Profil handleSubmit={handleSubmit} hoverEffect={hoverEffect} />
+                )}
+                 {activeTab === "game" && (
+                    <Game  hoverEffect={hoverEffect} handleSubmit={updateColors}/>
+                )}
             </div>
 
-        </>
+        </div>
     )
 }
 
