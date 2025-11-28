@@ -78,8 +78,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	const sendMessages = async (messageData: MessageDataInterface) => {
 		try {
-			const response = await api.post(`/message/send/${selectedUser?.username}`, messageData);
-			setMessages(messages.concat(response.data));
+			await api.post(`/message/send/${selectedUser?.username}`, messageData);
 		} catch (error) {
 			toast.error("Something went wrong while sending message");
 			console.log(error);
