@@ -42,20 +42,19 @@ export function initGame(theme: ThemeColors): () => void {
 
   let intervalID: number;
   ball.Radius = board.width * 0.0125;
-  ball.Speed = board.width * 0.001;
+  ball.Speed = board.width * 0.002;;
   const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
   let paddleSpeed = board.height / speedRatio;
 
   function nextTick(): void {
-    intervalID = window.setTimeout(() => {
+    intervalID = setInterval(() => {
       clearBoard(ctx, board, theme.boardBackground);
       movePaddles(board, paddleSpeed, paddle1, paddle2);
       drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
       moveBall(0, ball, board, ctx, theme.boardBorder, paddle1, paddle2);
       drawScore(ctx, board, `${paddle1.Score}`, `${paddle2.Score}`, theme.boardBorder);
       drawBall(ctx, ball.Radius, theme.ball, ball.X, ball.Y);
-      nextTick();
-    }, 1);
+    }, 10);
   }
 
   function resetGame(): void {

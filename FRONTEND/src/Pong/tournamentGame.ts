@@ -45,7 +45,7 @@ export function start(
   let finished = 0;
   let intervalID: number;
   ball.Radius = board.width * 0.0125;
-  ball.Speed = board.width * 0.001;
+  ball.Speed = board.width * 0.002;
   const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
   let paddleSpeed = board.height / speedRatio;
   let gameOver = false;
@@ -74,7 +74,7 @@ export function start(
   }
 
   function nextTick(): void {
-    intervalID = window.setTimeout(() => {
+    intervalID = setTimeout(() => {
       if (gameOver) return;
       clearBoard(ctx, board, theme.boardBackground);
       movePaddles(board, paddleSpeed, paddle1, paddle2);
@@ -84,8 +84,7 @@ export function start(
         finish();
       drawScore(ctx, board, `${paddle1.Score}`, `${paddle2.Score}`, theme.boardBorder);
       drawBall(ctx, ball.Radius, theme.ball, ball.X, ball.Y);
-      nextTick();
-    }, 1);
+    }, 10);
   }
 
 

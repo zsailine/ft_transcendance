@@ -77,46 +77,35 @@ function OnlineMulti() {
 	}
 	return (
 		<div className="h-full">
-			<div className="text-white flex flex-col items-center justify-center font-sans h-screen w-full">
-				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto items-center">
-					<div className="h-full flex flex-col justify-between py-4 -mr-1">
+			<div className="text-white flex flex-col items-center justify-center font-sans">
+				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
+					<div className="font-bold flex [writing-mode:vertical-rl] rotate-180 text-center">
 						<p
 							id="player1"
-							className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
+							className="items-start"
 							style={{ color: theme?.paddle1 }}
-						>
-							{player[0]}
-						</p>
+						>{player[0]}</p>
 						<p
 							id="player2"
-							className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
+							className="items-end"
 							style={{ color: theme?.paddle1 }}
-						>
-							{player[1]}
-						</p>
+						>{player[1]}</p>
 					</div>
-					<canvas
-						id="board"
-						className="border-4 rounded-lg h-full flex-1 shadow-lg mx-4"
+					<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
 						style={{ backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder }}
 					></canvas>
-					<div className="h-full flex flex-col justify-between py-4 -ml-1">
+					<div className="font-bold flex [writing-mode:vertical-rl] rotate-180 text-center">
 						<p
 							id="player3"
-							className="font-bold [writing-mode:vertical-rl] text-center"
+							className="items-start"
 							style={{ color: theme?.paddle2 }}
-						>
-							{player[2]}
-						</p>
+						>{player[2]}</p>
 						<p
 							id="player4"
-							className="font-bold [writing-mode:vertical-rl] text-center"
+							className="items-end"
 							style={{ color: theme?.paddle2 }}
-						>
-							{player[3]}
-						</p>
+						>{player[3]}</p>
 					</div>
-
 				</div>
 			</div>
 			<AnimatePresence mode="wait">

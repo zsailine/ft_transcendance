@@ -70,10 +70,5 @@ export function initMulti(roomName, player1, username1, player2, username2, play
     p2.emit("ready");
     p3.emit("ready");
     p4.emit("ready");
-
-    console.log('the socket id of p1 ' + p1.id + ' (' + u1 + ')');
-    console.log('the socket id of p2 ' + p2.id + ' (' + u2 + ')');
-    console.log('the socket id of p3 ' + p3.id + ' (' + u3 + ')');
-    console.log('the socket id of p4 ' + p4.id + ' (' + u4 + ')');
     startMulti(io, roomName, p1.id, p2.id, p3.id, p4.id);
 }

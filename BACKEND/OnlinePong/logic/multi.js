@@ -54,7 +54,9 @@ export async function startMulti(io, roomName, player1Id, player2Id, player3Id, 
 					paddle3Speed = board.height / speed;
 				}
 				else
+				{
 					paddle4Speed = board.height / speed;
+				}
 			});
 
 			socket.on("arrowUpRelease", () => {

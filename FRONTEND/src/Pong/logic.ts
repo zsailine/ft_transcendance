@@ -29,7 +29,7 @@ function checkWinner(paddle1Score: number, paddle2Score: number): number {
 }
 
 function createBall(board: HTMLCanvasElement, ball: BallInterface): void {
-	ball.Speed = board.width * 0.001;
+	ball.Speed = board.width * 0.002;
 
 	const minY = board.height / 3;
 	const maxY = (board.height * 3) / 4;

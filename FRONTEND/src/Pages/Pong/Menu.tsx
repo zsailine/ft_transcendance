@@ -32,7 +32,7 @@ export const Menu = () => {
 				<div className="flex flex-col md:flex-row items-center justify-center space-y-8 mt-5 md:space-y-0 md:space-x-8">
 					<MenuCard
 						title="Multiplaye Online"
-						description="Double the player, double the fun."
+						description="Cooperate to win, double the player, double the fun."
 						onClick={() => navigate("/dashboard/play/multiplayer")}
 						buttonContent="Start"
 						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"

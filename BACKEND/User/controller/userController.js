@@ -80,7 +80,6 @@ const updateUser = async (req, rep) => {
 const updateColor = async (req, rep) => {
     try {
         const { paddle1, paddle2, ball, boardBackground, boardBorder, score, paddleSpeed, slide} = req.body;
-        console.log(req.body);
         const slideValueForDB = slide ? 1 : 0;
         const stmt = db.prepare(`
             UPDATE users SET 

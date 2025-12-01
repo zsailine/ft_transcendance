@@ -5,7 +5,7 @@ export default function PaddleSelector() {
 	const { theme, setTheme } = useDashboard();
 	const [percentage, setPercentage] = useState(0);
 	function ChangepaddleSpeed(e: any) {
-		const newPaddleSpeed = 600 - Number(e.target.value);
+		const newPaddleSpeed = 300 - Number(e.target.value);
 		setTheme((prevTheme: ThemeColors) => ({
 			...prevTheme,
 			paddleSpeed: newPaddleSpeed
@@ -13,11 +13,11 @@ export default function PaddleSelector() {
 	}
 	useEffect(() => {
 		if (!theme) return;
-		const currentValue = 600 - (theme?.paddleSpeed ? theme.paddleSpeed : 250);
+		const currentValue = 300 - (theme?.paddleSpeed ? theme.paddleSpeed : 125);
 		setPercentage(((currentValue - min) / (max - min)) * 100)
 	}, [theme]);
-	const min = 100;
-	const max = 500;
+	const min = 50;
+	const max = 250;
 	const colorFilled = "#00d3f3";
 	const colorEmpty = "#E5E7EB";
 	return (
@@ -33,7 +33,7 @@ export default function PaddleSelector() {
 							min={min}
 							max={max}
 							step="10"
-							value={600 - (theme?.paddleSpeed ? theme.paddleSpeed : 250)}
+							value={300 - (theme?.paddleSpeed ? theme.paddleSpeed : 125)}
 							onChange={ChangepaddleSpeed}
 
 							style={{
