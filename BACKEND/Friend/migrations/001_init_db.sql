@@ -1,8 +1,11 @@
 CREATE TABLE IF NOT EXISTS friendship (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username_first TEXT NOT NULL,
-    username_second TEXT NOT NULL,
+    user_a TEXT NOT NULL,
+    user_b TEXT NOT NULL,
+	sender TEXT NOT NULL,
+    blocked_by TEXT,
     status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'declined', 'blocked')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (username_first, username_second)
+	CHECK (user_a < user_b),
+    UNIQUE (user_a, user_b)
 )

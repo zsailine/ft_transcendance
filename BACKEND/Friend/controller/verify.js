@@ -26,7 +26,7 @@ const getWhat = async (req, rep, status) => {
 	try {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const toGet = db.prepare(`SELECT * FROM friendship WHERE
-			(sender=? OR receiver=?) AND status=?`)
+			(user_a=? OR user_b=?) AND status=?`)
 			.all(loggedInUsername, loggedInUsername, status);
 		return toGet;
 	} catch(error) {
@@ -40,8 +40,8 @@ const friendsList = async (req, rep, friends) => {
 
 	const friendPromises = friends.map(async friend => {
 		let user;
-		(friend.sender === loggedInUsername) ?
-			user = friend.receiver: user = friend.sender;
+		(friend.user_a === loggedInUsername) ?
+			user = friend.user_b: user = friend.user_a;
 		const avatar = await axios.get(`http://localhost:3001/users/${user}/avatar`);
 		const id = await axios.get(`http://localhost:3001/users/${user}/id`);
 		return ({
@@ -59,7 +59,7 @@ const thoseWhoSentMe = async (req, rep, friends) => {
 	const loggedInUsername = await getUsername(req, rep);
 
 	friends = friends.filter((friend) => {
-		return friend.receiver === loggedInUsername;
+		return friend.sender !== loggedInUsername;
 	});
 	const friendPromises = friends.map(async friend => {
 		const user = friend.sender;

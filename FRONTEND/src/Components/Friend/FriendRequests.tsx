@@ -19,8 +19,8 @@ function FriendRequests() {
 	<div className="flex flex-col h-full overflow-y-auto font-helvetica mb-8 w-full gap-10 items-center">
 		<ul className="text-white w-full md:w-[50%]">
 			{friendRequests.map((friend) =>
-				<li key={friend.id} className={`flex items-center p-2 rounded-lg cursor-pointer ${hoverEffect}`}>
-					<div className="flex gap-3 md:gap-5 items-center w-full">
+				<li key={friend.id} className={`flex items-center p-2 rounded-lg cursor-pointer gap-4 ${hoverEffect}`}>
+					<div className="flex gap-2 md:gap-4 items-center w-full">
 						<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
 							{friend.avatar ?
 							<img	alt={friend.username?.at(0)?.toUpperCase()}

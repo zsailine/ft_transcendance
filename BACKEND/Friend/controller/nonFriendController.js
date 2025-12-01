@@ -1,15 +1,32 @@
 import axios from "axios";
-import { getCookies } from "./verify.js";
+import { friendsList, getCookies, getUsername } from "./verify.js";
+import db from "../migration.js";
 
 const CHAT_URL = "http://localhost:3004";
 const FRIEND_URL = "http://localhost:3006"
+
+const getUsersRelated = async (req, rep) => {
+	try {
+		const loggedInUsername = await getUsername(req, rep, "http://localhost:3002/auth/me");
+		const related = db.prepare(`SELECT * FROM friendship where (user_a=? OR user_b=?)`)
+			.all(loggedInUsername, loggedInUsername);
+		const listRelated = await friendsList(req, rep, related);
+		if (listRelated) {
+			return rep.status(200).send(listRelated);
+		} else {
+			return rep.status(200).send([]);
+		}
+	} catch(error) {
+		console.log("Something went wrong:", error.message);
+	}
+}
 
 const getNonFriends = async (req, rep) => {
 	try {
 		const cookies = await getCookies(req);
 		const users = await axios.get(`${CHAT_URL}/message/contacts`,
 			{ headers: { 'Cookie': cookies }});
-		const friends = await axios.get(`${FRIEND_URL}/friend/all`,
+		const friends = await axios.get(`${FRIEND_URL}/friend/related`,
 			{ headers: { 'Cookie': cookies }});
 		const usernames = new Set(friends.data.map(friend => friend.username));
 		const nonFriends = users.data.filter((user) => {
@@ -29,5 +46,6 @@ const getNonFriends = async (req, rep) => {
 }
 
 export {
-	getNonFriends
+	getNonFriends,
+	getUsersRelated
 };
