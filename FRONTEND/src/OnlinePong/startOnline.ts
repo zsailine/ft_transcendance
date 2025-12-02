@@ -3,13 +3,9 @@
 import { Socket } from "socket.io-client";
 import type { ThemeColors } from "../Providers/DashboardProvider";
 import { drawBall, drawPaddles, clearBoard, drawScore } from "../Pong/draw";
-import api from "../Utils/axios";
 
 
-
-
-export function start(
-	player: string[],
+export function startonline(
 	role: string,
 	theme: ThemeColors,
 	socket: Socket,
@@ -27,8 +23,8 @@ export function start(
 	let paddle1 = {
 		width: board.width * 0.02,
 		height: board.height * 0.15,
-		x: board.width * 0.04,
-		y: board.height / 2 - board.height * 0.075,
+		x: 0,
+		y: 0,
 		Direction: 0,
 		Score: 0
 	};
@@ -36,8 +32,24 @@ export function start(
 	let paddle2 = {
 		width: board.width * 0.02,
 		height: board.height * 0.15,
-		x: board.width - board.width * 0.06,
-		y: board.height / 2 - board.height * 0.075,
+		x: board.width * 0.25,
+		y: board.height - board.height * 0.15,
+		Direction: 0,
+		Score: 0
+	};
+	let paddle3 = {
+		width: board.width * 0.02,
+		height: board.height * 0.15,
+		x: board.width - board.width * 0.02,
+		y: 0,
+		Direction: 0,
+		Score: 0
+	};
+	let paddle4 = {
+		width: board.width * 0.02,
+		height: board.height * 0.15,
+		x: board.width - board.width * 0.27,
+		y: board.height - board.height * 0.15,
 		Direction: 0,
 		Score: 0
 	};
@@ -90,6 +102,10 @@ export function start(
 		const paddle2X = paddle2.x;
 		const paddle1Y = paddle1.y;
 		const paddle2Y = paddle2.y;
+		const paddle3X = paddle3.x;
+		const paddle4X = paddle4.x;
+		const paddle3Y = paddle3.y;
+		const paddle4Y = paddle4.y;
 
 		resizeBoard();
 		ballX = oldX * (board.width / oldWidth);
@@ -97,12 +113,18 @@ export function start(
 		ballRadius = board.width * 0.0125;
 
 		paddle1.x = paddle1X * (board.width / oldWidth);
-		paddle2.x = paddle2X * (board.width / oldWidth);
 		paddle1.y = paddle1Y * (board.height / oldHeight);
+		paddle2.x = paddle2X * (board.width / oldWidth);
 		paddle2.y = paddle2Y * (board.height / oldHeight);
+		paddle3.x = paddle3X * (board.width / oldWidth);
+		paddle3.y = paddle3Y * (board.height / oldHeight);
+		paddle4.x = paddle4X * (board.width / oldWidth);
+		paddle4.y = paddle4Y * (board.height / oldHeight);
 
 		resizePaddle(paddle1);
 		resizePaddle(paddle2);
+		resizePaddle(paddle3);
+		resizePaddle(paddle4);
 	}
 	window.addEventListener("resize", ft_resize);
 
@@ -115,7 +137,8 @@ export function start(
 		clearBoard(ctx, board, theme.boardBackground);
 		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
 		drawBall(ctx, ballRadius, theme.ball, convert(1, data.ballX), convert(0, data.ballY));
-		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle4);
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle2, paddle3);
 	});
 	socket.on("paddle1", (data) => {
 		paddle1.y = convert(0, data);
@@ -123,35 +146,23 @@ export function start(
 	socket.on("paddle2", (data) => {
 		paddle2.y = convert(0, data);;
 	});
+	socket.on("paddle3", (data) => {
+		paddle3.y = convert(0, data);
+	});
+	socket.on("paddle4", (data) => {
+		paddle4.y = convert(0, data);;
+	});
 	socket.on("score", (data) => {
 		paddle1Score = data.paddle1Score;
 		paddle2Score = data.paddle2Score;
 	});
-
-	async function addMatch(winner: string) {
-		if (role !== winner)
-			return;
-		const body = {
-			player1: player[0],
-			player2: player[1],
-			score_p1: paddle1Score,
-			score_p2: paddle2Score,
-			winner: winner === "player1" ? player[0] : player[1]
-		};
-		await api.post('/matches/add', body)
-			.then(() => {
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	}
 	const finish = (data: string) => {
 		clearBoard(ctx, board, theme.boardBackground);
 		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
 		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
-		onEnd(data);
-		addMatch(data);
+		const result = data.includes(role) ? role : data;
+		onEnd(result);
 	};
 	socket.on("finish", finish);
 

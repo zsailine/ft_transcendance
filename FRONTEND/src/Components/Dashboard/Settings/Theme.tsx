@@ -1,11 +1,11 @@
 import { useDashboard, type ThemeColors } from "../../../Providers/DashboardProvider";
-const defaultTheme: ThemeColors = {
+export const defaultTheme: ThemeColors = {
     paddle1: '#5c9cd1',
-    paddle2: '#6bd1e6', // Déjà similaire (bleu clair)
+    paddle2: '#6bd1e6',
     ball: '#a9e6f9',
     boardBackground: '#101728',
     boardBorder: '#3c4e8b',
-    score: '#3c4e8b',   // Déjà identique à la bordure
+    score: '#3c4e8b',
 }
 
 interface ThemeOption {
@@ -68,14 +68,21 @@ const themes: ThemeOption[] = [
 ];
 
 
-export default function ThemeSelector() {
+export function ThemeSelector() {
     const { theme, setTheme } = useDashboard();
     return (
         <div className="flex items-center justify-center gap-6 my-6">
             {themes.map((t, i) => (
                 <div key={i} className="flex flex-col items-center">
                     <button
-                        onClick={() => setTheme(t.colors)}
+                        onClick={() => 
+                            setTheme(prevTheme => ({
+                                ...prevTheme, 
+                                ...t.colors,
+                                slide: prevTheme.slide ?? false,
+                                paddleSpeed: prevTheme.paddleSpeed ?? 250,
+                            }))
+                        }
                         className={`
                         w-5 h-5 lg:w-10 lg:h-10 rounded-full border-4 transition 
                         ${theme?.boardBorder === t.colors.boardBorder
