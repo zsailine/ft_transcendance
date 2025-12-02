@@ -49,7 +49,7 @@ function FriendTabSwitch() {
 				<MdPersonSearch />
 				<p className="hidden md:block text-sm">Search</p>
 			</div>
-			<div onClick={() => handleClick("research") } className={getTabClasses("block")}>
+			<div onClick={() => handleClick("block") } className={getTabClasses("block")}>
 				<FaUserSlash />
 				<p className="hidden md:block text-sm">Blocked</p>
 			</div>
