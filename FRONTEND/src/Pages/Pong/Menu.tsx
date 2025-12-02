@@ -6,36 +6,34 @@ export const Menu = () => {
 	return (
 		<>
 			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
-				<div className="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
+				<div className="w-[100%] md:w-[70%] flex-wrap flex flex-col md:flex-row items-between justify-center md:justify-around gap-20 md:space-y-0 mb-9">
 					<MenuCard
 						title="Local Play"
 						description="Challenge a friend on the same device."
 						onClick={() => navigate("/dashboard/play/pong")}
 						buttonContent="Start"
-						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card3.png)] bg-contain bg- bg-no-repeat bg-center"
 					/>
 					<MenuCard
 						title="Local Tournament"
 						description="Challenge your friends to see who is the best on the same device."
 						onClick={() => navigate("/dashboard/play/tournament")}
 						buttonContent="Start"
-						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card2.png)] bg-cover"
 					/>
-				</div>
-				<div className="flex flex-col md:flex-row items-center justify-center space-y-8 mt-5 md:space-y-0 md:space-x-8">
 					<MenuCard
 						title="Online Play"
 						description="Compete against players from around the world to climb the rankings."
 						onClick={() => navigate("/dashboard/play/online")}
 						buttonContent="Start"
-						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card4.png)] bg-cover"
 					/>
 					<MenuCard
-						title="Multiplaye Online"
+						title="Multiplayer Online"
 						description="Cooperate to win, double the player, double the fun."
 						onClick={() => navigate("/dashboard/play/multiplayer")}
 						buttonContent="Start"
-						bgColor="bg-[url(/images/bg-card3.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card5.png)] bg-cover"
 					/>
 				</div>
 			</div>
