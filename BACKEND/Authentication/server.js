@@ -17,6 +17,16 @@ await fastify.register(cors, {
 
 await fastify.register(fastifyCookie);
 
+fastify.register(fastifyJwt , 
+  {
+    secret : process.env.JWT_SECRET,
+    cookie: {
+      cookieName: 'token',
+      signed: false
+    } 
+  }
+);
+
 const axiosInstance = axios.create({
 baseURL: "http://userservice:3001",
 timeout: 1000,
