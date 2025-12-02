@@ -95,7 +95,7 @@ const declineRequest = async (req, rep) => {
 			rep.status(400).send({ error: "Can't decline your own request" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
 		const request = db.prepare(`UPDATE friendship SET status='declined' WHERE (user_a=? AND user_b=?)`)
-			.run(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+			.run(user_a, user_b);
 		if (request.changes > 0) {
 			const toDelete = db.prepare(`SELECT id FROM friendship WHERE
 				(user_a=? AND user_b=?) AND status='declined'`)

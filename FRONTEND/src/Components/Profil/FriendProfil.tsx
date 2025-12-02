@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
 import type { ImageBuffer } from "../../Providers/DashboardProvider"
 import { getBanner, getStat, type statInterface } from "../../Utils/getter";
-import type { UserInterface } from "../../Providers/ChatProvider";
+import { useChat, type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { toast } from "react-toastify";
 import { FaUserTimes, FaUserSlash } from "react-icons/fa";
+import { BlockButton, UnfriendButton } from "../../Pages/Chat/ListUtils";
+import { handleBlocked, handleUnfriend } from "../Utils/ProfilUtils";
+import { useFriend } from "../../Providers/FriendProvider";
 
 
 interface FriendProfilProps {
@@ -13,6 +16,8 @@ interface FriendProfilProps {
 }
 
 function FriendProfil({click, user}: FriendProfilProps) {
+	const { unfriend } = useFriend();
+	const { setSelectedUser } = useChat();
 	const [ banner, setBanner ] = useState<ImageBuffer | null>(null);
 	const [ stat, setStat ] = useState<statInterface>({total_losses: 0, total_matches: 0, total_wins:0});
 
@@ -67,16 +72,14 @@ function FriendProfil({click, user}: FriendProfilProps) {
 			</div>
 
 			<div className="flex gap-5 w-[80%] flex-shrink-0 mt-10">
-				<button className="flex-1 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-500 transition duration-150 shadow-lg text-sm flex items-center justify-center space-x-2"
-						onClick={() => toast.info('Unfriend')} >
-						<FaUserTimes className="w-4 h-4"/>
-						<span>Unfriend</span>
-				</button>
-				<button className="flex-1 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition duration-150 shadow-lg text-sm flex items-center justify-center space-x-2"
-						onClick={() => toast.error('Block')} >
-						<FaUserSlash className="w-4 h-4"/>
-						<span>Block</span>
-				</button>
+				<UnfriendButton
+					user={user}
+					handleUnfriend={handleUnfriend}
+					unfriend={unfriend}
+					setSelectedUser={setSelectedUser}/>
+				<BlockButton 
+					user={user}
+					handleBlocked={handleBlocked}/>
 			</div>
 
 			<button className="mt-8 w-[40%] py-2 bg-indigo-500 text-white font-semibold rounded-md hover:bg-indigo-600 transition duration-150 shadow-lg flex-shrink-0" 

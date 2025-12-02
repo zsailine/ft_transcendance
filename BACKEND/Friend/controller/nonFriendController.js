@@ -45,7 +45,26 @@ const getNonFriends = async (req, rep) => {
 	}
 }
 
+const getAllBlocked = async (req, rep) => {
+	try {
+		const username = await getUsername(req, rep);
+		const blockedDB = db.prepare(`SELECT * FROM friendship WHERE blocked_by=?`).all(username);
+		const blocked = await friendsList(req, rep, blockedDB);
+		if (blocked) {
+			rep.status(200).send(blocked);
+		} else {
+			rep.status(200).send([]);
+		}
+	} catch(error) {
+		console.log(error.message);
+		return rep.status(500).send({
+			error: "Error in fetchin blocked users"
+		});
+	}
+}
+
 export {
 	getNonFriends,
-	getUsersRelated
+	getUsersRelated,
+	getAllBlocked
 };

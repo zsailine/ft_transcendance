@@ -4,6 +4,8 @@ import FriendRequests from "./FriendRequests";
 import ResearchTab from "./ResearchTab";
 import { FaUserFriends, FaUserClock } from "react-icons/fa";
 import { MdPersonSearch } from "react-icons/md";
+import BlockedUsers from "./BlockedUsers";
+import { FaUserSlash } from "react-icons/fa";
 
 function FriendTabSwitch() {
 	const [ selectedTab, setSelectedTab ] = useState<React.ReactElement>(<Friends/>);
@@ -26,6 +28,9 @@ function FriendTabSwitch() {
 		} else if (event === "research") {
 			setSelectedTab(<ResearchTab/>);
 			setTabSelected("research");
+		} else if (event === "block") {
+			setSelectedTab(<BlockedUsers/>);
+			setTabSelected("block");
 		}
 	}
 
@@ -43,6 +48,10 @@ function FriendTabSwitch() {
 			<div onClick={() => handleClick("research") } className={getTabClasses("research")}>
 				<MdPersonSearch />
 				<p className="hidden md:block text-sm">Search</p>
+			</div>
+			<div onClick={() => handleClick("research") } className={getTabClasses("block")}>
+				<FaUserSlash />
+				<p className="hidden md:block text-sm">Blocked</p>
 			</div>
 		</div>
 		<div className="text-slate-200 w-full flex-1">
