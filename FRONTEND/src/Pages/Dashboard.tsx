@@ -11,7 +11,7 @@ const Dashboard = () => {
                     <Sidebar />
                 </div>
                 <div className=" relative w-full lg:w-5/6 overflow-y-auto">
-                    <div className="mx-6 h-[85vh]">
+                    <div className="h-[85vh]">
                         <div className="flex justify-end h-max mb-10">
                             <Navbar />
                         </div>

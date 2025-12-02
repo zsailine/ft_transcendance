@@ -30,7 +30,7 @@ fastify.register(chatRoutes);
 
 fastify.ready().then(() => {
 	fastify.io.use(socketAuth);
-	
+
 	fastify.io.on("connection", (socket) => {
 		const userName = socket.username;
 
@@ -46,17 +46,17 @@ fastify.ready().then(() => {
 			const user = data.user;
 
 			if (receiverSockets && receiverSockets.length > 0) {
-				receiverSockets.forEach(socketId => {
-					fastify.io.to(socketId).emit("join", { room, user });
-				});
+				// receiverSockets.forEach(socketId => {
+					fastify.io.to(receiverSockets).emit("join", { room, user });
+				// });
 			}
 		});
 		socket.on("received", data => {
 			const receiverSockets = userSocketMap[data];
 			if (receiverSockets && receiverSockets.length > 0) {
-				receiverSockets.forEach(socketId => {
-					fastify.io.to(socketId).emit("received");
-				});
+				// receiverSockets.forEach(socketId => {
+					fastify.io.to(receiverSockets).emit("received");
+				// });
 			}
 		})
 
@@ -77,7 +77,7 @@ fastify.ready().then(() => {
 });
 
 fastify.listen({ port: 3004 }, (err, address) => {
-	if(err) {
+	if (err) {
 		console.log(err);
 		process.exit(1);
 	}
