@@ -27,6 +27,8 @@ services:
     build: ./BACKEND/Authentication
     ports:
       - "3002:3002"
+    env_file:
+      - ./BACKEND/Authentication/.env
     networks:
       - webnet
 

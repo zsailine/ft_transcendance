@@ -6,7 +6,7 @@ import cors from '@fastify/cors'
 import fastifyMultipart from "@fastify/multipart";
 
 
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
     origin: "http://localhost:8080",

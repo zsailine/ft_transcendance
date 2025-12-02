@@ -4,7 +4,8 @@ import {  createUser,
           getUserByUsername,
           updateUser,
           updateColor,
-          getId
+          getId,
+          verifyandCreateGoogleUser
 } from "../controller/userController.js";
 
 export default async function userRoutes(fastify) {
@@ -23,4 +24,6 @@ export default async function userRoutes(fastify) {
   fastify.post("/users/update" , { handler: updateUser });
 
   fastify.post("/users/:username/updateColor" , { handler: updateColor });
+
+  fastify.post("/users/google-login" , { handler: verifyandCreateGoogleUser });
 }

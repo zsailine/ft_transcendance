@@ -8,7 +8,7 @@ import fastifyJwt from "@fastify/jwt";
 import cors from '@fastify/cors'
 
 dotenv.config();
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
     origin: "http://localhost:8080",
@@ -18,10 +18,9 @@ await fastify.register(cors, {
 await fastify.register(fastifyCookie);
 
 const axiosInstance = axios.create({
-baseURL: "http://localhost:3001",
+baseURL: "http://userservice:3001",
 timeout: 1000,
 });
-
 
 
 fastify.decorate("axios", axiosInstance);

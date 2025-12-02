@@ -127,4 +127,26 @@ const getId = async (req, rep) => {
     return rep.status(200).send(id);
 }
 
-export { createUser, getAllUsers, getUserByUsername, updateColor, updateUser, getAvatar, getId };
+const verifyandCreateGoogleUser = async (req, rep) => {
+    const { username, googleId, email } = req.body;
+    const password = "GOOGLE_ACCOUNT";
+    if (!googleId || !email || !username)
+        return rep.code(400).send({ error: "googleId , email and username required" });
+    const user = db.prepare("SELECT * FROM users WHERE google_id = ?").get(googleId);
+    if (user) {
+        return rep.code(200).send(user);
+    }
+    try {
+        const stmt = db.prepare("INSERT INTO users (username, email, google_id, password) VALUES (?, ?, ?, ?)");
+        const result = stmt.run(username, email, googleId, password);
+        
+        return rep.code(201).send({id: result.lastInsertRowid, username, email, googleId});
+    }
+    catch (e) {
+        console.log("SQL ERROR:", e);
+        rep.code(400).send({ error: "username and email must be unique" });
+    }
+
+}
+
+export { createUser, getAllUsers, getUserByUsername, updateColor, updateUser, getAvatar, getId, verifyandCreateGoogleUser };

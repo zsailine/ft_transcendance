@@ -6,7 +6,7 @@ import cors from '@fastify/cors'
 import cookie from "fastify-cookie";
 
 dotenv.config();
-const fastify = Fastify({ logger: false });
+const fastify = Fastify({ logger: true });
 
 fastify.register(cookie);
 
@@ -44,19 +44,19 @@ fastify.decorate("authenticate", async function (request, reply) {
 fastify.addHook("onRequest", fastify.authenticate);
 
 fastify.register(httpProxy, {
-  upstream: "http://authservice:3000",
+  upstream: "http://authservice:3002",
   prefix: "/auth",
   rewritePrefix: '/auth'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://userservice:3000",
+  upstream: "http://userservice:3001",
   prefix: "/users",
   rewritePrefix: '/users'
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://userservice:3000",
+  upstream: "http://userservice:3001",
   prefix: "/matches",
   rewritePrefix: '/matches'
 });

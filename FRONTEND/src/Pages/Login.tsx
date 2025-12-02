@@ -6,10 +6,14 @@ import { FaGoogle } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 import { ImSpinner9 } from "react-icons/im";
 import { toast } from "react-toastify";
+import OauthLoading from "../Components/Utils/OauthLoading";
 
 export default function Login() {
   const location = useLocation();
   const isLogin = location.pathname === '/login';
+  const aouthParam = new URLSearchParams(location.search).get('oauth');
+
+
 
   const navigate = useNavigate();
 
@@ -111,6 +115,13 @@ export default function Login() {
   };
 
   const disablesStyle = !canSubmit ? "opacity-70 cursor-not-allowed" : "";
+  if (aouthParam === "start" || aouthParam === "success" || aouthParam === "error") {
+    return <OauthLoading />;
+  }
+
+  if (isLoading) {
+    return <OauthLoading />;
+  }
 
 
   return (
@@ -183,7 +194,6 @@ export default function Login() {
               <div className="mt-4 flex justify-center space-x-4">
                 <button className="cursor-pointer w-full flex justify-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition"
                   onClick= {() => { window.location.href = `/auth/google`; }}
-                  // onClick={ () => { loginWhithGoogle() }
                 >
                   <FaGoogle size={20} />
                 </button>
