@@ -15,8 +15,9 @@ const loggedUser = async (req , rep) => {
     // rep.header("Authorization" , `Bearer ${token}`);
     rep.setCookie("token" , token , {
         httpOnly : true,
-        sameSite : "lax",
-        path : "/"
+        sameSite : "None",
+        path : "/",
+        secure:true,
     });
 
     return rep.send({
@@ -27,8 +28,9 @@ const loggedUser = async (req , rep) => {
 const logout = async (req , rep) => {
     rep.clearCookie("token" , {
         httpOnly : true,
-        sameSite : "lax",
-        path : "/"
+        sameSite : "None",
+        path : "/",
+        secure:true
     });
     return rep.send({ message : "logged out successfully"});
 }

@@ -19,7 +19,7 @@ await fastify.register(fastifySocketIo, {
 await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
-	origin: "http://localhost:8080",
+	origin: "https://localhost:8443",
 	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });

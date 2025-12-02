@@ -30,4 +30,6 @@ friend:
 
 re: down prune start
 
-.PHONY: start down
+fclean: down prune
+
+.PHONY: start down prune web gateway auth chat online user friend re fclean

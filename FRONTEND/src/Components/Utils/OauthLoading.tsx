@@ -15,10 +15,10 @@ export default function OauthLoading() {
         if (oauthParam === 'success') {
             const username = queryParams.get('username');
             toast.success(`Connexion réussie ! Bienvenue, ${username}.`);
-            setTimeout(() => navigate('/dashboard') , 2000);
+            setTimeout(() => navigate('/dashboard') , 1200);
         } else if (oauthParam === 'error') {
             toast.error("Échec de la connexion via Google. Veuillez réessayer.");
-            setTimeout(() => navigate('/login') , 2000);
+            setTimeout(() => navigate('/login') , 1200);
         }
     }, [location, navigate]);
 

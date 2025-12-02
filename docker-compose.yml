@@ -2,7 +2,7 @@ services:
   web:
     build: ./FRONTEND
     ports:
-      - "8080:8080"
+      - "8443:8443"
     networks:
       - webnet
 
