@@ -5,7 +5,8 @@ import {
 	getAllFriends,
 	getFriendRequests,
 	getRelationship,
-	sendFriendRequest
+	sendFriendRequest,
+	unblockUser
 } from "../controller/friendController.js";
 
 import {
@@ -35,4 +36,6 @@ export default async function friendRoutes(fastify) {
 	fastify.put("/friend/request/:username/decline", { handler: declineRequest });
 
 	fastify.put("/friend/request/:username/block", { handler: blockUser });
+
+	fastify.put("/friend/request/:username/unblock", { handler: unblockUser });
 }

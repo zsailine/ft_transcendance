@@ -1,7 +1,7 @@
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
 import { useFriend } from "../../Providers/FriendProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
-import NoFriendRequests from "../../Pages/Friend/NoFriendRequests";
+import { NoFriendRequests } from "../../Pages/Friend/NoFriendRequests";
 
 function FriendRequests() {
 	const { friendRequests, acceptInvite, declineInvite } = useFriend();

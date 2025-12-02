@@ -63,8 +63,22 @@ const getAllBlocked = async (req, rep) => {
 	}
 }
 
+const insertBlockedUser = ([user_a, user_b], loggedInUsername) => {
+	try {
+		const relation = db.prepare(`SELECT * FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
+		if (relation)
+			return ;
+		db.prepare(`INSERT INTO friendship (user_a, user_b, sender, is_friend)
+			VALUES (?, ?, ?, ?)`).run(user_a, user_b, loggedInUsername, 0);
+	} catch(error) {
+		console.log("Error in inserting blocked:", error.message);
+	}
+}
+
 export {
 	getNonFriends,
 	getUsersRelated,
-	getAllBlocked
+	getAllBlocked,
+	insertBlockedUser
 };

@@ -22,12 +22,21 @@ const getCookies = async (req) => {
 	return realCookies;
 }
 
-const getWhat = async (req, rep, status) => {
+const getWhat = async (req, rep, status, is_friend) => {
 	try {
+		let what, value;
+
+		if (!status && is_friend) {
+			what = "is_friend";
+			value = is_friend;
+		} else if (status && !is_friend) {
+			what = "status";
+			value = status;
+		}
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const toGet = db.prepare(`SELECT * FROM friendship WHERE
-			(user_a=? OR user_b=?) AND status=?`)
-			.all(loggedInUsername, loggedInUsername, status);
+			(user_a=? OR user_b=?) AND ${what}=?`)
+			.all(loggedInUsername, loggedInUsername, value);
 		return toGet;
 	} catch(error) {
 		console.log("Something went wrong", error.message);

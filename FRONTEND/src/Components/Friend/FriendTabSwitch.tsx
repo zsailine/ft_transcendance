@@ -45,13 +45,13 @@ function FriendTabSwitch() {
 				<FaUserClock />
 				<p className="hidden md:block text-sm">Requests</p>
 			</div>
-			<div onClick={() => handleClick("research") } className={getTabClasses("research")}>
-				<MdPersonSearch />
-				<p className="hidden md:block text-sm">Search</p>
-			</div>
 			<div onClick={() => handleClick("block") } className={getTabClasses("block")}>
 				<FaUserSlash />
 				<p className="hidden md:block text-sm">Blocked</p>
+			</div>
+			<div onClick={() => handleClick("research") } className={getTabClasses("research")}>
+				<MdPersonSearch />
+				<p className="hidden md:block text-sm">Search</p>
 			</div>
 		</div>
 		<div className="text-slate-200 w-full flex-1">
