@@ -16,19 +16,19 @@ await fastify.register(cors, {
     credentials: true
 })
 
-fastify.register(fastifyJwt , 
+fastify.register(fastifyJwt,
   {
-    secret : process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET,
     cookie: {
       cookieName: 'token',
       signed: false
-    } 
+    }
   }
 );
 
 fastify.decorate("authenticate", async function (request, reply) {
   try {
-    if (request.url.startsWith("/auth") || request.url === "/users/register" ||
+    if (request.url === "/auth/login" || request.url === "/users/register" ||
       request.url.startsWith("/socket.io")) {
       return;
     }
@@ -37,6 +37,7 @@ fastify.decorate("authenticate", async function (request, reply) {
     }
     await request.jwtVerify();
   } catch (err) {
+    console.log("Authentication error:", err);
     reply.code(401).send({ error: "Unauthorized" });
   }
 });

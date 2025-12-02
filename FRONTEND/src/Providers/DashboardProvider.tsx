@@ -14,6 +14,8 @@ export interface ThemeColors {
     boardBackground: string;
     boardBorder: string;
     score: string;
+    slide?: boolean;
+    paddleSpeed?: number;
 };
 
 interface DashboardInterface {
@@ -26,7 +28,7 @@ interface DashboardInterface {
     coverImage: ImageBuffer | null,
     setCoverImage: (coverImage: ImageBuffer) => void,
     theme: ThemeColors | null,
-    setTheme: (theme: ThemeColors) => void,
+    setTheme: React.Dispatch<React.SetStateAction<ThemeColors>>;
     refreshUserData: () => void,
 }
 
@@ -51,6 +53,8 @@ export const DashboardProvider = ({ children }: any) => {
         boardBackground: "",
         boardBorder: "",
         score: "",
+        slide: false,
+        paddleSpeed: 250,
     });
     const { user } = useAuth()
 
@@ -69,6 +73,8 @@ export const DashboardProvider = ({ children }: any) => {
                     boardBackground: response.data.board_background,
                     boardBorder: response.data.board_border,
                     score: response.data.score_color,
+                    slide: response.data.slide,
+                    paddleSpeed: response.data.paddle_speed,
                 });
             } catch (error) {
                 console.error("Error fetching user data:", error);

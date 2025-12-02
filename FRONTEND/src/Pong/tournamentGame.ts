@@ -2,10 +2,8 @@
 
 import type { ThemeColors } from "../Providers/DashboardProvider";
 import { drawBall, drawPaddles, clearBoard, drawScore } from "./draw";
-
-const sounds = {
-  paddle: new Audio("/sounds/pong.wav"),
-};
+import { moveBall, createBall, movePaddles, type BallInterface, type Paddle } from "./logic";
+import { keyHandler, keyUpHandler } from "./event"
 
 export function start(
   theme: ThemeColors,
@@ -13,171 +11,110 @@ export function start(
   setWinner: (winner: string) => void
 ): () => void {
   const board = document.getElementById("board") as HTMLCanvasElement;
-  const ctx = board.getContext("2d") as CanvasRenderingContext2D;
-  resizeBoard();
+  let ctx = board.getContext("2d") as CanvasRenderingContext2D;
+  if (!ctx) throw new Error("Canvas context not found");
 
-  interface Paddle {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-  }
+  resizeBoard();
 
   let paddle1: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: 0,
+    x: board.width * 0.04,
     y: board.height / 2 - board.height * 0.075,
+    Direction: 0,
+    Score: 0
   };
 
   let paddle2: Paddle = {
     width: board.width * 0.02,
     height: board.height * 0.15,
-    x: board.width - board.width * 0.02,
+    x: board.width - board.width * 0.06,
     y: board.height / 2 - board.height * 0.075,
+    Direction: 0,
+    Score: 0
   };
+  const ball: BallInterface = {
+    Speed: 0,
+    Radius: 0,
+    X: 0,
+    Y: 0,
+    XDirection: 0,
+    YDirection: 0,
+  }
 
-  let paddle1Score = 4;
-  let paddle2Score = 4;
-
-  let ballRadius = board.width * 0.0125;
-  let ballSpeed: number;
-  let ballX: number;
-  let ballY: number;
-  let ballXDirection: number;
-  let ballYDirection: number;
+  let finished = 0;
   let intervalID: number;
-  let paddleSpeed = board.height / 7;
+  ball.Radius = board.width * 0.0125;
+  ball.Speed = board.width * 0.002;
+  const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
+  let paddleSpeed = board.height / speedRatio;
   let gameOver = false;
 
+  function finish() {
+    clearBoard(ctx, board, theme.boardBackground);
+    gameOver = true;
+    clearTimeout(intervalID);
+    window.removeEventListener("keydown", (e: KeyboardEvent) => {
+
+    });
+    window.removeEventListener("resize", () => {
+      ft_resize();
+    });
+    window.removeEventListener("keydown", (e: KeyboardEvent) => {
+      keyHandler(e, paddle1, paddle2);
+    });
+    window.removeEventListener("keyup", (e: KeyboardEvent) => {
+      keyUpHandler(e, paddle1, paddle2, theme.slide);
+    });
+    const winner =
+      paddle1.Score === 5
+        ? player[0]
+        : player[1];
+    setWinner(winner);
+  }
+
+  function nextTick(): void {
+    intervalID = setTimeout(() => {
+      if (gameOver) return;
+      clearBoard(ctx, board, theme.boardBackground);
+      movePaddles(board, paddleSpeed, paddle1, paddle2);
+      drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+      finished = moveBall(1, ball, board, ctx, theme.boardBorder, paddle1, paddle2);
+      if (finished)
+        finish();
+      drawScore(ctx, board, `${paddle1.Score}`, `${paddle2.Score}`, theme.boardBorder);
+      drawBall(ctx, ball.Radius, theme.ball, ball.X, ball.Y);
+    }, 10);
+  }
+
+
+  createBall(board, ball);
+  drawScore(ctx, board, `${paddle1.Score}`, `${paddle2.Score}`, theme.boardBorder);
+  nextTick();
+
+
   function resizeBoard(): void {
+    if (window.innerWidth < 2 || window.innerHeight < 2) {
+      board.width = 1;
+      board.height = 1;
+      return;
+    }
     board.width = window.innerWidth * 0.8;
     board.height = window.innerHeight * 0.7;
   }
 
-  function checkWinner(): void {
-    if (paddle1Score === 5 || paddle2Score === 5) {
-      clearBoard(ctx, board, theme.boardBackground);
-      gameOver = true;
-      clearTimeout(intervalID);
-      window.removeEventListener("keydown", keyHandler);
-      window.removeEventListener("resize", ft_resize);
-      const winner =
-        paddle1Score === 5
-          ? player[0]
-          : player[1];
-      setWinner(winner);
-    }
-  }
-
   function resizePaddle(paddle: Paddle): void {
-    paddle.width = board.width * 0.02;
+    paddleSpeed = board.height / 200;
+    paddle.width = board.width * 0.02
     paddle.height = board.height * 0.15;
-    paddleSpeed = board.height / 7;
   }
 
-
-  function createBall(): void {
-    ballSpeed = board.width * 0.001;
-
-    const minY = board.height / 3;
-    const maxY = (board.height * 3) / 4;
-    ballY = minY + Math.random() * (maxY - minY);
-    ballX = board.width / 2;
-
-    const minAngle = 30 * (Math.PI / 180);
-    const maxAngle = 70 * (Math.PI / 180);
-    const direction = Math.random() > 0.5 ? 1 : -1;
-    
-    const angle = minAngle + Math.random() * (maxAngle - minAngle);
-
-    ballXDirection = Math.cos(angle) * direction;
-    ballYDirection = Math.sin(angle);
-  }
-
-  function moveBall(): void {
-    ballX += ballSpeed * ballXDirection;
-    ballY += ballSpeed * ballYDirection;
-
-    if (ballY - ballRadius < 0 || ballY + ballRadius > board.height)
-      ballYDirection = -ballYDirection;
-
-    if (
-      ballX - ballRadius <= paddle1.x + paddle1.width &&
-      ballY > paddle1.y &&
-      ballY < paddle1.y + paddle1.height
-    ) {
-      ballSpeed += board.width * 0.0005;
-      ballX = paddle1.x + paddle1.width + ballRadius;
-      ballXDirection = -ballXDirection;
-      sounds.paddle.currentTime = 0;
-      sounds.paddle.play();
-    }
-
-    if (
-      ballX + ballRadius >= paddle2.x &&
-      ballY > paddle2.y &&
-      ballY < paddle2.y + paddle2.height
-    ) {
-      ballSpeed += board.width * 0.0005;
-      ballX = paddle2.x - ballRadius;
-      ballXDirection = -ballXDirection;
-      sounds.paddle.currentTime = 0;
-      sounds.paddle.play();
-    }
-
-    if (ballX - ballRadius < 0) {
-      paddle2Score++;
-      resetBall();
-    } else if (ballX + ballRadius > board.width) {
-      paddle1Score++;
-      resetBall();
-    }
-  }
-
-  function resetBall(): void {
-    createBall();
-    checkWinner();
-  }
-
-  function nextTick(): void {
-    if (gameOver) return;
-    intervalID = window.setTimeout(() => {
-      clearBoard(ctx, board, theme.boardBackground);
-      drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
-      drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
-      moveBall();
-      drawBall(ctx, ballRadius, theme.ball, ballX, ballY);
-      nextTick();
-    }, 10);
-  }
-
-  function keyHandler(e: KeyboardEvent): void {
-    switch (e.key) {
-      case "w":
-      case "W":
-        paddle1.y = Math.max(paddle1.y - paddleSpeed, 0);
-        break;
-      case "s":
-      case "S":
-        paddle1.y = Math.min(paddle1.y + paddleSpeed, board.height - paddle1.height);
-        break;
-      case "o":
-      case "O":
-        paddle2.y = Math.max(paddle2.y - paddleSpeed, 0);
-        break;
-      case "l":
-      case "L":
-        paddle2.y = Math.min(paddle2.y + paddleSpeed, board.height - paddle2.height);
-        break;
-    }
-  }
   const ft_resize = () => {
     const oldWidth = board.width;
     const oldHeight = board.height;
-    const oldSpeed = ballSpeed;
-    const oldX = ballX;
-    const oldY = ballY;
+    const oldSpeed = ball.Speed;
+    const oldX = ball.X;
+    const oldY = ball.Y;
     const paddle1X = paddle1.x;
     const paddle2X = paddle2.x;
     const paddle1Y = paddle1.y;
@@ -185,10 +122,10 @@ export function start(
 
     resizeBoard();
 
-    ballSpeed = oldSpeed * (board.width / oldWidth);
-    ballX = oldX * (board.width / oldWidth);
-    ballY = oldY * (board.height / oldHeight);
-    ballRadius = board.width * 0.0125;
+    ball.Speed = oldSpeed * (board.width / oldWidth);
+    ball.X = oldX * (board.width / oldWidth);
+    ball.Y = oldY * (board.height / oldHeight);
+    ball.Radius = board.width * 0.0125;
 
     paddle1.x = paddle1X * (board.width / oldWidth);
     paddle2.x = paddle2X * (board.width / oldWidth);
@@ -198,16 +135,22 @@ export function start(
     resizePaddle(paddle1);
     resizePaddle(paddle2);
   }
-  window.addEventListener("resize", ft_resize);
 
-  createBall();
-  drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
-  nextTick();
-  window.addEventListener("keydown", keyHandler);
+  window.addEventListener("resize", ft_resize);
+  window.addEventListener("keydown", (e: KeyboardEvent) => {
+    keyHandler(e, paddle1, paddle2);
+  });
+  window.addEventListener("keyup", (e: KeyboardEvent) => {
+    keyUpHandler(e, paddle1, paddle2, theme.slide);
+  });
   return () => {
-    gameOver = true;
     clearInterval(intervalID);
-    window.removeEventListener("keydown", keyHandler);
     window.removeEventListener("resize", ft_resize);
+    window.removeEventListener("keydown", (e: KeyboardEvent) => {
+      keyHandler(e, paddle1, paddle2);
+    });
+    window.removeEventListener("keyup", (e: KeyboardEvent) => {
+      keyUpHandler(e, paddle1, paddle2, theme.slide);
+    });
   };
 }
