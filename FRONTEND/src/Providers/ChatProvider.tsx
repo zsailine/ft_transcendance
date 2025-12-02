@@ -77,21 +77,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	}
 
 	const sendMessages = async (messageData: MessageDataInterface) => {
-		const optimisticMessage: MessageInterface = {
-			id: Math.floor(Date.now() / 1000),
-			receiver_username: selectedUser?.username || null,
-			sender_username: user,
-			text: messageData.text,
-			image: messageData.image,
-			created_at: new Date().toISOString()
-		};
-		setMessages([...messages, optimisticMessage]);
-
 		try {
-			const response = await api.post(`/message/send/${selectedUser?.username}`, messageData);
-			setMessages(messages.concat(response.data));
+			await api.post(`/message/send/${selectedUser?.username}`, messageData);
 		} catch (error) {
-			setMessages(messages);
 			toast.error("Something went wrong while sending message");
 			console.log(error);
 		}
@@ -100,15 +88,13 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	const subscribeMessage = () => {
 		if (!selectedUser) return;
 
-		socket?.on("newMessage", (newMessage) => {
-			if (newMessage.sender_username === selectedUser.username) {
-				setMessages((prevMessages) => [...prevMessages, newMessage]);
-			}
+		socket?.on("new message", (newMessage) => {
+			setMessages((prevMessages) => [...prevMessages, newMessage]);
 		})
 	}
 
 	const unsubscribeMessage = () => {
-		socket?.off("newMessage");
+		socket?.off("new message");
 	}
 
 	useEffect(() => {
@@ -122,10 +108,13 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	useEffect(() => {
 		if (selectedUser) {
 			fetchMessages();
-			subscribeMessage();
 		}
+	}, [selectedUser]);
+
+	useEffect(() => {
+		subscribeMessage();
 		return () => unsubscribeMessage();
-	}, [selectedUser, socket]);
+	}, [socket, selectedUser]);
 
 	const value = {
 		friendsList, setFriendsList,

@@ -6,7 +6,7 @@ import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
 import api from "../../Utils/axios";
 
-interface statInterface {
+export interface statInterface {
     total_matches: number;
     total_losses: number;
     total_wins: number;

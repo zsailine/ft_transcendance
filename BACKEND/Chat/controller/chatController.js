@@ -1,6 +1,6 @@
 import db from "../migration.js";
 import axios from "axios"
-import { fastify, getReceiverSocket } from "../server.js";
+import { fastify, getReceiverSocket, userSocketMap } from "../server.js";
 
 const USER_URL = "http://localhost:3001/users";
 
@@ -96,8 +96,12 @@ const sendMessage = async (req, rep) => {
 		const newMessage = db.prepare(`SELECT * FROM message WHERE id = ?`).get(messageId);
 
 		const receiverSocket = getReceiverSocket(receiverUsername);
+		const senderSocket = getReceiverSocket(senderUsername);
 		if (receiverSocket) {
-			fastify.io.to(receiverSocket).emit("newMessage", newMessage);
+			fastify.io.to(receiverSocket).emit("new message", newMessage);
+		}
+		if (senderSocket) {
+			fastify.io.to(senderSocket).emit("new message", newMessage);
 		}
 
 		rep.status(200).send(newMessage);

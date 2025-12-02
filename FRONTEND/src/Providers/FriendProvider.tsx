@@ -15,9 +15,13 @@ interface FriendInterface {
 	setSearchValue: (searchValue: string) => void,
 	unknowns: UserInterface[],
 	setUnknowns: (unknown: UserInterface[]) => void,
+	blockedUsers: UserInterface[],
+	setBlockedUsers: (blocked: UserInterface[]) => void,
 	acceptInvite: (friend: UserInterface) => void,
 	declineInvite: (friend: UserInterface) => void,
-	addFriend: (friend: UserInterface) => void
+	addFriend: (friend: UserInterface) => void,
+	unfriend: (friend: UserInterface) => void,
+	fetchNotFriends: () => void
 };
 
 const FriendContext = createContext<FriendInterface | null>(null);
@@ -27,6 +31,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const [ friendRequests, setFriendRequests ] = useState<UserInterface[]>([]);
 	const [ searchValue, setSearchValue ] = useState<string>("");
 	const [ unknowns, setUnknowns ] = useState<UserInterface[]>([]);
+	const [ blockedUsers, setBlockedUsers ] = useState<UserInterface[]>([]);
 	const { user } = useAuth();
 	const { friendsList, setFriendsList } = useChat();
 
@@ -50,6 +55,18 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			}
 		} catch(error) {
 			console.log("Error in fetching not friends", error);
+			toast.error("Something went wrong");
+		}
+	}
+
+	const fetchBlockedUsers = async () => {
+		try {
+			const response = await api.get("/friend/blocked/all");
+			if (response) {
+				setBlockedUsers(response.data);
+			}
+		} catch(error) {
+			console.log("Error in fetchin blocked users", error);
 			toast.error("Something went wrong");
 		}
 	}
@@ -87,6 +104,14 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			toast.error("Something went wrong");
 		})
 	}
+
+	const unfriend = async (friend: UserInterface) => {
+		await api.put(`/friend/request/${friend.username}/decline`)
+		.then(() => {
+			const filtered = friendsList.filter((f) => f.username !== friend.username);
+			setFriendsList(filtered);
+		})
+	}
 	
 	useEffect(() => {
 		if (user) {
@@ -98,6 +123,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	useEffect(() => {
 		if (user) {
 			fetchNotFriends();
+			fetchBlockedUsers();
 		}
 	}, [user]);
 
@@ -105,7 +131,10 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		friendRequests, setFriendRequests,
 		searchValue, setSearchValue,
 		unknowns, setUnknowns,
-		acceptInvite, declineInvite, addFriend
+		blockedUsers, setBlockedUsers,
+		acceptInvite, declineInvite, addFriend,
+		fetchNotFriends, fetchBlockedUsers,
+		unfriend
 	};
 
 	return (
