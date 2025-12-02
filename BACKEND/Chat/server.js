@@ -10,7 +10,7 @@ import fastifyJwt from "@fastify/jwt";
 dotenv.config();
 
 const fastify = Fastify({ logger: false });
-const userSocketMap = {};
+export const userSocketMap = {};
 
 await fastify.register(fastifySocketIo, {
 	cors: { origin: "*" }
@@ -33,7 +33,6 @@ fastify.ready().then(() => {
 
 	fastify.io.on("connection", (socket) => {
 		const userName = socket.username;
-
 		if (!userSocketMap[userName]) {
 			userSocketMap[userName] = [];
 		}

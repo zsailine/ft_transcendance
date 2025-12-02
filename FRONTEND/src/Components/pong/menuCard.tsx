@@ -3,29 +3,33 @@ interface MenuCardProps {
     description: string;
     onClick: () => void;
     buttonContent: string;
-    bgColor: string;
+    bgCard: string;
+
 }
 
-const MenuCard = ({ title, description, onClick, buttonContent, bgColor }: MenuCardProps) => {
+const MenuCard = ({ title, description, onClick, buttonContent, bgCard}: MenuCardProps) => {
     return (
-        <div 
+        <div
             className={`
-                ${bgColor} p-6 rounded-xl shadow-2xl transition transform hover:scale-[1.03]
-                w-full max-w-sm border border-gray-700
-                flex flex-col justify-between h-70
+                ${bgCard} rounded p-6 shadow-xl shadow-emerald-600 transition transform hover:scale-[1.03]
+                max-w-sm 
+                flex flex-col justify-between w-[250px]  h-[424px] 
             `}
         >
             <div>
-                <h2 className="text-3xl font-extrabold mb-2 text-white">{title}</h2>
-                <p className="text-gray-300 mb-6 text-sm">{description}</p>
+                <h2 
+                className="text-2xl mt-4 text-center font-extrabold mb-2 text-white">{title}</h2>
             </div>
-            <button
-                onClick={onClick}
-                className="w-full bg-white text-gray-900 font-bold py-2 px-4 rounded-lg 
-                           hover:bg-gray-200 transition duration-200 shadow-lg"
-            >
-                {buttonContent}
-            </button>
+            <div className="flex flex-col justify-center">
+                <p className="mx-2 text-center text-gray-300 mb-6 text-sm">{description}</p>
+                <button
+                    onClick={onClick}
+                    className="w-[90%] mx-auto bg-emerald-900 text-emerald-300 font-bold py-2 px-6 rounded-lg 
+                           hover:bg-emerald-950 transition duration-200 shadow-lg"
+                >
+                    {buttonContent}
+                </button>
+            </div>
         </div>
     );
 };

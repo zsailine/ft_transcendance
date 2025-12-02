@@ -4,7 +4,11 @@ import MessageInput from "./MessageInput";
 import MessageList from "./MessageList";
 import ReceiverHeader from "./ReceiverHeader";
 
-function ChatContainer() {
+interface ChatContainerProps {
+	headerClick: () => void,
+}
+
+function ChatContainer({headerClick}: ChatContainerProps ) {
 	
 	const { selectedUser } = useChat();
 
@@ -16,7 +20,7 @@ function ChatContainer() {
 
 	return (
 		<div className="flex flex-col gap-3 h-full w-full min-h-0 p-4">
-			<ReceiverHeader />
+			<ReceiverHeader click={headerClick}/>
 			<div className="w-full border-1 border-cyan-500/20 h-px mt-0 mb-0"></div>
 			<MessageList />
 			<MessageInput />

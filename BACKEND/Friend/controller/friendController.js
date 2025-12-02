@@ -11,8 +11,9 @@ const sendFriendRequest = async (req, rep) => {
 		if (loggedInUsername === receiverUsername) {
 			return rep.status(400).send({ error: "Can't send friend request to yourself" }); }
 		try {
-			const newFriendship = db.prepare(`INSERT INTO friendship (sender, receiver, status)
-				VALUES (?, ?, ?)`).run(loggedInUsername, receiverUsername, 'pending');
+			const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+			const newFriendship = db.prepare(`INSERT INTO friendship (user_a, user_b, status, sender)
+				VALUES (?, ?, ?, ?)`).run(user_a, user_b, 'pending', loggedInUsername);
 			friendship = db.prepare(`SELECT * FROM friendship WHERE id=?`).get(newFriendship.lastInsertRowid);
 		} catch(error) {
 			return rep.status(500).send({
@@ -34,14 +35,13 @@ const getRelationship = async (req, rep) => {
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't get relationship with yourself" }); }
-		const status = db.prepare(`SELECT * FROM friendship WHERE
-			(sender=? AND receiver=?) OR
-			(sender=? AND receiver=?)`)
-			.get(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+		const [ user_a, user_b ] = [loggedInUsername, receiverUsername].sort();
+		const status = db.prepare(`SELECT * FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
 		if (!status) {
 			rep.status(200).send({ status: "none" });
 		} else {
-			rep.status(200).send({ status: status.status });
+			rep.status(200).send(status);
 		}
 	} catch(error) {
 		rep.status(500).send({
@@ -72,10 +72,9 @@ const acceptRequest = async (req, rep) => {
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't accept your own request" }); }
-		const request = db.prepare(`UPDATE friendship SET status='accepted' WHERE
-			(sender=? AND receiver=?) OR
-			(sender=? AND receiver=?)`)
-			.run(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const request = db.prepare(`UPDATE friendship SET status='accepted' WHERE (user_a=? AND user_b=?)`)
+			.run(user_a, user_b);
 		if (request.changes > 0) {
 			rep.status(200).send({ status: "Friend request accepted" });
 		} else {
@@ -94,18 +93,17 @@ const declineRequest = async (req, rep) => {
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't decline your own request" }); }
-		const request = db.prepare(`UPDATE friendship SET status='declined' WHERE
-			(sender=? AND receiver=?) OR
-			(sender=? AND receiver=?)`)
-			.run(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const request = db.prepare(`UPDATE friendship SET status='declined' WHERE (user_a=? AND user_b=?)`)
+			.run(user_a, user_b);
 		if (request.changes > 0) {
 			const toDelete = db.prepare(`SELECT id FROM friendship WHERE
-				(sender=? AND receiver=?) AND status='declined'`)
-				.get(receiverUsername, loggedInUsername);
+				(user_a=? AND user_b=?) AND status='declined'`)
+				.get(user_a, user_b);
 			const id = toDelete.id;
 			if (id)
 				db.prepare(`DELETE FROM friendship WHERE id=?`).run(id);
-			return rep.status(200).send({ status: "Friend request decline" });
+			return rep.status(200).send({ status: "Friend request declined" });
 		} else {
 			return rep.status(404).send({ status: "No pending request" });
 		}
@@ -122,10 +120,9 @@ const blockUser = async (req, rep) => {
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't block yourself" }); }
-		const request = db.prepare(`UPDATE friendship SET status='blocked' WHERE
-			(sender=? AND receiver=?) OR
-			(sender=? AND receiver=?)`)
-			.run(loggedInUsername, receiverUsername, receiverUsername, loggedInUsername);
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const request = db.prepare(`UPDATE friendship SET status='blocked', blocked_by=? WHERE (user_a=? AND user_b=?)`)
+			.run(loggedInUsername, user_a, user_b);
 		if (request.changes > 0) {
 			rep.status(200).send({ status: "User blocked" });
 		} else {
@@ -154,16 +151,6 @@ const getFriendRequests = async (req, rep) => {
 	}
 }
 
-const deleteSum = async (req, rep) => {
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(1);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(2);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(4);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(5);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(6);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(32);
-	db.prepare(`DELETE FROM friendship WHERE id=?`).run(33);
-}
-
 export {
 	sendFriendRequest,
 	getRelationship,
@@ -171,6 +158,5 @@ export {
 	acceptRequest,
 	declineRequest,
 	blockUser,
-	getFriendRequests,
-	deleteSum
+	getFriendRequests
 };
