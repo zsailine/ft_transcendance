@@ -7,6 +7,7 @@ import QRCode from 'react-qr-code';
 
 import { useEffect, useState } from "react";
 import api from "../../../Utils/axios";
+import { toast } from "react-toastify";
 
 interface ProfilProps {
     handleSubmit: (e: any) => void;
@@ -19,8 +20,37 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
     const [dataURL, setDataURL] = useState<string>("");
     const [inputCode, setInputCode] = useState<string>("");
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setChecked(event.target.checked);
+    useEffect(() => {
+        const fetch2FAStatus = async () => {
+            try {
+                const res = await api.get('/auth/me');
+                console.log("2FA status response:", res.data);
+                setChecked(res.data.enabled2FA === 1);
+            } catch (error) {
+                console.error("Error fetching 2FA status:", error);
+            }
+        };
+        fetch2FAStatus();
+    }, []);
+
+    const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newChecked = event.target.checked;
+        
+        if (!newChecked && checked) {
+            try {
+                await api.post('/users/2fa/disable');
+                setChecked(false);
+                setQrCodeVisible(false);
+                setDataURL("");
+                setInputCode("");
+                toast.info("2FA disabled successfully!");
+            } catch (error) {
+                console.error("Error disabling 2FA:", error);
+                toast.error("Error disabling 2FA. Please try again.");
+            }
+        } else {
+            setChecked(newChecked);
+        }
     };
 
     const fetch2FASetup = async () => {
@@ -28,7 +58,7 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
             const res = await api.get('/users/2fa/setup');
             setDataURL(res.data.qrCode);
             setQrCodeVisible(true);
-            console.log("Received QR code dataURL:", res.data.qrCode);
+            console.log("Received QR code:", res.data.qrCode);
         } catch (error) {
             console.error("Error fetching 2FA setup:", error);
             setQrCodeVisible(false);
@@ -46,21 +76,22 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
             });
             console.log("2FA verification response:", res.data);
             if (res.data.success) {
-                alert("2FA activated successfully!");
+                toast.success("2FA activated successfully!");
                 setQrCodeVisible(false);
+                setChecked(true); 
             } else {
-                alert("Invalid 2FA token. Please try again.");
+                toast.error("Invalid 2FA token. Please try again.");
             }
         } catch (error) {
             console.error("Error verifying 2FA code:", error);
-            alert("Error verifying 2FA code.");
+            toast.error("Error verifying 2FA code. Please try again.");
         }
     };
 
     useEffect(() => {
-        if (checked) {
+        if (checked && !qrCodeVisible) {
             fetch2FASetup();
-        } else {
+        } else if (!checked) {
             setQrCodeVisible(false);
             setDataURL("");
             setInputCode("");
@@ -109,12 +140,12 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
                                 placeholder="Enter code from app"
                                 value={inputCode}
                                 onChange={(e) => setInputCode(e.target.value)}
-                                className="mt-2 p-1 rounded"
+                                className="mt-2 p-1 rounded active:border-b-cyan-500 text-gray-100 border border-gray-500"
                             />
                             <button
                                 type="button"
                                 onClick={verify2FA}
-                                className="mt-2 px-4 py-2 bg-cyan-400 text-white rounded"
+                                className={`underline cursor-pointer mt-2 px-4 py-2 text-white rounded ${hoverEffect}`}
                             >
                                 Activate
                             </button>

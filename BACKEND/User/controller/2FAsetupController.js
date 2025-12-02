@@ -1,6 +1,6 @@
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
-import db from "../migration.js"; 
+import db from "../migration.js";
 
 const setup2FA = async (req, rep) => {
     const token = req.cookies?.token;
@@ -11,28 +11,28 @@ const setup2FA = async (req, rep) => {
     const decodedToken = req.server.jwt.decode(token);
     const username = decodedToken.username;
 
-    const user = db.prepare("SELECT secret2fa FROM users WHERE username = ?").get(username);
+    const user = db.prepare("SELECT secret2FA FROM users WHERE username = ?").get(username);
 
     let secret;
-    if (!user?.secret2fa) {
-        const newSecret = speakeasy.generateSecret({ name: `MyApp (${username})` });
+    if (!user?.secret2FA) {
+        const newSecret = speakeasy.generateSecret({
+            length: 32,  
+            name: `MyApp (${username})`
+        });
         secret = newSecret.base32;
 
-        db.prepare("UPDATE users SET secret2fa = ? WHERE username = ?").run(secret, username);
+        console.log("Generated secret:", secret);
+        console.log("Secret length:", secret.length);
+
+        db.prepare("UPDATE users SET secret2FA = ? WHERE username = ?").run(secret, username);
     } else {
-        secret = user.secret2fa;
+        secret = user.secret2FA;
     }
 
-    const otpauth_url = speakeasy.otpauthURL({
-        secret,
-        label: `MyApp (${username})`,
-        encoding: "base32",
-    });
-
-    const data_url = await qrcode.toDataURL(otpauth_url);
+    const otpauth_url = `otpauth://totp/MyApp:${username}?secret=${secret}&issuer=MyApp`;
 
     return rep.send({
-        qrCode: data_url,
+        qrCode: otpauth_url,
     });
 };
 
@@ -47,17 +47,17 @@ const verify2FA = async (req, rep) => {
     const decodedToken = req.server.jwt.decode(tokenCookie);
     const username = decodedToken.username;
 
-    const user = db.prepare("SELECT secret2fa, enabled2FA FROM users WHERE username = ?").get(username);
+    const user = db.prepare("SELECT secret2FA, enabled2FA FROM users WHERE username = ?").get(username);
 
-    if (!user?.secret2fa) {
+    if (!user?.secret2FA) {
         return rep.code(400).send({ error: "No 2FA secret found" });
     }
 
     const verified = speakeasy.totp.verify({
-        secret: user.secret2fa,
+        secret: user.secret2FA,
         encoding: "base32",
         token: userToken,
-        window: 1,
+        window: 2,
     });
 
     if (verified) {
@@ -68,4 +68,18 @@ const verify2FA = async (req, rep) => {
     }
 };
 
-export { setup2FA, verify2FA };
+const disable2FA = async (req, rep) => {
+    const token = req.cookies?.token;
+    if (!token) {
+        return rep.code(401).send({ error: "No token" });
+    }
+
+    const decodedToken = req.server.jwt.decode(token);
+    const username = decodedToken.username;
+
+    db.prepare("UPDATE users SET enabled2FA = 0, secret2FA = NULL WHERE username = ?").run(username);
+
+    return rep.send({ success: true, message: "2FA disabled successfully" });
+};
+
+export { setup2FA, verify2FA , disable2FA};

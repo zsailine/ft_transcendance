@@ -4,14 +4,14 @@ import { toast } from "react-toastify";
 import { io, Socket } from "socket.io-client";
 
 interface AuthInterface {
-	user : string | null,
-	login : (username:string, password:string) => any,
-	register : (username:string, password:string, email:string) => any, 
-	logout : () => void,
-	setUser : (username:string | null) => void,
-	setLoading : (loading : boolean) => void,
-	loading : boolean,
-	isAuthenticated : boolean,
+	user: string | null,
+	login: (username: string, password: string, totpCode?:string) => any,
+	register: (username: string, password: string, email: string) => any,
+	logout: () => void,
+	setUser: (username: string | null) => void,
+	setLoading: (loading: boolean) => void,
+	loading: boolean,
+	isAuthenticated: boolean,
 	socket: Socket | null,
 	onlineUsers: string[],
 	connectSocket: () => void,
@@ -27,8 +27,7 @@ const useAuth = () => {
 	return context
 }
 
-const AuthProvider = ({children} : any) =>
-{
+const AuthProvider = ({ children }: any) => {
 	const [user, setUser] = useState<string | null>(null)
 	const [loading, setLoading] = useState<boolean>(true)
 	const [socket, setSocket] = useState<Socket | null>(null);
@@ -36,11 +35,11 @@ const AuthProvider = ({children} : any) =>
 	const lastJoinUser = useRef<string | null>(null);
 
 	useEffect(() => {
-	if (user) {
-		connectSocket()
-	} else if (!user && socket?.connected) {
-		disconnectSocket();
-	}
+		if (user) {
+			connectSocket()
+		} else if (!user && socket?.connected) {
+			disconnectSocket();
+		}
 		const interval = setInterval(() => {
 			lastJoinUser.current = null;
 		}, 10_000);
@@ -57,48 +56,58 @@ const AuthProvider = ({children} : any) =>
 		}
 	}, [user]);
 
-	const login = async (username: string , password:string) =>
-	{
-		try
-		{
+	const login = async (username: string, password: string, totpCode?: string) => {
+		try {
 			const postData = {
-				username : username,
-				password :password
+				username: username,
+				password: password,
+				totpCode: totpCode
 			}
-			const {data} = await api.post("/auth/login", postData)
-			if (!data.username)
-			{
-				throw new Error("User not found !")
+
+			const { data } = await api.post("/auth/login", postData);
+
+			if (data.requires2FA) {
+				return { success: false, requires2FA: true };
 			}
-			setUser(data.username)
-			return ({success : true})
+
+			if (!data.username) {
+				throw new Error("User not found!");
+			}
+
+			setUser(data.username);
+			return { success: true, requires2FA: false };
 		}
-		catch(err : any)
-		{
-			toast.error("User not found !")
-			return({success : false , error : err.message})
+		catch (err: any) {
+			if (err.response?.data?.requires2FA) {
+				return { success: false, requires2FA: true };
+			}
+
+			if (err.response?.data?.error === "Invalid 2FA code") {
+				toast.error("Invalid 2FA code!");
+				return { success: false, requires2FA: true };
+			}
+
+			toast.error(err.response?.data?.error || "User not found!");
+			return { success: false, error: err.message, requires2FA: false };
 		}
 	}
 
-	const register = async (username: string , password:string, email:string) =>
-	{
-		try
-		{
+	const register = async (username: string, password: string, email: string) => {
+		try {
 			const postData = {
-				username : username,
-				password :password,
-				email : email
+				username: username,
+				password: password,
+				email: email
 			}
 			await api.post("/users/register", postData)
-			return ({success : true})
+			return ({ success: true })
 		}
-		catch(err : any)
-		{
-			return({success : false , error : err.message})
+		catch (err: any) {
+			return ({ success: false, error: err.message })
 		}
 	}
-	
-	const logout = async() => {
+
+	const logout = async () => {
 		try {
 			await api.post("/auth/logout");
 		} catch (error) {
@@ -108,12 +117,12 @@ const AuthProvider = ({children} : any) =>
 		}
 	}
 
-	
+
 	const connectSocket = () => {
 		if (!user || socket?.connected) {
 			return;
 		}
-		
+
 		const newSocket = io("http://localhost:3000", {
 			withCredentials: true,
 			path: "/message/socket.io",
@@ -130,13 +139,13 @@ const AuthProvider = ({children} : any) =>
 		});
 		setSocket(newSocket);
 	};
-	
+
 	const disconnectSocket = () => {
 		if (socket?.connected) {
 			socket.disconnect();
 		}
 	}
-	
+
 	const value = {
 		user,
 		login,

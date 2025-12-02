@@ -42,7 +42,7 @@ fastify.decorate("axios", axiosInstance);
 fastify.register(fastifyMultipart,{
   attachFieldsToBody : true
 });
-
+// Route temporaire pour reset le 2FA
 fastify.register(userRoutes);
 fastify.register(matchesRoutes);
 fastify.register(twoFactorRoutes);
