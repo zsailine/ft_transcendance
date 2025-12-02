@@ -8,7 +8,7 @@ import { Suspense } from "react";
 
 import { Menu } from "./Pages/Pong/Menu"
 import PongGame from "./Pages/Pong/PongGame";
-import OnlineTournament from "./Pages/Pong/OnlineTournament.tsx";
+import OnlineTournament from "./Pages/Tournament/OnlineTournament.tsx";
 import OnlineGame from "./Pages/Pong/onlineGame";
 import PongTournament from "./Pages/Pong/Tournament/PongTournament"; import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard.tsx";

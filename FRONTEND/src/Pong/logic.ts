@@ -89,7 +89,7 @@ const checkPaddleCollision = (board:HTMLCanvasElement, paddle: Paddle, ball: Bal
 
 
 function add(board: HTMLCanvasElement, ball: BallInterface){
-	if (ball.Speed < board.width * 0.004)
+	if (ball.Speed < board.width * 0.006)
 	{
 		ball.Speed += board.width * 0.0005;
 	}
