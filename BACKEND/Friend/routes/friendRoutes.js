@@ -11,6 +11,7 @@ import {
 
 import {
 	getAllBlocked,
+	getBlocker,
 	getNonFriends,
 	getUsersRelated
 } from "../controller/nonFriendController.js";
@@ -28,6 +29,8 @@ export default async function friendRoutes(fastify) {
 	fastify.get("/friend/related", { handler: getUsersRelated })
 
 	fastify.get("/friend/non-friends", { handler: getNonFriends });
+
+	fastify.get("/friend/:username/blocked_by", { handler: getBlocker });
 
 	fastify.post("/friend/request/:username", { handler: sendFriendRequest });
 

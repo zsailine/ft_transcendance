@@ -76,9 +76,23 @@ const insertBlockedUser = ([user_a, user_b], loggedInUsername) => {
 	}
 }
 
+const getBlocker = async (req, rep) => {
+	try {
+		const loggedInUsername = await getUsername(req, rep);
+		const receiverUsername = req.params.username;
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const blocker = db.prepare(`SELECT blocked_by FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
+		rep.status(200).send(blocker);
+	} catch(error) {
+		console.log("Error in getting blocker:", error.message);
+	}
+}
+
 export {
 	getNonFriends,
 	getUsersRelated,
 	getAllBlocked,
-	insertBlockedUser
+	insertBlockedUser,
+	getBlocker
 };

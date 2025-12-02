@@ -37,7 +37,7 @@ const getRelationship = async (req, rep) => {
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't get relationship with yourself" }); }
 		const [ user_a, user_b ] = [loggedInUsername, receiverUsername].sort();
-		const status = db.prepare(`SELECT * FROM friendship WHERE (user_a=? AND user_b=?)`)
+		const status = db.prepare(`SELECT status FROM friendship WHERE (user_a=? AND user_b=?)`)
 			.get(user_a, user_b);
 		if (!status) {
 			rep.status(200).send({ status: "none" });

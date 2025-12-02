@@ -5,7 +5,7 @@ interface NoChatHistory {
 	name: string | null
 }
 
-function NoChatHistory({ name }: NoChatHistory) {
+export function NoChatHistory({ name }: NoChatHistory) {
 
 	const { sendMessages } = useChat();
 	const handleClick = (text: string) => {
@@ -47,4 +47,21 @@ function NoChatHistory({ name }: NoChatHistory) {
 	)
 }
 
-export default NoChatHistory
+export function NoChatHistoryBlocked() {
+	return (
+	<div className="flex flex-col items-center justify-center flex-1 text-center w-full p-4">
+		<div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-full flex items-center justify-center mb-5">
+			<TbMessageDots className="size-8 text-cyan-400" />
+		</div>
+		<h3 className="text-lg font-medium text-slate-200 mb-3 font-helvetica">
+			No Chat History
+		</h3>
+		<div className="flex flex-col space-y-3 max-w-md mb-5">
+			<p className="text-slate-400 text-sm font-helvetica">
+			No messages in your inbox
+			</p>
+			<div className="h-px w-32 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent mx-auto"></div>
+		</div>
+	</div>
+	);
+}

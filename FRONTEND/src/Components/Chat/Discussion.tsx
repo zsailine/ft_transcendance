@@ -4,12 +4,14 @@ import ChatTitle from "./ChatTitle";
 import SearchBar from "./SearchBar";
 import ChatContainer from "./ChatContainer";
 import { useChat } from "../../Providers/ChatProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FriendProfil from "../Profil/FriendProfil";
+import { getRelationship } from "../../Utils/getter";
 
 function Discussion() {
 	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat()
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const [ relation, setRelation ] = useState<string | null>("");
 
 	const exist = !!selectedUser?.username;
 	const leftClass = `md:w-75 shrink-0 flex flex-col gap-10 p-6 h-full w-full ${exist ? 'hidden md:flex' : 'flex'} ${exist && 'w-0 p-0'}`;
@@ -21,6 +23,10 @@ function Discussion() {
 			setPreviewProfil(prev => !prev);
 		}
 	};
+
+	useEffect(() => {
+		getRelationship(selectedUser?.username || "", setRelation);
+	}, [selectedUser]);
 
 	return (
 		<div className="flex justify-center h-full w-full min-h-[450px]">
@@ -51,7 +57,7 @@ function Discussion() {
 				</div>
 			</ChatBorder>
 
-			{previewProfil && selectedUser && (
+			{previewProfil && selectedUser && relation !== "blocked" && (
 				<FriendProfil
 					user={selectedUser}
 					click={clickProfil}/>

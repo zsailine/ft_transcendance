@@ -68,9 +68,6 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			const response = await api.get("/friend/blocked/all");
 			if (response) {
 				setBlockedUsers(response.data);
-				const b = blockedUsers.map((user) => user.username)
-					.filter((user): user is string => user !== null);
-				setBlockedUsername(b);
 			}
 		} catch(error) {
 			console.log("Error in fetchin blocked users", error);
@@ -126,9 +123,6 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			toast("User unblocked successfully");
 			const filtered = blockedUsers.filter((f) => f.username !== friend.username);
 			setBlockedUsers(filtered);
-			const b = blockedUsers.map((user) => user.username)
-				.filter((user): user is string => user !== null);
-			setBlockedUsername(b);
 		})
 	}
 	
@@ -145,6 +139,12 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			fetchBlockedUsers();
 		}
 	}, [user]);
+
+	useEffect(() => {
+		const b = blockedUsers.map((user) => user.username)
+			.filter((user): user is string => user !== null);
+		setBlockedUsername(b);
+	}, [blockedUsers]);
 
 	const value = {
 		friendRequests, setFriendRequests,

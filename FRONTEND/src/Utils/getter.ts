@@ -20,3 +20,17 @@ export const getBanner = async (username: string | null, setBanner: (image: Imag
 		setBanner(response.data.cover_image);
 	}
 }
+
+export const getBlocker = async (username: string | null, setBlocker: (user: string | null) => void) => {
+	const response = await api.get(`/friend/${username}/blocked_by`);
+	if (response) {
+		setBlocker(response.data.blocked_by);
+	}
+}
+
+export const getRelationship = async (username: string | null, setRelation: (user: string | null) => void) => {
+	const response = await api.get(`/friend/status/${username}`);
+	if (response) {
+		setRelation(response.data.status);
+	}
+}

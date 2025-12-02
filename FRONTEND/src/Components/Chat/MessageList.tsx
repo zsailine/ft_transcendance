@@ -1,7 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "../../Providers/ChatProvider"
 import { getImageUrlFromBlob } from "../../Utils/blob";
-import NoChatHistory from "../../Pages/Chat/NoChatHistory";
+import { NoChatHistory, NoChatHistoryBlocked } from "../../Pages/Chat/NoChatHistory";
+import { useFriend } from "../../Providers/FriendProvider";
+import { getRelationship } from "../../Utils/getter";
 
 const senderStyle = "self-end bg-cyan-500 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mb-3 mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/15 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow mb-3 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
@@ -26,15 +28,26 @@ const getHour = (timestamp: string) => {
 
 function MessageList() {
 	const { messages, selectedUser } = useChat();
+	const { blockedUsername } = useFriend();
 	const bottomScroll = useRef<HTMLDivElement | null>(null);
+	const [ relationship, setRelationship ] = useState<string | null>("");
 	
+	useEffect(() => {
+		getRelationship(selectedUser?.username || "", setRelationship);
+	}, [selectedUser]);
+
 	useEffect(() => {
 		if (bottomScroll.current) {
 			bottomScroll.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
 
-	if (messages.length === 0) {
+	if ((messages.length === 0 && selectedUser?.username && blockedUsername.includes(selectedUser?.username)) ||
+		(messages.length === 0 && relationship === "blocked")) {
+		return (
+		<NoChatHistoryBlocked/>
+	);
+	} else if (messages.length === 0 && selectedUser?.username && !blockedUsername.includes(selectedUser?.username)) {
 		return (
 			<NoChatHistory name={selectedUser?.username || ""}/>
 		);

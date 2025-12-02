@@ -7,6 +7,7 @@ import { useAuth } from "../../Providers/AuthProvider";
 import { generateRoom } from "../../Utils/tools";
 import { useNavigate } from "react-router-dom";
 import { BsBoxArrowInRight } from "react-icons/bs";
+import { getRelationship } from "../../Utils/getter";
 
 interface ReceiverHeaderProps {
 	click: () => void
@@ -16,11 +17,12 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 	const { socket, user } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
+	const [ relation, setRelation ] = useState<string | null>("");
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
 
 	function invite() {
-		if (!user || !socket || !selectedUser) return;
+		if (!user || !socket || !selectedUser || relation === "blocked") return;
 		const room = generateRoom();
 		const toInvite = selectedUser.username;
 		socket.emit("invite", { user, toInvite, room });
@@ -62,6 +64,10 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 		};
 	}, [link, socket]);
 
+	useEffect(() => {
+		getRelationship(selectedUser?.username || "", setRelation);
+	}, [selectedUser]);
+
 	return (
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
@@ -83,7 +89,8 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 				{join && (
 					<AiFillNotification className="size-6 md:size-8 text-cyan-500" onClick={joinRoom} />
 				)}
-				<GiConsoleController className="size-6 md:size-8 text-cyan-500" onClick={invite} />
+				<GiConsoleController className={`size-6 md:size-8 text-cyan-500 ${relation === "blocked" ? "opacity-50 cursor-not-allowed" : ""}`}
+					onClick={invite} />
 				<BsBoxArrowInRight className="size-6 md:size-8 text-cyan-500"
 					onClick={() => setSelectedUser(null)} />
 			</div>
