@@ -3,7 +3,7 @@
 import Fastify from 'fastify';
 import fastifySocketIO from 'fastify-socket.io';
 import { removeSocket, generateQuick, createRoom, joinRoom, generateMultiplayer } from './socket_utils.js';
-
+import { Tournament, TournamentMatch } from './tournament/ClassInterface.js';
 const fastify = Fastify();
 
 await fastify.register(fastifySocketIO, {
@@ -30,14 +30,25 @@ function process(socket) {
             joinRoom(AllMode, privateRooms, socket, data);
         else
             createRoom(AllMode, privateRooms, socket, data);
-    })
+    });
     socket.on("multiplayer", (username) => {
         generateMultiplayer(AllMode, waitingMultiplayers, socket, username);
-    })
+    });
     socket.on("disconnect", () => {
         removeSocket(socket, AllMode, waitingPlayers, privateRooms, waitingMultiplayers);
     });
+    socket.on("tournament", username => {
+        socket.username = username;
+        socket.emit("list", [tournament]);
+    });
 }
+
+const tournament = new Tournament(1, "my tournament", 4);
+
+tournament.addPlayer("zo", 879797);
+tournament.addPlayer("zos", 879797);
+if (tournament.addPlayer("zoa", 46546546) === false)
+    console.log("error max");
 
 export const io = fastify.io;
 

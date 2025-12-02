@@ -9,21 +9,32 @@ export class TournamentMatch {
 }
 
 export class Tournament {
-    constructor(id, name, size, players = [], matches = [], status = 'waiting') {
+    constructor(id, name, maxPlayers, matches = [], status = 'waiting') {
         this.id = id;
 		this.name = name;
-		this.size = size;
-        this.players = players;
+		this.maxPlayers = maxPlayers;
+        this.players = new Map();
+        this.currentPlayers = this.players.size;
         this.matches = matches;
-        this.status = status;  
+        this.status = status; 
     }
 
-    addPlayer(playerId) {
-        if (this.players.length >= this.size) {
+    addPlayer(username, socket) {
+        if (this.players.size >= this.maxPlayers) {
             return false;
         }
-        this.players.push(playerId);
+        this.players.set(username, socket);
+        this.currentPlayers = this.players.size;
+        if (this.players.size === this.maxPlayers)
+            this.status = "Full"
         return true;
+    }
+
+    removeplayer (username)
+    {
+        this.players.has((username) => {
+            this.players.delete(socket.username);
+        })
     }
 
     addMatch(match) {

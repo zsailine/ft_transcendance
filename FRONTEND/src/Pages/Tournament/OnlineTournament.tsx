@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Socket } from 'socket.io-client';
+import React, { useEffect, useState } from 'react';
+import io, { Socket } from 'socket.io-client';
 import TournamentCard from '../../Components/Tournament/TournamentCard';
+import { useDashboard } from "../../Providers/DashboardProvider";
 
 // Données fictives
 const mockTournaments = [
@@ -14,18 +15,36 @@ const mockTournaments = [
 
 export default function TournamentList() {
     const [searchTerm, setSearchTerm] = useState("");
+    const [AllTournament, setAllTournament] = useState<any[]>([]);
+    const { theme, username } = useDashboard();
+    const [socket, setSocket] = useState<Socket | null>(null);
 
-    // Logique de filtrage
-    const filteredTournaments = mockTournaments.filter(tournament => 
+    useEffect(() => {
+        if (!username) return;
+        const s = io("http://localhost:3000", {
+            withCredentials: true,
+            path: "/online/socket.io",
+            transports: ["websocket"],
+        });
+        setSocket(s);
+        s.emit("tournament", username);
+        s.on("list", data => {
+            setAllTournament(data);
+        })
+        return () => {
+            s.disconnect();
+        };
+    }, [username])
+    const filteredTournaments = AllTournament.filter((tournament: any) =>
         tournament.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
         <div className="min-h-screen bg-gray-900 text-white p-8 font-sans">
-            
+
             {/* EN-TÊTE & CONTRÔLES */}
             <div className="max-w-7xl mx-auto mb-10 flex flex-col lg:flex-row justify-between items-center gap-6">
-                
+
                 {/* Titre */}
                 <div className="text-center lg:text-left">
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
@@ -36,7 +55,7 @@ export default function TournamentList() {
 
                 {/* Barre d'action (Search + Create) */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-                    
+
                     {/* Barre de Recherche */}
                     <div className="relative w-full sm:w-64">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -57,8 +76,8 @@ export default function TournamentList() {
                     </div>
 
                     {/* Bouton Créer */}
-                    <button 
-                        onClick={() => alert("Open Create Modal")} 
+                    <button
+                        onClick={() => alert("Open Create Modal")}
                         className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 
                         to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-5 py-2 rounded-lg font-bold shadow-lg 
                         transition transform hover:scale-105"
@@ -76,7 +95,7 @@ export default function TournamentList() {
             {filteredTournaments.length > 0 ? (
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredTournaments.map((tournament) => (
-                        <TournamentCard 
+                        <TournamentCard
                             key={tournament.id}
                             {...tournament}
                         />
