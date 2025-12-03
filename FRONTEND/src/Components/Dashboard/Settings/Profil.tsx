@@ -66,6 +66,7 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
     };
 
     const verify2FA = async () => {
+        setInputCode("");
         if (!inputCode) {
             toast.error("Please enter the 2FA code.");
             return;

@@ -6,6 +6,12 @@ export const Menu = () => {
 	return (
 		<>
 			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
+				<div className="my-10">
+					<h1 className="text-4xl text-center font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+						CHOOSE YOUR MODE
+					</h1>
+					<p className="text-gray-400 mt-2 text-center">Select your preferred game mode and dive into the action!</p>
+				</div>
 				<div className="w-[100%] md:w-[70%] flex-wrap flex flex-col md:flex-row items-between justify-center md:justify-around gap-20 md:space-y-0 mb-9">
 					<MenuCard
 						title="Local Play"
