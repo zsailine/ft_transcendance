@@ -13,6 +13,8 @@ interface FriendInterface {
 	setFriendRequests: (friendRequests: UserInterface[]) => void,
 	searchValue: string,
 	setSearchValue: (searchValue: string) => void,
+	selectedUserProfil: UserInterface | null,
+	setSelectedUserProfil: (user: UserInterface | null) => void,
 	unknowns: UserInterface[],
 	setUnknowns: (unknown: UserInterface[]) => void,
 	blockedUsers: UserInterface[],
@@ -33,6 +35,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 
 	const [ friendRequests, setFriendRequests ] = useState<UserInterface[]>([]);
 	const [ searchValue, setSearchValue ] = useState<string>("");
+	const [ selectedUserProfil, setSelectedUserProfil ] = useState<UserInterface | null>(null);
 	const [ unknowns, setUnknowns ] = useState<UserInterface[]>([]);
 	const [ blockedUsers, setBlockedUsers ] = useState<UserInterface[]>([]);
 	const [ blockedUsername, setBlockedUsername ] = useState<string[]>([]);
@@ -137,6 +140,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		if (user) {
 			fetchNotFriends();
 			fetchBlockedUsers();
+			setSelectedUserProfil(null);
 		}
 	}, [user]);
 
@@ -149,6 +153,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const value = {
 		friendRequests, setFriendRequests,
 		searchValue, setSearchValue,
+		selectedUserProfil, setSelectedUserProfil,
 		unknowns, setUnknowns,
 		blockedUsers, setBlockedUsers,
 		blockedUsername, setBlockedUsername,

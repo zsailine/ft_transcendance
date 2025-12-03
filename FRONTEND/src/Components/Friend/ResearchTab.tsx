@@ -4,9 +4,13 @@ import { useFriend } from "../../Providers/FriendProvider";
 import type { UserInterface } from "../../Providers/ChatProvider";
 import FriendsList from "../Chat/FriendsList";
 
-function ResearchTab() {
+interface ResearchTabProps {
+	click: () => void
+}
+
+function ResearchTab({click}: ResearchTabProps) {
 	const [ searchValue, setSearchValue ] = useState<string>("");
-	const { unknowns, fetchNotFriends } = useFriend();
+	const { unknowns, fetchNotFriends, setSelectedUserProfil } = useFriend();
 	const [ foundUsers, setFoundUsers ] = useState<UserInterface[]>([]);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -33,6 +37,8 @@ function ResearchTab() {
 			searchValue=""
 			setSelectedUser={()=>{}}
 			message="research"
+			setSelectedUserProfil={setSelectedUserProfil}
+			click={click}
 		/>
 
 		: <></>}

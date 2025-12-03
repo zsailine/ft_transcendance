@@ -3,9 +3,13 @@ import { useFriend } from "../../Providers/FriendProvider";
 import FriendsList from "../Chat/FriendsList";
 import SearchBar from "../Chat/SearchBar";
 
-function Friends() {
+interface FriendsProps {
+	click: () => void
+}
+
+function Friends({click}: FriendsProps) {
 	const { friendsList, setSelectedUser } = useChat();
-	const { searchValue, setSearchValue } = useFriend();
+	const { searchValue, setSearchValue, setSelectedUserProfil } = useFriend();
 
   return (
 	<div className="flex flex-col gap-10 items-center">
@@ -18,7 +22,10 @@ function Friends() {
 			friendsList={friendsList}
 			searchValue={searchValue}
 			setSelectedUser={setSelectedUser}
-			message={"friends"}/>
+			message={"friends"}
+			setSelectedUserProfil={setSelectedUserProfil}
+			click={click}
+			/>
 	</div>
   )
 }

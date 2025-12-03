@@ -4,7 +4,6 @@ import { getBanner, getStat, type statInterface } from "../../Utils/getter";
 import { useChat, type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { toast } from "react-toastify";
-import { FaUserTimes, FaUserSlash } from "react-icons/fa";
 import { BlockButton, UnfriendButton } from "../../Pages/Chat/ListUtils";
 import { handleBlocked, handleUnfriend } from "../Utils/ProfilUtils";
 import { useFriend } from "../../Providers/FriendProvider";

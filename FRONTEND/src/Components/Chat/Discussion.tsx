@@ -7,9 +7,11 @@ import { useChat } from "../../Providers/ChatProvider";
 import { useEffect, useState } from "react";
 import FriendProfil from "../Profil/FriendProfil";
 import { getRelationship } from "../../Utils/getter";
+import { useFriend } from "../../Providers/FriendProvider";
 
 function Discussion() {
-	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat()
+	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat();
+	const { setSelectedUserProfil } = useFriend();
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
 	const [ relation, setRelation ] = useState<string | null>("");
 
@@ -44,7 +46,8 @@ function Discussion() {
 							friendsList={friendsList}
 							searchValue={searchValue}
 							setSelectedUser={setSelectedUser}
-							message={"message"} />
+							message={"message"}  click={undefined}
+							setSelectedUserProfil={setSelectedUserProfil}/>
 						</div>
 					</div>
 

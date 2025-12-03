@@ -6,10 +6,19 @@ import { FaUserFriends, FaUserClock } from "react-icons/fa";
 import { MdPersonSearch } from "react-icons/md";
 import BlockedUsers from "./BlockedUsers";
 import { FaUserSlash } from "react-icons/fa";
+import { useFriend } from "../../Providers/FriendProvider";
+import FriendProfil from "../Profil/FriendProfil";
 
 function FriendTabSwitch() {
-	const [ selectedTab, setSelectedTab ] = useState<React.ReactElement>(<Friends/>);
 	const [ tabSelected, setTabSelected ] = useState<string>("friends");
+	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const { selectedUserProfil } = useFriend();
+
+	const clickProfil = () => {
+		setPreviewProfil(prev => !prev);
+	}
+
+	const [ selectedTab , setSelectedTab ] = useState<React.ReactElement>(<Friends click={clickProfil}/>);
 
 	const getTabClasses = (tab: string) => {
 		const base = "py-2 px-4 cursor-pointer transition-all duration-200 ease-in-out font-helvetica-b text-xl flex gap-2";
@@ -20,13 +29,13 @@ function FriendTabSwitch() {
 
 	const handleClick = (event: string) => {
 		if (event === "friends") {
-			setSelectedTab(<Friends/>);
+			setSelectedTab(<Friends click={clickProfil}/>);
 			setTabSelected("friends");
 		} else if (event === "requests") {
 			setSelectedTab(<FriendRequests/>);
 			setTabSelected("requests");
 		} else if (event === "research") {
-			setSelectedTab(<ResearchTab/>);
+			setSelectedTab(<ResearchTab click={clickProfil}/>);
 			setTabSelected("research");
 		} else if (event === "block") {
 			setSelectedTab(<BlockedUsers/>);
@@ -57,6 +66,12 @@ function FriendTabSwitch() {
 		<div className="text-slate-200 w-full flex-1">
 			{selectedTab}
 		</div>
+
+		{previewProfil && selectedUserProfil && (
+			<FriendProfil
+				user={selectedUserProfil}
+				click={clickProfil}/>
+		)}
 	</div>
 	)
 }
