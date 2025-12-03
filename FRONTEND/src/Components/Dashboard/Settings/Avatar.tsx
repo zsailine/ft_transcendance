@@ -3,8 +3,11 @@ import { useRef, useState , useEffect } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { getImageUrlFromBlob } from "../../../Utils/blob";
 
+interface ProfilProps {
+    hoverEffect: string;
+}
 
-const Avatar = () => {
+const Avatar = ({hoverEffect}: ProfilProps) => {
     const ImageRef = useRef<HTMLInputElement | null>(null);
     const { avatar, setAvatar } = useDashboard()
 
@@ -51,7 +54,7 @@ const Avatar = () => {
                     )}
                     <FaCirclePlus
                         onClick={() => ImageRef.current?.click()}
-                        className="absolute -bottom-0 -right-0 h-6 w-6 text-cyan-400 cursor-pointer"
+                        className={`absolute -bottom-0 -right-0 h-6 w-6 text-cyan-400 cursor-pointer ${hoverEffect}`}
                     />
                 </div>
             </div>

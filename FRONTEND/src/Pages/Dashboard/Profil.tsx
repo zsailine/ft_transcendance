@@ -18,12 +18,11 @@ const Profil = () => {
     total_losses: 0,
     total_wins: 0,
 };
-    const { avatar, coverImage, username } = useDashboard();
+    const { avatar, coverImage, username,nickname, isOverlayOpen, setIsOverlayOpen } = useDashboard();
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
     const [stats, setStats] = useState<statInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
-    const [overlay, setOverlay] = useState(false);
 
     async function getStats() {
         const response = await api.get(`/matches/stats/${username}`);
@@ -76,9 +75,14 @@ const Profil = () => {
         backgroundImage: "url(/images/avatar.jpg)",
     };
 
+    const openOverlay = () => {
+        setIsOverlayOpen(true)
+    }
+
     return (
         <>
-            <div className=" text-white text-center ml-4 mr-2 my-8">
+            {isOverlayOpen && <div className="fixed inset-0 z-20 bg-black/30 backdrop-blur-lg w-full h-full blur-2xl"></div>}
+            <div className=" text-white text-center my-8">
                 <div className="flex flex-col md:flex-row gap-8 items-end">
                     <div className="w-full md:w-1/2">
                         <div
@@ -88,7 +92,8 @@ const Profil = () => {
                             <div className="flex justify-between text-left p-3 rounded-lg h-full bg-linear-65 from-cyan-200/15 to-cyan-800/30">
                                 <div>
                                     <h1 className="text-3xl font-bold">{username}</h1>
-                                    <p>More information</p>
+                                    {nickname ? <p className="text-xl italic">Tournament name : {nickname}</p> : <p>Set your Tournament name </p> }
+                                    <p></p>
                                 </div>
                                 <div className="text-right ">
                                     <p>Score</p>
@@ -113,7 +118,8 @@ const Profil = () => {
                     <h1 className="text-4xl mb-4">Match history</h1>
                     <h1
                         className="text-xl text-blue-500 hover:text-blue-700 cursor-pointer mb-4"
-                        onClick={() => setOverlay(true)}
+                        onClick={() => openOverlay()}
+                             
                     >
                         ... view all
                     </h1>
@@ -126,14 +132,11 @@ const Profil = () => {
                         {!matches && <p>No matches to show</p>}
 
                     </div>
-                    {/* <div className="hidden md:block bg-[url(/images/aside_01.png)] bg-no-repeat bg-cover bg-center h-[400px] rounded w-1/4">
-
-</div> */}
                 </div>
             </div>
             {
-                overlay && (
-                    <OverlayMatch />
+                isOverlayOpen && (
+                    <OverlayMatch matches={matches} username={username}/>
                 )
             }
         </>
