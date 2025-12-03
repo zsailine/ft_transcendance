@@ -3,7 +3,11 @@ import { useDashboard } from "../../../Providers/DashboardProvider";
 import { useRef, useState, useEffect } from "react";
 import { getImageUrlFromBlob } from "../../../Utils/blob";
 
-const CoverInput = () => {
+interface ProfilProps {
+    hoverEffect: string;
+}
+
+const CoverInput = ({hoverEffect} : ProfilProps) => {
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -48,7 +52,7 @@ const CoverInput = () => {
                 <div className="text-center">
                     <div className="flex text-sm/6 text-gray-400">
                         <GoPlusCircle
-                            className="w-20 h-20 mx-auto text-cyan-400/50 cursor-pointer"
+                            className={`w-20 h-20 mx-auto text-cyan-400/50 cursor-pointer ${hoverEffect}`}
                             onClick={() => inputRef.current?.click()}
                         />
                     </div>
