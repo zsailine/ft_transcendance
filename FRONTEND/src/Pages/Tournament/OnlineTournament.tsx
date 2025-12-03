@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import TournamentCard from '../../Components/Tournament/TournamentCard';
 import { useDashboard } from "../../Providers/DashboardProvider";
-
+import { useOnlineTournament } from '../../Providers/OnlineTournamentProvider';
 // Données fictives
 const mockTournaments = [
     { id: 1, name: "Thunderdome Cup", currentPlayers: 4, maxPlayers: 8, status: "Open" },
@@ -17,7 +17,7 @@ export default function TournamentList() {
     const [searchTerm, setSearchTerm] = useState("");
     const [AllTournament, setAllTournament] = useState<any[]>([]);
     const { theme, username } = useDashboard();
-    const [socket, setSocket] = useState<Socket | null>(null);
+    const {setSocket, socket}  = useOnlineTournament();
 
     useEffect(() => {
         if (!username) return;
@@ -94,9 +94,9 @@ export default function TournamentList() {
             {/* GRILLE DES TOURNOIS */}
             {filteredTournaments.length > 0 ? (
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredTournaments.map((tournament) => (
+                    {filteredTournaments.map((tournament, index) => (
                         <TournamentCard
-                            key={tournament.id}
+                            key={index}
                             {...tournament}
                         />
                     ))}

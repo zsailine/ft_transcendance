@@ -8,7 +8,7 @@ export function removeSocket(socket, AllMode, waitingPlayers, privateRoom, waiti
     }
     if (waitingPlayers.has(socket.username)) {
         waitingPlayers.delete(socket.username);
-    }
+    } 
     if (waitingMultiplayers.has(socket.username)) {
         waitingMultiplayers.delete(socket.username);
     }

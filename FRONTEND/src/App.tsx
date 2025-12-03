@@ -20,7 +20,7 @@ import Play from "./Pages/Dashboard/Play";
 import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
-import { OnlineGameProvider } from "./Providers/OnlineGameProvider.tsx";
+import { OnlineTournamentProvider } from "./Providers/OnlineTournamentProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
 
 function App() {
@@ -30,58 +30,62 @@ function App() {
       <AuthProvider>
         <DashboardProvider>
           <ChatProvider>
-          <FriendProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Menu />} />
-              <Route path="/pong" element={<PongGame />} />
-              <Route path="/tournament" element={<PongTournament />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Login />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Dashboard />
-                    </Suspense>
-                  </ProtectedRoute>
-                }>
-                <Route index element={<Profil />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="play"
-                  element={
-                    <Play />
-                  }>
-                  <Route index element={< Menu />} />
-                  <Route path="pong" element={<PongGame />} />
-                  <Route path="tournament" element={<PongTournament />} />
-                  <Route path = "multiplayer" element={<OnlineMulti />} />
+            <FriendProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Menu />} />
+                  <Route path="/pong" element={<PongGame />} />
+                  <Route path="/tournament" element={<PongTournament />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Login />} />
                   <Route
-                    path="online"
+                    path="/dashboard"
                     element={
-                        <OnlineGame />
-                    }
-                  />
-                </Route>
-                  <Route path="tournament" element={<OnlineTournament />}/>
-                  <Route path="friends" element={<Friend />} />
-                  <Route path="discussion" element={<Discussion />} />
-              </Route>
+                      <ProtectedRoute>
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <Dashboard />
+                        </Suspense>
+                      </ProtectedRoute>
+                    }>
+                    <Route index element={<Profil />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="play"
+                      element={
+                        <Play />
+                      }>
+                      <Route index element={< Menu />} />
+                      <Route path="pong" element={<PongGame />} />
+                      <Route path="tournament" element={<PongTournament />} />
+                      <Route path="multiplayer" element={<OnlineMulti />} />
+                      <Route
+                        path="online"
+                        element={
+                          <OnlineGame />
+                        }
+                      />
+                    </Route>
+                    <Route path="tournament" element={
+                        <OnlineTournamentProvider>
+                          <OnlineTournament />
+                        </OnlineTournamentProvider>
+                    }/>
+                        <Route path="friends" element={<Friend />} />
+                        <Route path="discussion" element={<Discussion />} />
+                      </Route>
 
             </Routes>
-          </Router>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            pauseOnHover
-            draggable
-            theme="colored"
-          />
-          </FriendProvider>
+              </Router>
+              <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                pauseOnHover
+                draggable
+                theme="colored"
+              />
+            </FriendProvider>
           </ChatProvider>
         </DashboardProvider>
       </AuthProvider>

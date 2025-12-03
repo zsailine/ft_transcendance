@@ -1,7 +1,13 @@
- const TournamentCard = ({ name, currentPlayers, maxPlayers, status }: any) => {
+import { useOnlineTournament } from "../../Providers/OnlineTournamentProvider";
+const TournamentCard = ({ name, currentPlayers, maxPlayers, status, id }: any) => {
 	const isFull = currentPlayers >= maxPlayers;
 	const progressPercentage = (currentPlayers / maxPlayers) * 100;
-
+	const {socket} = useOnlineTournament();
+	function joinTournament() {
+		if (!socket) return;
+		console.log("id is " + id);
+		socket.emit("join tournament", id);
+	}
 	return (
 		<div className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between h-64">
 			<div className="flex justify-between items-start mb-4">
@@ -29,6 +35,7 @@
 
 			<button
 				disabled={isFull}
+				onClick={joinTournament}
 				className={`w-full py-3 rounded-lg font-bold text-sm transition-colors duration-200
 					${isFull 
 						? 'bg-gray-700 text-gray-500 cursor-not-allowed' 

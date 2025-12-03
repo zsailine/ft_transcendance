@@ -10,6 +10,7 @@ export class TournamentMatch {
 
 export class Tournament {
     constructor(id, name, maxPlayers, matches = [], status = 'waiting') {
+        
         this.id = id;
 		this.name = name;
 		this.maxPlayers = maxPlayers;
