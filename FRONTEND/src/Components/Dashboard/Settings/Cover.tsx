@@ -52,7 +52,7 @@ const CoverInput = ({hoverEffect} : ProfilProps) => {
                 <div className="text-center">
                     <div className="flex text-sm/6 text-gray-400">
                         <GoPlusCircle
-                            className={`w-20 h-20 mx-auto text-cyan-400/50 cursor-pointer ${hoverEffect}`}
+                            className={`w-20 h-20 mx-auto text-cyan-400 cursor-pointer ${hoverEffect}`}
                             onClick={() => inputRef.current?.click()}
                         />
                     </div>
