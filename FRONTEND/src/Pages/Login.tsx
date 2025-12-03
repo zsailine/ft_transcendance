@@ -77,7 +77,7 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       if (!isLogin) {
         const { success } = await register(formData.username, formData.password, formData.email!);
@@ -94,9 +94,9 @@ export default function Login() {
         }
         return;
       }
-      
+
       const { success, requires2FA } = await login(formData.username, formData.password, formData.totpCode);
-      
+
       if (requires2FA && !show2FAInput) {
         setShow2FAInput(true);
         toast.info("Enter your 2FA code");
@@ -184,7 +184,7 @@ export default function Login() {
                 />
               </>
             )}
-            
+
             {isLogin && show2FAInput && (
               <div className="mb-6">
                 <input
@@ -205,11 +205,16 @@ export default function Login() {
               type="submit"
               className={`cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle}`}
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={canSubmit ? false : true}
             >
               {isLogin ? "Sign in" : "Register"}
               {isLoading && <ImSpinner9 className="animate-spin inline ml-2" />}
             </button>
+            {!isLogin &&
+              <p 
+                className = "underline text-gray-500 text-right mt-2 cursor-pointer hover:text-gray-700"
+                onClick={() => navigate('/login')}
+              >Back</p>}
           </form>
           {isLogin && (
             <>
