@@ -25,6 +25,7 @@ export function generateRoom() {
     let result = "";
     while (i < 26) {
         const rand = Math.floor(Math.random() * alphabet.length);
+        result += alphabet[rand];
         i++;
     }
     return (result);

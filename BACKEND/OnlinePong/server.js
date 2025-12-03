@@ -3,7 +3,6 @@
 import Fastify from 'fastify';
 import fastifySocketIO from 'fastify-socket.io';
 import { removeSocket, generateQuick, createRoom, joinRoom, generateMultiplayer, generateRoom } from './socket_utils.js';
-import { Tournament, TournamentMatch } from './tournament/ClassInterface.js';
 import processTournament from './tournament/socketProcess.js';
 const fastify = Fastify();
 
@@ -22,6 +21,7 @@ const waitingPlayers = new Map();
 const privateRooms = new Map();
 const waitingMultiplayers = new Map();
 
+
 function process(socket) {
     socket.on("quick", (username) => {
         generateQuick(AllMode, waitingPlayers, socket, username);
@@ -38,14 +38,8 @@ function process(socket) {
     socket.on("disconnect", () => {
         removeSocket(socket, AllMode, waitingPlayers, privateRooms, waitingMultiplayers);
     });
-    processTournament(socket, tournament);
+    processTournament(socket, AllMode);
 }
-const id = generateRoom();
-console.log("the id is "+ id);
-const tournament = new Tournament(id, "my tournament", 4);
-
-tournament.addPlayer("zo", 879797);
-tournament.addPlayer("zos", 879797);
 // console.log("tournamnet id is ", tournament);
 // if (tournament.addPlayer("zoa", 46546546) === false)
 //     console.log("error max");

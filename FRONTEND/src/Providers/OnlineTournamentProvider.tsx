@@ -5,7 +5,9 @@ interface OnlineTournamentInterface {
 	text: string,
 	setText: (result: string) => void,
     socket: Socket | null;
-    setSocket: (result: Socket) => void
+    setSocket: (result: Socket) => void,
+    page: number,
+    setPage: (result: number) => void
 }
 
 export const OnlineTournamentContext = createContext<OnlineTournamentInterface | null>(null);
@@ -20,12 +22,15 @@ export const useOnlineTournament = () => {
 export const OnlineTournamentProvider = ({ children }: any) => {
     const [text, setText] = useState<string>("");
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [page, setPage] = useState<number>(1);
 
     const value = {
         text,
 		setText,
         socket,
-        setSocket
+        setSocket,
+        page,
+        setPage
     }
 
     return (

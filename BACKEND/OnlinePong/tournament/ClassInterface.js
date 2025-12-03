@@ -31,11 +31,16 @@ export class Tournament {
         return true;
     }
 
-    removeplayer (username)
-    {
-        this.players.has((username) => {
-            this.players.delete(socket.username);
-        })
+    removePlayer(username) {
+        if (this.players.has(username)) {
+            this.players.delete(username);
+            this.currentPlayers = this.players.size; 
+            if (this.status === "Full") {
+                this.status = "waiting";
+            }
+            return true;
+        }
+        return false;
     }
 
     addMatch(match) {
@@ -45,4 +50,14 @@ export class Tournament {
     setStatus(newStatus) {
         this.status = newStatus;
     }
+    toJSON() {
+        return {
+          id: this.id,
+          name: this.name,
+          maxPlayers: this.maxPlayers,
+          currentPlayers: this.currentPlayers,
+          status: this.status
+        };
+      }
+
 }

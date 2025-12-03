@@ -5,7 +5,6 @@ const TournamentCard = ({ name, currentPlayers, maxPlayers, status, id }: any) =
 	const {socket} = useOnlineTournament();
 	function joinTournament() {
 		if (!socket) return;
-		console.log("id is " + id);
 		socket.emit("join tournament", id);
 	}
 	return (

@@ -79,32 +79,32 @@ function OnlineMulti() {
 		<div className="h-full">
 			<div className="text-white flex flex-col items-center justify-center font-sans">
 				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
-					<div className="font-bold flex [writing-mode:vertical-rl] rotate-180 text-center">
-						<p
-							id="player1"
-							className="items-start"
-							style={{ color: theme?.paddle1 }}
-						>{player[0]}</p>
+					<div className="font-bold flex justify-between [writing-mode:vertical-rl] rotate-180 text-center">
 						<p
 							id="player2"
-							className="items-end"
+							className="items-start"
 							style={{ color: theme?.paddle1 }}
 						>{player[1]}</p>
+						<p
+							id="player1"
+							className="items-end"
+							style={{ color: theme?.paddle1 }}
+						>{player[0]}</p>
 					</div>
 					<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
 						style={{ backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder }}
 					></canvas>
-					<div className="font-bold flex [writing-mode:vertical-rl] rotate-180 text-center">
-						<p
-							id="player3"
-							className="items-start"
-							style={{ color: theme?.paddle2 }}
-						>{player[2]}</p>
+					<div className="font-bold flex justify-between [writing-mode:vertical-rl] rotate-180 text-center">
 						<p
 							id="player4"
-							className="items-end"
+							className="items-start"
 							style={{ color: theme?.paddle2 }}
 						>{player[3]}</p>
+						<p
+							id="player3"
+							className="items-end"
+							style={{ color: theme?.paddle2 }}
+						>{player[2]}</p>
 					</div>
 				</div>
 			</div>
