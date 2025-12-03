@@ -3,8 +3,12 @@ import { useFriend } from "../../Providers/FriendProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { NoFriendRequests } from "../../Pages/Friend/NoFriendRequests";
 
-function FriendRequests() {
-	const { friendRequests, acceptInvite, declineInvite } = useFriend();
+interface FriendRequestsProps {
+	click: () => void
+}
+
+function FriendRequests({click}: FriendRequestsProps) {
+	const { friendRequests, acceptInvite, declineInvite, setSelectedUserProfil } = useFriend();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
 	const acceptButton = "bg-green-500/20 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out shadow-md";
@@ -21,7 +25,7 @@ function FriendRequests() {
 			{friendRequests.map((friend) =>
 				<li key={friend.id} className={`flex items-center p-2 rounded-lg cursor-pointer gap-4 ${hoverEffect}`}>
 					<div className="flex gap-2 md:gap-4 items-center w-full">
-						<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
+						<div className="w-12 h-12 md:w-15 md:h-15">
 							{friend.avatar ?
 							<img	alt={friend.username?.at(0)?.toUpperCase()}
 										src={getImageUrlFromBlob(friend.avatar)?.toString()}
@@ -32,11 +36,15 @@ function FriendRequests() {
 							</div>}
 						</div>
 
-						<div id="friends-username" className="text-sm text-white font-medium truncate">
+						<div className="text-sm text-white font-medium truncate hover:underline"
+							onClick={() => {
+								setSelectedUserProfil(friend);
+								click?.();
+							}}>
 							{friend.username}
 						</div>
 					</div>
-					<div id="button" className="flex gap-5">
+					<div className="flex gap-5">
 						<div id="accept" className={`flex items-center gap-2 text-sm ${acceptButton}`}
 							onClick={() => acceptInvite(friend)}>
 							<div className="hidden md:block">Accept</div>

@@ -115,6 +115,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const unfriend = async (friend: UserInterface) => {
 		await api.put(`/friend/request/${friend.username}/decline`)
 		.then(() => {
+			toast("Friend request declined");
 			const filtered = friendsList.filter((f) => f.username !== friend.username);
 			setFriendsList(filtered);
 		})

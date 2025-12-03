@@ -11,10 +11,11 @@ import { useFriend } from "../../Providers/FriendProvider";
 
 interface FriendProfilProps {
 	click: () => void,
-	user: UserInterface
+	user: UserInterface,
+	type: string
 }
 
-function FriendProfil({click, user}: FriendProfilProps) {
+function FriendProfil({click, user, type}: FriendProfilProps) {
 	const { unfriend } = useFriend();
 	const { setSelectedUser } = useChat();
 	const [ banner, setBanner ] = useState<ImageBuffer | null>(null);
@@ -75,15 +76,17 @@ function FriendProfil({click, user}: FriendProfilProps) {
 					user={user}
 					handleUnfriend={handleUnfriend}
 					unfriend={unfriend}
-					setSelectedUser={setSelectedUser}/>
+					setSelectedUser={setSelectedUser}
+					type={type}/>
 				<BlockButton 
 					user={user}
-					handleBlocked={handleBlocked}/>
+					handleBlocked={handleBlocked}
+					type={type}/>
 			</div>
 
 			<button className="mt-8 w-[40%] py-2 bg-indigo-500 text-white font-semibold rounded-md hover:bg-indigo-600 transition duration-150 shadow-lg flex-shrink-0" 
-							onClick={click}>
-					Close
+				onClick={click}>
+				Close
 			</button>
 
 		</div>

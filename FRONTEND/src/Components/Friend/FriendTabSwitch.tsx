@@ -12,6 +12,7 @@ import FriendProfil from "../Profil/FriendProfil";
 function FriendTabSwitch() {
 	const [ tabSelected, setTabSelected ] = useState<string>("friends");
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const [ type, setType ] = useState<string>("");
 	const { selectedUserProfil } = useFriend();
 
 	const clickProfil = () => {
@@ -31,15 +32,19 @@ function FriendTabSwitch() {
 		if (event === "friends") {
 			setSelectedTab(<Friends click={clickProfil}/>);
 			setTabSelected("friends");
+			setType("");
 		} else if (event === "requests") {
-			setSelectedTab(<FriendRequests/>);
+			setSelectedTab(<FriendRequests click={clickProfil}/>);
 			setTabSelected("requests");
+			setType("request");
 		} else if (event === "research") {
 			setSelectedTab(<ResearchTab click={clickProfil}/>);
 			setTabSelected("research");
+			setType("research");
 		} else if (event === "block") {
 			setSelectedTab(<BlockedUsers/>);
 			setTabSelected("block");
+			setType("");
 		}
 	}
 
@@ -70,7 +75,8 @@ function FriendTabSwitch() {
 		{previewProfil && selectedUserProfil && (
 			<FriendProfil
 				user={selectedUserProfil}
-				click={clickProfil}/>
+				click={clickProfil}
+				type={type}/>
 		)}
 	</div>
 	)
