@@ -17,7 +17,6 @@ const Story = ({ username, match }: { username: string | null, match: matchInter
 
     const opponent = username === match.player2 ? match.player1 : match.player2;
 
-    // Charger l'avatar
     useEffect(() => {
         let active = true;
         (async () => {

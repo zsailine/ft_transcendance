@@ -66,8 +66,9 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
     };
 
     const verify2FA = async () => {
+        setInputCode("");
         if (!inputCode) {
-            alert("Enter the 2FA code from your authenticator app.");
+            toast.error("Please enter the 2FA code.");
             return;
         }
         try {
@@ -109,10 +110,10 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
                     <InputText />
                 </div>
                 <div className="mt-4 col-span-full">
-                    <Avatar />
+                    <Avatar hoverEffect={hoverEffect}/>
                 </div>
                 <div className="mt-4 col-span-full">
-                    <CoverInput />
+                    <CoverInput hoverEffect={hoverEffect} />
                 </div>
 
                 <div>

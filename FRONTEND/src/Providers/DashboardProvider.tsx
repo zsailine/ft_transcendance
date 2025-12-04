@@ -30,6 +30,8 @@ interface DashboardInterface {
     theme: ThemeColors | null,
     setTheme: React.Dispatch<React.SetStateAction<ThemeColors>>;
     refreshUserData: () => void,
+    isOverlayOpen: boolean,
+    setIsOverlayOpen: (isOpen: boolean) => void,
 }
 
 export const DasboardContext = createContext<DashboardInterface | null>(null);
@@ -56,6 +58,7 @@ export const DashboardProvider = ({ children }: any) => {
         slide: false,
         paddleSpeed: 250,
     });
+    const [isOverlayOpen, setIsOverlayOpen] = useState<boolean>(false);
     const { user } = useAuth()
 
     const refreshUserData = async () => {
@@ -102,7 +105,9 @@ export const DashboardProvider = ({ children }: any) => {
         setCoverImage,
         refreshUserData,
         theme,
-        setTheme
+        setTheme,
+        isOverlayOpen,
+        setIsOverlayOpen,
     }
 
     return (
