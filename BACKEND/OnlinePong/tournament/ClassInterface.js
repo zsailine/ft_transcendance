@@ -20,11 +20,15 @@ export class Tournament {
         this.status = status; 
     }
 
-    addPlayer(username, socket) {
+    addPlayer(username, usernames) {
         if (this.players.size >= this.maxPlayers) {
             return false;
         }
-        this.players.set(username, socket);
+        this.players.set(username, {
+            id: username,
+            name: username,
+            avatar: null
+        });
         this.currentPlayers = this.players.size;
         if (this.players.size === this.maxPlayers)
             this.status = "Full"
@@ -56,8 +60,9 @@ export class Tournament {
           name: this.name,
           maxPlayers: this.maxPlayers,
           currentPlayers: this.currentPlayers,
-          status: this.status
+          status: this.status,
+          players: Object.fromEntries(this.players)
         };
-      }
+    }
 
 }

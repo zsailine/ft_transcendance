@@ -32,9 +32,10 @@ export default function processTournament(socket, AllMode) {
     socket.on("join tournament", id => {
         if (!tournamentLists.has(id)) socket.emit("error");
         const tournament = tournamentLists.get(id);
-        if (!tournament.addPlayer(socket.username, socket)) socket.emit("error");
+        if (!tournament.addPlayer(socket.username, socket.username)) socket.emit("error");
         if (tournament.currentPlayers === tournament.size)
             tournament.setStatus("full");
+        socket.emit("joined", tournament.toJSON());
         sendTournament()
     });
 

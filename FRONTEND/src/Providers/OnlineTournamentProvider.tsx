@@ -1,13 +1,15 @@
 import { createContext, useContext, useState } from "react";
 import { Socket } from "socket.io-client";
-
+import type { TournamentInterface } from "../Pages/Tournament/TournamentTree";
 interface OnlineTournamentInterface {
 	text: string,
 	setText: (result: string) => void,
     socket: Socket | null;
     setSocket: (result: Socket) => void,
     page: number,
-    setPage: (result: number) => void
+    setPage: (result: number) => void,
+    tournament: TournamentInterface | null,
+    setTournament: (result: TournamentInterface | null) => void,
 }
 
 export const OnlineTournamentContext = createContext<OnlineTournamentInterface | null>(null);
@@ -23,6 +25,7 @@ export const OnlineTournamentProvider = ({ children }: any) => {
     const [text, setText] = useState<string>("");
     const [socket, setSocket] = useState<Socket | null>(null);
     const [page, setPage] = useState<number>(1);
+    const [tournament, setTournament] = useState<TournamentInterface | null>(null);
 
     const value = {
         text,
@@ -30,7 +33,9 @@ export const OnlineTournamentProvider = ({ children }: any) => {
         socket,
         setSocket,
         page,
-        setPage
+        setPage,
+        tournament,
+        setTournament
     }
 
     return (

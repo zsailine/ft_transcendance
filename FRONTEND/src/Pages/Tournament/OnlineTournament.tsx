@@ -5,12 +5,12 @@ import { useOnlineTournament } from '../../Providers/OnlineTournamentProvider';
 import { toast } from "react-toastify";
 import Selection from './Selection';
 import TournamentForm from './TournamentForm';
+import { TournamentTree, type TournamentInterface } from './TournamentTree';
 
 export default function TournamentList() {
     const { username } = useDashboard();
-    const [AllTournament, setAllTournament] = useState<any[]>([]);
-    // const [selectedTournament, setSelectedTournament] = useState<any>(null);
-    const { setSocket, page } = useOnlineTournament();
+    const [AllTournament, setAllTournament] = useState<TournamentInterface[]>([]);
+    const { setSocket, page, setPage, setTournament, tournament } = useOnlineTournament();
 
     useEffect(() => {
         if (!username) return;
@@ -24,6 +24,10 @@ export default function TournamentList() {
         s.on("list", data => {
             setAllTournament(data);
         })
+        s.on("joined", (data) => {
+            setTournament(data);
+            setPage(3);
+        })
         s.on("error", () => toast.error("An error occured"));
         return () => {
             s.disconnect();
@@ -34,6 +38,7 @@ export default function TournamentList() {
         <>
             {page === 1 && <Selection AllTournament={AllTournament} />}
             {page === 2 && <TournamentForm />}
+            {page === 3 && <TournamentTree tournament={tournament} />}
         </>
     );
 }

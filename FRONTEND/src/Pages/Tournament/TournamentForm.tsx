@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useOnlineTournament } from '../../Providers/OnlineTournamentProvider';
+import { IoMdClose } from "react-icons/io";
 
 export default function TournamentForm() {
 	const [name, setName] = useState('');
@@ -47,7 +48,10 @@ export default function TournamentForm() {
 
 
 	return (
-		<div className="p-6 bg-gray-800 text-white rounded-xl shadow-2xl w-full max-w-sm mx-auto">
+		<div className="relative p-6 bg-gray-800 text-white rounded-xl shadow-2xl w-full max-w-sm mx-auto">
+			<div className="absolute top-4 right-4 text-blue-500 text-3xl cursor-pointer">
+                <IoMdClose onClick={() => setPage(1)} />
+            </div>
 			<h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
 				Create a new tournament
 			</h2>
