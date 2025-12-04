@@ -32,9 +32,9 @@ const Profil = () => {
             setStats(response.data);
     }
     async function getRecentMatches() {
-        const response = await api.get(`/matches/${username}?size=5`);
-        if (response.data.length)
-            setMatches(response.data);
+        const response = await api.get(`/matches/${username}?limit=5&page=1`);
+        if (response.data.data.length)
+            setMatches(response.data.data);
     }
     useEffect(() => {
         if (!username) return;
@@ -125,8 +125,8 @@ const Profil = () => {
                         </div>
                         <div className="sm:flex gap-8">
                             <div className="w-full">
-                                {matches && matches.map((match: any) => (
-                                    <Story key={match.id} username={username} match={match} />
+                                {matches && matches.slice(0,3).map((match: any) => (
+                                   <Story key={match.id} username={username} match={match} />
                                 ))}
                                 {!matches && <p>No matches to show</p>}
 

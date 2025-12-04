@@ -1,15 +1,44 @@
 import db from "../migration.js";
 
 const getuserMatches = (req, rep) => {
-	const { username } = req.params;
-	const { size } = req.query;
-	const requestedLimit = parseInt(size);
-    const limit = (requestedLimit > 0) ? requestedLimit : 1000000
-	const matches = db.prepare("SELECT * FROM matches \
-        WHERE player1 = ? OR player2 = ? \
-        ORDER BY played_at DESC \
-		LIMIT ?").all(username, username, limit);
-	rep.send(matches);
+	try {
+		const { username } = req.params;
+		
+		if (!username) {
+			return rep.status(400).send({ error: 'Username requis' });
+		}
+		
+		const page = Math.max(1, parseInt(req.query.page) || 1);
+		const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+		const offset = (page - 1) * limit;
+
+		const resCount = db.prepare(
+			"SELECT COUNT(*) as count FROM matches WHERE player1 = ? OR player2 = ?"
+		).get(username, username);
+		
+		const totalMatches = resCount.count;
+		const totalPages = Math.ceil(totalMatches / limit);
+
+		const matches = db.prepare(
+			"SELECT * FROM matches WHERE player1 = ? OR player2 = ? ORDER BY played_at DESC LIMIT ? OFFSET ?"
+		).all(username, username, limit, offset);
+		
+		rep.send({ 
+			data: matches,
+			pagination: {
+				total: totalMatches,
+				totalPages,
+				currentPage: page,
+				limit,
+				hasNext: page < totalPages,
+				hasPrevious: page > 1
+			}
+		});
+		
+	} catch (error) {
+		console.error('Erreur getUserMatches:', error);
+		rep.status(500).send({ error: 'Erreur serveur' });
+	}
 }
 
 const getStats = (req, rep) => {
