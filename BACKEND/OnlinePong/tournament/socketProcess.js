@@ -5,13 +5,12 @@ import { Tournament, TournamentMatch } from './ClassInterface.js';
 const tournamentPlayers = [];
 const tournamentLists = new Map();
 
-let id = generateRoom();
-const tournament = new Tournament(id, "my tournament", 2);
-tournamentLists.set(id, tournament)
-id = generateRoom()
-const tournament1 = new Tournament(id, "test", 2);
-tournamentLists.set(id, tournament1);
-
+function sendTournament() {
+    const data = Array.from(tournamentLists.values()).map(t => t.toJSON());
+    tournamentPlayers.forEach(s => {
+        s.emit("list", data);
+    });
+}
 export default function processTournament(socket, AllMode) {
 
     socket.on("tournament", username => {
@@ -25,9 +24,8 @@ export default function processTournament(socket, AllMode) {
         tournamentPlayers.push(socket);
 
         socket.username = username;
-        socket.emit("list",
-            Array.from(tournamentLists.values()).map(t => t.toJSON())
-        );
+        const data = Array.from(tournamentLists.values()).map(t => t.toJSON());
+        socket.emit("list", data);
     });
 
 
@@ -37,12 +35,16 @@ export default function processTournament(socket, AllMode) {
         if (!tournament.addPlayer(socket.username, socket)) socket.emit("error");
         if (tournament.currentPlayers === tournament.size)
             tournament.setStatus("full");
-        const data = Array.from(tournamentLists.values()).map(t => t.toJSON());
-        tournamentPlayers.forEach(s => {
-            s.emit("list", data);
-        });
+        sendTournament()
     });
 
+    socket.on("create tournament", data => {
+        let id = generateRoom();
+        const tournament = new Tournament(id, data.name, data.maxPlayers);
+        tournamentLists.set(id, tournament);
+        sendTournament();
+        socket.emit("created", id);
+    })
     socket.on("disconnect", () => {
         AllMode.delete(socket.username);
         const index = tournamentPlayers.indexOf(socket);
@@ -51,14 +53,13 @@ export default function processTournament(socket, AllMode) {
         tournamentLists.forEach((tournament) => {
             if (tournament.players.has(socket.username)) {
                 tournament.removePlayer(socket.username);
+                if (tournament.currentPlayers === 0)
+                    tournamentLists.delete(tournament.id);
                 listUpdated = true;
             }
         });
         if (listUpdated) {
-            const data = Array.from(tournamentLists.values()).map(t => t.toJSON());
-            tournamentPlayers.forEach(s => {
-                s.emit("list", data);
-            });
+            sendTournament();
         }
     });
 }

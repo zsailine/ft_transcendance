@@ -40,9 +40,6 @@ function process(socket) {
     });
     processTournament(socket, AllMode);
 }
-// console.log("tournamnet id is ", tournament);
-// if (tournament.addPlayer("zoa", 46546546) === false)
-//     console.log("error max");
 
 export const io = fastify.io;
 

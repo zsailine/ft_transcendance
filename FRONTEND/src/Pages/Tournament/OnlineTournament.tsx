@@ -9,6 +9,7 @@ import TournamentForm from './TournamentForm';
 export default function TournamentList() {
     const { username } = useDashboard();
     const [AllTournament, setAllTournament] = useState<any[]>([]);
+    // const [selectedTournament, setSelectedTournament] = useState<any>(null);
     const { setSocket, page } = useOnlineTournament();
 
     useEffect(() => {
@@ -30,7 +31,9 @@ export default function TournamentList() {
     }, [username])
 
     return (
-        // page === 1 && <Selection AllTournament={AllTournament} />
-        <TournamentForm />
+        <>
+            {page === 1 && <Selection AllTournament={AllTournament} />}
+            {page === 2 && <TournamentForm />}
+        </>
     );
 }

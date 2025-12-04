@@ -23,6 +23,8 @@ export function start(
 		x: number;
 		y: number;
 	}
+	const debut = Date.now();
+
 	let interval: number = 0;
 	let paddle1 = {
 		width: board.width * 0.02,
@@ -131,12 +133,16 @@ export function start(
 	async function addMatch(winner: string) {
 		if (role !== winner)
 			return;
+		const fin = Date.now();
+		const duration = fin - debut;
 		const body = {
 			player1: player[0],
 			player2: player[1],
 			score_p1: paddle1Score,
 			score_p2: paddle2Score,
-			winner: winner === "player1" ? player[0] : player[1]
+			winner: winner === "player1" ? player[0] : player[1],
+			played_at: new Date(),
+			duration: Math.floor(duration / 1000)
 		};
 		await api.post('/matches/add', body)
 			.then(() => {

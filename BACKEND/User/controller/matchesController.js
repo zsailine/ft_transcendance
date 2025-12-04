@@ -20,30 +20,33 @@ const getStats = (req, rep) => {
 }
 
 const addMatch = async (req, rep) => {
-	const { player1, player2, winner, score_p1, score_p2 } = req.body;
+	const { player1, player2, winner, score_p1, score_p2, duration } = req.body;
 	const loser = (winner === player1) ? player2 : player1;
-	const insertMatch = db.prepare("INSERT into matches (player1, player2, winner, score_p1, score_p2) VALUES (?, ?, ?, ?, ?)");
+	console.log(duration);
+	const insertMatch = db.prepare("INSERT into matches (player1, player2, winner, score_p1, score_p2, duration) VALUES (?, ?, ?, ?, ?, ?)");
 
 	const updateWinner = db.prepare(`
-        INSERT INTO user_stats (username, total_matches, total_wins, total_losses)
-        VALUES (?, 1, 1, 0)
+        INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration)
+        VALUES (?, 1, 1, 0, ?)
         ON CONFLICT(username) DO UPDATE SET
             total_matches = total_matches + 1,
-            total_wins = total_wins + 1
+            total_wins = total_wins + 1,
+			total_duration = total_duration + ?
     `);
 
 	const updateLoser = db.prepare(`
-        INSERT INTO user_stats (username, total_matches, total_wins, total_losses)
-        VALUES (?, 1, 0, 1)
+        INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration)
+        VALUES (?, 1, 1, 0, ?)
         ON CONFLICT(username) DO UPDATE SET
             total_matches = total_matches + 1,
-            total_losses = total_losses + 1
+            total_losses = total_losses + 1,
+			total_duration = total_duration + ?
     `);
 
 	const transaction = db.transaction(() => {
-		insertMatch.run(player1, player2, winner, score_p1, score_p2);
-		updateWinner.run(winner);
-		updateLoser.run(loser);
+		insertMatch.run(player1, player2, winner, score_p1, score_p2, duration);
+		updateWinner.run(winner, duration, duration);
+		updateLoser.run(loser, duration, duration);
 	});
 
 	try {
