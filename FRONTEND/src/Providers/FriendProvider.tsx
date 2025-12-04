@@ -3,6 +3,8 @@ import { useChat, type UserInterface } from "./ChatProvider";
 import { useAuth } from "./AuthProvider";
 import { toast } from "react-toastify";
 import api from "../Utils/axios";
+import { useSocket } from "./SocketProvider";
+import { getUserInfo } from "../Utils/getter";
 
 interface FriendProviderProps {
 	children: ReactNode;
@@ -41,6 +43,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const [ blockedUsername, setBlockedUsername ] = useState<string[]>([]);
 	const { user } = useAuth();
 	const { friendsList, setFriendsList } = useChat();
+	const { socketFriend } = useSocket();
 
 	const fetchFriendRequests = async () => {
 		try {
@@ -96,7 +99,8 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			const filtered = friendsList.filter((f) => f.username !== friend.username);
 			setFriendsList(filtered);
 		})
-		.catch(() => {
+		.catch((err) => {
+			console.log(err);
 			toast.error("Something went wrong");
 		})
 	}
@@ -150,6 +154,25 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			.filter((user): user is string => user !== null);
 		setBlockedUsername(b);
 	}, [blockedUsers]);
+
+	useEffect(() => {
+
+		socketFriend?.on("request sent", (friendship) => {
+			if (friendship.sender !== user) {
+				getUserInfo(friendship.sender).then(data => {
+					setFriendRequests((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.sender
+					}]);
+				});
+			}
+		});
+
+		return () => {
+			socketFriend?.off("request sent");
+		}
+	}, [socketFriend]);
 
 	const value = {
 		friendRequests, setFriendRequests,

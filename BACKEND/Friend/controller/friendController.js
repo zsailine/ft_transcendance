@@ -1,4 +1,5 @@
 import db from "../migration.js";
+import { fastify, getReceiverSocket } from "../server.js";
 import { insertBlockedUser } from "./nonFriendController.js";
 import { friendsList, getUsername, getWhat, thoseWhoSentMe } from "./verify.js";
 
@@ -22,6 +23,14 @@ const sendFriendRequest = async (req, rep) => {
 				detail: error.message,
 			});
 		}
+
+		const receiverSocket = getReceiverSocket(receiverUsername);
+		const senderSocket = getReceiverSocket(loggedInUsername);
+		if (receiverSocket)
+			fastify.io.to(receiverSocket).emit("request sent", friendship);
+		if (senderSocket)
+			fastify.io.to(senderSocket).emit("request sent", friendship);
+
 		return rep.status(200).send(friendship);
 	} catch(error) {
 		rep.status(500).send({

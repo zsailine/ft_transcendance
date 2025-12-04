@@ -34,3 +34,24 @@ export const getRelationship = async (username: string | null, setRelation: (use
 		setRelation(response.data.status);
 	}
 }
+
+export const getId = async (username: string | null) => {
+	const response = await api.get(`/users/${username}/id`);
+	if (response.data.id) {
+		return response.data.id;
+	}
+}
+
+export const getAvatar = async (username: string | null) => {
+	const response = await api.get(`/users/${username}/avatar`);
+	if (response.data.avatar) {
+		return response.data.avatar;
+	}
+}
+
+export const getUserInfo = async (username: string | null) => {
+	const response = await api.get(`/users/${username}/info`);
+	if (response.data) {
+		return response.data;
+	}
+}

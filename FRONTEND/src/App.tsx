@@ -20,8 +20,8 @@ import Play from "./Pages/Dashboard/Play";
 import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
-import { OnlineGameProvider } from "./Providers/OnlineGameProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
+import { SocketProvider } from "./Providers/SocketProvider.tsx";
 
 function App() {
 
@@ -29,6 +29,7 @@ function App() {
     <>
       <AuthProvider>
         <DashboardProvider>
+          <SocketProvider>
           <ChatProvider>
           <FriendProvider>
           <Router>
@@ -83,6 +84,7 @@ function App() {
           />
           </FriendProvider>
           </ChatProvider>
+          </SocketProvider>
         </DashboardProvider>
       </AuthProvider>
     </>
