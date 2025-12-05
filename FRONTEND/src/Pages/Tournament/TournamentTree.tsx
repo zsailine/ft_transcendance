@@ -1,4 +1,6 @@
 import React, { type FC } from 'react';
+import QuitTournament from '../../Components/Tournament/quitTournament';
+import StartTournament from '../../Components/Tournament/StartTournament';
 
 export interface TournamentMatch {
 	matchId: string,
@@ -18,8 +20,7 @@ export interface TournamentInterface {
 }
 export function TournamentTree({ tournament }: { tournament: TournamentInterface | null }) {
 	if (!tournament) return <div>Chargement du tournoi...</div>;
-	const playersList = Object.entries(tournament.players);
-	console.log(playersList);
+	const playersList: any[] = Object.entries(tournament.players);
 	const emptySlotsCount = Math.max(0, tournament.maxPlayers - tournament.currentPlayers);
 	const emptySlots = Array(emptySlotsCount).fill(null);
 	const getGridCols = (maxPlayers: number) => {
@@ -29,11 +30,10 @@ export function TournamentTree({ tournament }: { tournament: TournamentInterface
 	};
 
 	return (
-		// <h1 >hello</h1>
-		<div className="p-5">
+		<div className="p-5 flex-row">
 			<div className=" mb-4 flex justify-between items-center">
 				<h2 className="text-xl font-semibold text-blue-600">
-					Joueurs inscrits ({tournament.currentPlayers} / {tournament.maxPlayers})
+					Players ({tournament.currentPlayers} / {tournament.maxPlayers})
 				</h2>
 
 				<span
@@ -45,7 +45,7 @@ export function TournamentTree({ tournament }: { tournament: TournamentInterface
 						}
 				`}
 				>
-					{tournament.status === "waiting" ? "En attente" : "En cours"}
+					{tournament.status === "waiting" ? "Waiting" : "Full"}
 				</span>
 			</div>
 
@@ -63,16 +63,18 @@ export function TournamentTree({ tournament }: { tournament: TournamentInterface
 						</div>
 					</div>
 				))}
-
-				{/* Slots libres */}
 				{emptySlots.map((_, index) => (
 					<div
 						key={`empty-${index}`}
 						className="border-2 border-dashed border-cyan-400 rounded-xl p-4 text-blue-600 flex items-center justify-center min-h-[110px]"
 					>
-						Slot disponible
+						Waiting
 					</div>
 				))}
+			</div>
+			<div className="flex justify-center mt-6 ml-6">
+				<QuitTournament />
+				<StartTournament />
 			</div>
 		</div>
 

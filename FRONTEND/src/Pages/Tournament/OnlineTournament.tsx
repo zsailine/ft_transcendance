@@ -10,7 +10,7 @@ import { TournamentTree, type TournamentInterface } from './TournamentTree';
 export default function TournamentList() {
     const { username } = useDashboard();
     const [AllTournament, setAllTournament] = useState<TournamentInterface[]>([]);
-    const { setSocket, page, setPage, setTournament, tournament } = useOnlineTournament();
+    const { setSocket, page, setPage, setTournament, tournament,setId } = useOnlineTournament();
 
     useEffect(() => {
         if (!username) return;
@@ -24,10 +24,18 @@ export default function TournamentList() {
         s.on("list", data => {
             setAllTournament(data);
         })
+        s.on("leaved", () => {
+            setPage(1);
+            setId("");
+        })
         s.on("joined", (data) => {
             setTournament(data);
+            setId(data.id);
             setPage(3);
         })
+        s.on("update", data => {
+            setTournament(data);
+        });
         s.on("error", () => toast.error("An error occured"));
         return () => {
             s.disconnect();

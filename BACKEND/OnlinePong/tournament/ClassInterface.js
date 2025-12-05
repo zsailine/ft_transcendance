@@ -1,3 +1,4 @@
+import { io } from "../server.js";
 export class TournamentMatch {
     constructor(matchId, round, player1 = null, player2 = null, winner = null) {
         this.matchId = matchId;
@@ -20,7 +21,7 @@ export class Tournament {
         this.status = status; 
     }
 
-    addPlayer(username, usernames) {
+    addPlayer(username, socket) {
         if (this.players.size >= this.maxPlayers) {
             return false;
         }
@@ -29,19 +30,21 @@ export class Tournament {
             name: username,
             avatar: null
         });
+        socket.join(this.id);
         this.currentPlayers = this.players.size;
         if (this.players.size === this.maxPlayers)
             this.status = "Full"
         return true;
     }
 
-    removePlayer(username) {
-        if (this.players.has(username)) {
-            this.players.delete(username);
+    removePlayer(socket) {
+        if (this.players.has(socket.username)) {
+            this.players.delete(socket.username);
             this.currentPlayers = this.players.size; 
             if (this.status === "Full") {
                 this.status = "waiting";
             }
+            socket.leave(this.id);
             return true;
         }
         return false;

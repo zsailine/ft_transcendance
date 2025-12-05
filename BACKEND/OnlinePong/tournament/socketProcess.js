@@ -30,13 +30,14 @@ export default function processTournament(socket, AllMode) {
 
 
     socket.on("join tournament", id => {
-        if (!tournamentLists.has(id)) socket.emit("error");
+        if (!tournamentLists.has(id)) {socket.emit("error"); return};
         const tournament = tournamentLists.get(id);
-        if (!tournament.addPlayer(socket.username, socket.username)) socket.emit("error");
+        if (!tournament.addPlayer(socket.username, socket)) {socket.emit("error"); return ;}
         if (tournament.currentPlayers === tournament.size)
             tournament.setStatus("full");
         socket.emit("joined", tournament.toJSON());
-        sendTournament()
+        io.to(tournament.id).emit("update", tournament.toJSON());
+        sendTournament();
     });
 
     socket.on("create tournament", data => {
@@ -46,6 +47,16 @@ export default function processTournament(socket, AllMode) {
         sendTournament();
         socket.emit("created", id);
     })
+    socket.on("leave tournament", id => {
+        if (!tournamentLists.has(id)) {socket.emit("error"); return ;}
+        const tournament = tournamentLists.get(id);
+        if (!tournament.removePlayer(socket)){socket.emit("error"); return ;}
+        if (tournament.currentPlayers === 0)
+            tournamentLists.delete(tournament.id);
+        socket.emit("leaved");
+        io.to(tournament.id).emit("update", tournament.toJSON());
+        sendTournament();
+    })
     socket.on("disconnect", () => {
         AllMode.delete(socket.username);
         const index = tournamentPlayers.indexOf(socket);
@@ -53,10 +64,11 @@ export default function processTournament(socket, AllMode) {
         let listUpdated = false;
         tournamentLists.forEach((tournament) => {
             if (tournament.players.has(socket.username)) {
-                tournament.removePlayer(socket.username);
+                tournament.removePlayer(socket);
                 if (tournament.currentPlayers === 0)
                     tournamentLists.delete(tournament.id);
                 listUpdated = true;
+                io.to(tournament.id).emit("update", tournament.toJSON());
             }
         });
         if (listUpdated) {

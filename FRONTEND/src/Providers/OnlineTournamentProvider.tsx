@@ -4,6 +4,8 @@ import type { TournamentInterface } from "../Pages/Tournament/TournamentTree";
 interface OnlineTournamentInterface {
 	text: string,
 	setText: (result: string) => void,
+    id: string,
+	setId: (result: string) => void,
     socket: Socket | null;
     setSocket: (result: Socket) => void,
     page: number,
@@ -26,6 +28,7 @@ export const OnlineTournamentProvider = ({ children }: any) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [page, setPage] = useState<number>(1);
     const [tournament, setTournament] = useState<TournamentInterface | null>(null);
+    const [id, setId] = useState<string>("");
 
     const value = {
         text,
@@ -35,7 +38,9 @@ export const OnlineTournamentProvider = ({ children }: any) => {
         page,
         setPage,
         tournament,
-        setTournament
+        setTournament,
+        id,
+        setId
     }
 
     return (
