@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Socket } from 'socket.io-client';
+import  { useState } from 'react';
+// import { Socket } from 'socket.io-client';
 import TournamentCard from '../../Components/Tournament/TournamentCard';
 
 // Données fictives

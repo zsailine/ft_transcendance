@@ -54,9 +54,9 @@ export function start(
     clearBoard(ctx, board, theme.boardBackground);
     gameOver = true;
     clearTimeout(intervalID);
-    window.removeEventListener("keydown", (e: KeyboardEvent) => {
+    // window.removeEventListener("keydown", (e: KeyboardEvent) => {
 
-    });
+    // });
     window.removeEventListener("resize", () => {
       ft_resize();
     });

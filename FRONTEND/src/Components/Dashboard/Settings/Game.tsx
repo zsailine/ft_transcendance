@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDashboard, type ThemeColors } from "../../../Providers/DashboardProvider";
 import { clearBoard, drawBall, drawPaddles, type Paddle, drawScore, } from "../../../Pong/draw";
 import {ThemeSelector, defaultTheme } from "./Theme";
