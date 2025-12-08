@@ -4,7 +4,7 @@ import { IoMdClose } from "react-icons/io";
 
 export default function TournamentForm() {
 	const [name, setName] = useState('');
-	const [maxPlayers, setMaxPlayers] = useState(4);
+	const [maxPlayers, setMaxPlayers] = useState(2);
 	const { socket, setPage } = useOnlineTournament()
 
 	const validation = useMemo(() => {
@@ -85,7 +85,7 @@ export default function TournamentForm() {
 						className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg 
                        focus:ring-blue-500 focus:border-blue-500 transition duration-150 text-white"
 					>
-						<option value="4">4 players</option>
+						<option value="2">2 players</option>
 						<option value="8">8 players</option>
 						<option value="16">16 players</option>
 					</select>

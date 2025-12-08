@@ -9,7 +9,7 @@ export default function QuitTournament () {
 	return (
 		<button
 			onClick={quit}
-			className="flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 
+			className="flex items-center justify-center space-x-2 bg-gradient-to-r from-cyan-500 mr-7
                     to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white px-5 py-2 
                     rounded-lg font-bold shadow-lg transition transform hover:scale-105"
 		>
@@ -26,7 +26,7 @@ export default function QuitTournament () {
 					d="M9 12h12m-9-7l-5 7 5 7"
 				/>
 			</svg>
-			<span>Start</span>
+			<span>Quit</span>
 		</button>
 	)
 }

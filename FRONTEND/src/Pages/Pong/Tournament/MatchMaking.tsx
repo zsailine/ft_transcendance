@@ -8,7 +8,7 @@ export default function MatchMaking() {
 	return (
 		<div className="flex flex-col items-center space-y-6 w-full">
 			<h2 className="text-2xl font-bold text-yellow-400 mb-4">Matchmaking</h2>
-
+ 
 			{Array.from({ length: numMatches }).map((_, i) => (
 				<div
 					key={i}

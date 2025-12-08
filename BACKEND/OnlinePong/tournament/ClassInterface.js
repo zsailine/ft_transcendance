@@ -2,7 +2,7 @@ import { io } from "../server.js";
 export class TournamentMatch {
     constructor(matchId, round, player1 = null, player2 = null, winner = null) {
         this.matchId = matchId;
-        this.round = round;    
+        this.round = round;
         this.player1 = player1;
         this.player2 = player2;
         this.winner = winner;
@@ -11,14 +11,14 @@ export class TournamentMatch {
 
 export class Tournament {
     constructor(id, name, maxPlayers, matches = [], status = 'waiting') {
-        
+
         this.id = id;
-		this.name = name;
-		this.maxPlayers = maxPlayers;
+        this.name = name;
+        this.maxPlayers = maxPlayers;
         this.players = new Map();
         this.currentPlayers = this.players.size;
         this.matches = matches;
-        this.status = status; 
+        this.status = status;
     }
 
     addPlayer(username, socket) {
@@ -32,7 +32,7 @@ export class Tournament {
         });
         socket.join(this.id);
         this.currentPlayers = this.players.size;
-        if (this.players.size === this.maxPlayers)
+        if (this.currentPlayers === this.maxPlayers)
             this.status = "Full"
         return true;
     }
@@ -40,7 +40,7 @@ export class Tournament {
     removePlayer(socket) {
         if (this.players.has(socket.username)) {
             this.players.delete(socket.username);
-            this.currentPlayers = this.players.size; 
+            this.currentPlayers = this.players.size;
             if (this.status === "Full") {
                 this.status = "waiting";
             }
@@ -49,7 +49,6 @@ export class Tournament {
         }
         return false;
     }
-
     addMatch(match) {
         this.matches.push(match);
     }
@@ -59,12 +58,12 @@ export class Tournament {
     }
     toJSON() {
         return {
-          id: this.id,
-          name: this.name,
-          maxPlayers: this.maxPlayers,
-          currentPlayers: this.currentPlayers,
-          status: this.status,
-          players: Object.fromEntries(this.players)
+            id: this.id,
+            name: this.name,
+            maxPlayers: this.maxPlayers,
+            currentPlayers: this.currentPlayers,
+            status: this.status,
+            players: Object.fromEntries(this.players)
         };
     }
 

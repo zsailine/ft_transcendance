@@ -2,6 +2,7 @@
 import { io } from "../server.js";
 import { generateRoom } from "../socket_utils.js";
 import { Tournament, TournamentMatch } from './ClassInterface.js';
+import initTournament from "./init.js";
 const tournamentPlayers = [];
 const tournamentLists = new Map();
 
@@ -14,7 +15,6 @@ function sendTournament() {
 export default function processTournament(socket, AllMode) {
 
     socket.on("tournament", username => {
-
         if (AllMode.has(username)) {
             socket.emit("duplicate");
             return;
@@ -30,9 +30,9 @@ export default function processTournament(socket, AllMode) {
 
 
     socket.on("join tournament", id => {
-        if (!tournamentLists.has(id)) {socket.emit("error"); return};
+        if (!tournamentLists.has(id)) { socket.emit("error1"); return };
         const tournament = tournamentLists.get(id);
-        if (!tournament.addPlayer(socket.username, socket)) {socket.emit("error"); return ;}
+        if (!tournament.addPlayer(socket.username, socket)) { socket.emit("error"); return; }
         if (tournament.currentPlayers === tournament.size)
             tournament.setStatus("full");
         socket.emit("joined", tournament.toJSON());
@@ -48,15 +48,29 @@ export default function processTournament(socket, AllMode) {
         socket.emit("created", id);
     })
     socket.on("leave tournament", id => {
-        if (!tournamentLists.has(id)) {socket.emit("error"); return ;}
+        if (!tournamentLists.has(id)) { socket.emit("error");  return; }
         const tournament = tournamentLists.get(id);
-        if (!tournament.removePlayer(socket)){socket.emit("error"); return ;}
+        if (!tournament.removePlayer(socket)) { socket.emit("error"); return; }
         if (tournament.currentPlayers === 0)
             tournamentLists.delete(tournament.id);
         socket.emit("leaved");
         io.to(tournament.id).emit("update", tournament.toJSON());
         sendTournament();
     })
+    socket.on("start tournament", id => {
+        if (!tournamentLists.has(id)) { socket.emit("error"); return; }
+        const tournament = tournamentLists.get(id);
+        initTournament(tournament);
+    });
+    socket.on("leave", id => {
+        if (!tournamentLists.has(id)) { return; }
+        const tournament = tournamentLists.get(id);
+        tournament.maxPlayers--;
+        if (tournament.maxPlayers === tournament.currentPlayers)
+            tournament.setStatus("Full");
+        io.to(tournament.id).emit("update", tournament.toJSON());
+        sendTournament();
+    });
     socket.on("disconnect", () => {
         AllMode.delete(socket.username);
         const index = tournamentPlayers.indexOf(socket);
