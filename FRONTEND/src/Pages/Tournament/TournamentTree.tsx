@@ -21,9 +21,10 @@ export interface TournamentInterface {
 
 export function TournamentTree({ tournament }: { tournament: TournamentInterface | null }) {
 	if (!tournament) return <div>Chargement du tournoi...</div>;
-	const { socket, id, page, setPage } = useOnlineTournament();
+	const { socket, id,} = useOnlineTournament();
 	const startedRef = useRef(false);
 	const [player, setPlayer] = useState<string[]>([]);
+	const [ page, setPage ] = useState(3);
 
 	useEffect(() => {
 		socket?.on("started", () => {
