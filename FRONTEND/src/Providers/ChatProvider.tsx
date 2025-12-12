@@ -3,6 +3,8 @@ import type { ImageBuffer } from "./DashboardProvider";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
 import { toast } from "react-toastify";
+import { useSocket } from "./SocketProvider";
+import { getUserInfo } from "../Utils/getter";
 
 interface ChatProviderProps {
 	children: ReactNode;
@@ -53,6 +55,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
 	const [messages, setMessages] = useState<MessageInterface[]>([]);
 	const { user, socket } = useAuth();
+	const { socketFriend } = useSocket();
 
 	const fetchFriends = async () => {
 		try {
@@ -115,6 +118,32 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		subscribeMessage();
 		return () => unsubscribeMessage();
 	}, [socket, selectedUser]);
+
+	useEffect(() => {
+		socketFriend?.on("request accepted", (friendship) => {
+			if (friendship.user_a === user) {
+				getUserInfo(friendship.user_b).then(data => {
+					setFriendsList((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_b
+					}]);
+				})
+			} else if (friendship.user_b === user) {
+				getUserInfo(friendship.user_a).then(data => {
+					setFriendsList((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_a
+					}]);
+				})
+			}
+		});
+
+		return () => {
+			socketFriend?.off("request accepted");
+		}
+	}, [socketFriend]);
 
 	const value = {
 		friendsList, setFriendsList,

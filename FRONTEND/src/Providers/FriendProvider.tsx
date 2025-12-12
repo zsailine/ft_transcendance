@@ -85,7 +85,6 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 		await api.put(`/friend/request/${friend.username}/accept`)
 		.then(() => {
 			toast("Friend request accepted");
-			setFriendsList([...friendsList, friend]);
 		})
 		.catch(() => {
 			toast.error("Something went wrong");
@@ -119,7 +118,6 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const unfriend = async (friend: UserInterface) => {
 		await api.put(`/friend/request/${friend.username}/decline`)
 		.then(() => {
-			toast("Friend request declined");
 			const filtered = friendsList.filter((f) => f.username !== friend.username);
 			setFriendsList(filtered);
 		})
@@ -169,8 +167,29 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			}
 		});
 
+		socketFriend?.on("request declined", (friendship) => {
+			if (friendship.user_a === user) {
+				getUserInfo(friendship.user_b).then(data => {
+					setUnknowns((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_b
+					}]);
+				});
+			} else if (friendship.user_b === user) {
+				getUserInfo(friendship.user_a).then(data => {
+					setUnknowns((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_a
+					}]);
+				});
+			}
+		});
+
 		return () => {
 			socketFriend?.off("request sent");
+			socketFriend?.off("request declined");
 		}
 	}, [socketFriend]);
 

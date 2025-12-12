@@ -9,28 +9,18 @@ const sendFriendRequest = async (req, rep) => {
 	try {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const receiverUsername = req.params.username;
-		let friendship;
 		if (loggedInUsername === receiverUsername) {
 			return rep.status(400).send({ error: "Can't send friend request to yourself" }); }
-		try {
-			const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
-			const newFriendship = db.prepare(`INSERT INTO friendship (user_a, user_b, status, sender, is_friend)
-				VALUES (?, ?, ?, ?, ?)`).run(user_a, user_b, 'pending', loggedInUsername, 0);
-			friendship = db.prepare(`SELECT * FROM friendship WHERE id=?`).get(newFriendship.lastInsertRowid);
-		} catch(error) {
-			return rep.status(500).send({
-				error: "Database error",
-				detail: error.message,
-			});
-		}
-
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const newFriendship = db.prepare(`INSERT INTO friendship (user_a, user_b, status, sender, is_friend)
+			VALUES (?, ?, ?, ?, ?)`).run(user_a, user_b, 'pending', loggedInUsername, 0);
+		const friendship = db.prepare(`SELECT * FROM friendship WHERE id=?`).get(newFriendship.lastInsertRowid);
 		const receiverSocket = getReceiverSocket(receiverUsername);
 		const senderSocket = getReceiverSocket(loggedInUsername);
 		if (receiverSocket)
 			fastify.io.to(receiverSocket).emit("request sent", friendship);
 		if (senderSocket)
 			fastify.io.to(senderSocket).emit("request sent", friendship);
-
 		return rep.status(200).send(friendship);
 	} catch(error) {
 		rep.status(500).send({
@@ -87,6 +77,13 @@ const acceptRequest = async (req, rep) => {
 			.run(user_a, user_b);
 		if (request.changes > 0) {
 			rep.status(200).send({ status: "Friend request accepted" });
+			const friendship = db.prepare(`SELECT * FROM friendship WHERE (user_a=? AND user_b=?)`).get(user_a, user_b);
+			const receiverSocket = getReceiverSocket(receiverUsername);
+			const senderSocket = getReceiverSocket(loggedInUsername);
+			if (receiverSocket)
+				fastify.io.to(receiverSocket).emit("request accepted", friendship);
+			if (senderSocket)
+				fastify.io.to(senderSocket).emit("request accepted", friendship);
 		} else {
 			rep.status(404).send({ status: "No pending request" });
 		}
@@ -110,6 +107,12 @@ const declineRequest = async (req, rep) => {
 			const toDelete = db.prepare(`SELECT id FROM friendship WHERE
 				(user_a=? AND user_b=?) AND status='declined'`)
 				.get(user_a, user_b);
+			const receiverSocket = getReceiverSocket(receiverUsername);
+			const senderSocket = getReceiverSocket(loggedInUsername);
+			if (receiverSocket)
+				fastify.io.to(receiverSocket).emit("request declined", toDelete);
+			if (senderSocket)
+				fastify.io.to(senderSocket).emit("request declined", toDelete);
 			const id = toDelete.id;
 			if (id)
 				db.prepare(`DELETE FROM friendship WHERE id=?`).run(id);

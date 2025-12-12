@@ -19,6 +19,7 @@ function Friends({click}: FriendsProps) {
 			setSearchValue={setSearchValue}
 			className="md:w-[50%] w-full"/>}
 		<FriendsList
+			setFriendsList={ () => {} }
 			friendsList={friendsList}
 			searchValue={searchValue}
 			setSelectedUser={setSelectedUser}

@@ -33,6 +33,7 @@ function ResearchTab({click}: ResearchTabProps) {
 		{foundUsers.length !== 0 ?
 		
 		<FriendsList
+			setFriendsList={setFoundUsers}
 			friendsList={foundUsers}
 			searchValue=""
 			setSelectedUser={()=>{}}

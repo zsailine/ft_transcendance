@@ -2,17 +2,21 @@ import { GrSend } from "react-icons/gr";
 import { IoMdPersonAdd } from "react-icons/io";
 import { BiUserCheck } from "react-icons/bi";
 import type { UserInterface } from "../../Providers/ChatProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFriend } from "../../Providers/FriendProvider";
 import { FaUserTimes, FaUserSlash } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
+import { useSocket } from "../../Providers/SocketProvider";
+import { useAuth } from "../../Providers/AuthProvider";
 
 interface MessageFriendProps {
 	handleClick: () => void
 }
 
 interface AddFriendButtonProps {
-	friend: UserInterface
+	friend: UserInterface,
+	foundUsers: UserInterface[],
+	setFoundUsers: (user: UserInterface[]) => void
 }
 
 interface UnfriendButtonProps {
@@ -45,14 +49,29 @@ export function MessageFriendButton({ handleClick }: MessageFriendProps) {
 	);
 }
 
-export function AddFriendButton({ friend }: AddFriendButtonProps) {
+export function AddFriendButton({ friend, foundUsers, setFoundUsers }: AddFriendButtonProps) {
 	const [ sent, setSent ] = useState<boolean>(false);
-	const { addFriend } = useFriend();
+	const { user } = useAuth();
+	const { socketFriend } = useSocket();
+	const { setUnknowns, addFriend, unknowns } = useFriend();
 
 	const handleClick = () => {
 		addFriend(friend);
+		socketFriend?.emit("add friend button clicked", user);
 		setSent(true);
 	}
+
+	useEffect(() => {
+		socketFriend?.on("add friend button handled", () => {
+			const filtered = unknowns.filter((f) => f.username !== friend.username);
+			setUnknowns(filtered);
+			const foundFiltered = foundUsers.filter((f) => f.username !== friend.username);
+			setFoundUsers(foundFiltered);
+		});
+		return () => {
+			socketFriend?.off("add friend button handled");
+		}
+	}, [socketFriend]);
 
 	return (
 	<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
