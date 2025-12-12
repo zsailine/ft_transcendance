@@ -107,15 +107,17 @@ const declineRequest = async (req, rep) => {
 			const toDelete = db.prepare(`SELECT id FROM friendship WHERE
 				(user_a=? AND user_b=?) AND status='declined'`)
 				.get(user_a, user_b);
-			const receiverSocket = getReceiverSocket(receiverUsername);
-			const senderSocket = getReceiverSocket(loggedInUsername);
-			if (receiverSocket)
-				fastify.io.to(receiverSocket).emit("request declined", toDelete);
-			if (senderSocket)
-				fastify.io.to(senderSocket).emit("request declined", toDelete);
 			const id = toDelete.id;
-			if (id)
+			if (id) {
+				const friendship = db.prepare("SELECT * FROM friendship WHERE id=?").get(id);
+				const receiverSocket = getReceiverSocket(receiverUsername);
+				const senderSocket = getReceiverSocket(loggedInUsername);
+				if (receiverSocket)
+					fastify.io.to(receiverSocket).emit("request declined", friendship);
+				if (senderSocket)
+					fastify.io.to(senderSocket).emit("request declined", friendship);
 				db.prepare(`DELETE FROM friendship WHERE id=?`).run(id);
+			}
 			return rep.status(200).send({ status: "Friend request declined" });
 		} else {
 			return rep.status(404).send({ status: "No pending request" });

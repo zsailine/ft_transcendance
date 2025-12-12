@@ -51,9 +51,9 @@ fastify.ready().then(() => {
 			}
 		});
 
-		socket.on("add friend button clicked", (username) => {
-			const sockets = userSocketMap[username];
-			fastify.io.to(sockets).emit("add friend button handled");
+		socket.on("add friend button clicked", ({ user, friend}) => {
+			const sockets = userSocketMap[user];
+			fastify.io.to(sockets).emit("add friend button handled", friend);
 		});
 	});
 });

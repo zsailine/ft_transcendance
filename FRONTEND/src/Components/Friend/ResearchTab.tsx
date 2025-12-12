@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import SearchBar from "../Chat/SearchBar"
 import { useFriend } from "../../Providers/FriendProvider";
 import type { UserInterface } from "../../Providers/ChatProvider";
 import FriendsList from "../Chat/FriendsList";
+import { useSocket } from "../../Providers/SocketProvider";
 
 interface ResearchTabProps {
 	click: () => void
@@ -10,8 +11,9 @@ interface ResearchTabProps {
 
 function ResearchTab({click}: ResearchTabProps) {
 	const [ searchValue, setSearchValue ] = useState<string>("");
-	const { unknowns, fetchNotFriends, setSelectedUserProfil } = useFriend();
+	const { unknowns, fetchNotFriends, setSelectedUserProfil, setUnknowns } = useFriend();
 	const [ foundUsers, setFoundUsers ] = useState<UserInterface[]>([]);
+	const { socketFriend } = useSocket();
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -21,6 +23,19 @@ function ResearchTab({click}: ResearchTabProps) {
 				user.username?.toLowerCase().includes(searchValue.toLowerCase())));
 		}
 	}
+
+	useEffect(() => {
+		socketFriend?.on("add friend button handled", (friend) => {
+			const filtered = unknowns.filter((f) => f.username !== friend.username);
+			setUnknowns(filtered);
+			const foundFiltered = foundUsers.filter((f) => f.username !== friend.username);
+			console.log(foundFiltered);
+			setFoundUsers(foundFiltered);
+		});
+		return () => {
+			socketFriend?.off("add friend button handled");
+		}
+	}, [socketFriend, foundUsers]);
 
   return (
 	<div className="flex flex-col gap-10 items-center">
@@ -33,7 +48,6 @@ function ResearchTab({click}: ResearchTabProps) {
 		{foundUsers.length !== 0 ?
 		
 		<FriendsList
-			setFriendsList={setFoundUsers}
 			friendsList={foundUsers}
 			searchValue=""
 			setSelectedUser={()=>{}}

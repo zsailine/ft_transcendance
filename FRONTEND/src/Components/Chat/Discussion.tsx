@@ -43,7 +43,6 @@ function Discussion() {
 							className=""/>
 						<div className="flex-1 overflow-y-auto">
 						<FriendsList
-							setFriendsList={ ()=> {} }
 							friendsList={friendsList}
 							searchValue={searchValue}
 							setSelectedUser={setSelectedUser}

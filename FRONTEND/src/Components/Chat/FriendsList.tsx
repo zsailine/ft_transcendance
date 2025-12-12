@@ -11,11 +11,10 @@ interface FriendsListProps {
 	message: string,
 	setSelectedUser: (user: UserInterface) => void,
 	setSelectedUserProfil: (user: UserInterface) => void,
-	setFriendsList: (user: UserInterface[]) => void,
 	click: (() => void) | undefined 
 }
 
-function FriendsList({ friendsList, setFriendsList, searchValue, setSelectedUser, message, setSelectedUserProfil, click }: FriendsListProps) {
+function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSelectedUserProfil, click }: FriendsListProps) {
 	const [ filteredFriends, setFilteredFriends ] = useState<UserInterface[]>([]);
 	const navigate = useNavigate();
 
@@ -71,7 +70,7 @@ function FriendsList({ friendsList, setFriendsList, searchValue, setSelectedUser
 						</div>
 						<div>
 						{message !== "message" ? (message === "research" ? 
-							<AddFriendButton friend={friend} foundUsers={friendsList} setFoundUsers={setFriendsList}/> :
+							<AddFriendButton friend={friend} /> :
 							<MessageFriendButton handleClick={() => handleMessageClick(friend)}/> )
 							: <></>}
 						</div>

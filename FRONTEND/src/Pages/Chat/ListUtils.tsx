@@ -2,7 +2,7 @@ import { GrSend } from "react-icons/gr";
 import { IoMdPersonAdd } from "react-icons/io";
 import { BiUserCheck } from "react-icons/bi";
 import type { UserInterface } from "../../Providers/ChatProvider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFriend } from "../../Providers/FriendProvider";
 import { FaUserTimes, FaUserSlash } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
@@ -14,9 +14,7 @@ interface MessageFriendProps {
 }
 
 interface AddFriendButtonProps {
-	friend: UserInterface,
-	foundUsers: UserInterface[],
-	setFoundUsers: (user: UserInterface[]) => void
+	friend: UserInterface
 }
 
 interface UnfriendButtonProps {
@@ -49,29 +47,20 @@ export function MessageFriendButton({ handleClick }: MessageFriendProps) {
 	);
 }
 
-export function AddFriendButton({ friend, foundUsers, setFoundUsers }: AddFriendButtonProps) {
+export function AddFriendButton({ friend }: AddFriendButtonProps) {
 	const [ sent, setSent ] = useState<boolean>(false);
 	const { user } = useAuth();
 	const { socketFriend } = useSocket();
-	const { setUnknowns, addFriend, unknowns } = useFriend();
+	const { addFriend } = useFriend();
 
 	const handleClick = () => {
 		addFriend(friend);
-		socketFriend?.emit("add friend button clicked", user);
+		socketFriend?.emit("add friend button clicked", {
+			user: user,
+			friend: friend
+		});
 		setSent(true);
 	}
-
-	useEffect(() => {
-		socketFriend?.on("add friend button handled", () => {
-			const filtered = unknowns.filter((f) => f.username !== friend.username);
-			setUnknowns(filtered);
-			const foundFiltered = foundUsers.filter((f) => f.username !== friend.username);
-			setFoundUsers(foundFiltered);
-		});
-		return () => {
-			socketFriend?.off("add friend button handled");
-		}
-	}, [socketFriend]);
 
 	return (
 	<div className="w-full flex gap-5 items-center bg-cyan-500/10 p-4 rounded-xl"
@@ -128,10 +117,10 @@ export function UnfriendButton({user, handleUnfriend, unfriend, setSelectedUser,
 export function BlockButton({user, handleBlocked, type}: BlockButtonProps) {
 	const [ clicked, setClicked ] = useState<boolean>(false);
 	const [ sent, setSent ] = useState<boolean>(false);
-	const { unfriend } = useFriend();
+	const { declineInvite } = useFriend();
 
 	const handleSent = () => {
-		unfriend(user);
+		declineInvite(user);
 		setSent(true);
 	}
 
