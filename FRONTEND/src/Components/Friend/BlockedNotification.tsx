@@ -22,7 +22,7 @@ function BlockedNotification({selectedUser}: BlockedNotificationProps) {
 		<div className="flex justify-center gap-4 h-[50px] min-h-[50px] flex-1 shrink-0 text-md text-gray-500 italic">
 			{ blocker === user ? 
 			`You have blocked this contact` :
-			`You have been blocked by this contact`}
+			`Messaging is unavalaible`}
 		</div>
 	</div>
 	)

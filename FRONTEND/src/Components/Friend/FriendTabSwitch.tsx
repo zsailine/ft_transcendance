@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Friends from "./Friends";
 import FriendRequests from "./FriendRequests";
 import ResearchTab from "./ResearchTab";

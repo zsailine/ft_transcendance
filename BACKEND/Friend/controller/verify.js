@@ -1,5 +1,6 @@
 import db from "../migration.js";
 import axios from "axios";
+import { fastify, getReceiverSocket } from "../server.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -84,4 +85,56 @@ const thoseWhoSentMe = async (req, rep, friends) => {
 	return allRequests;
 }
 
-export { getUsername, getWhat, friendsList, thoseWhoSentMe, getCookies };
+const deleteBlockedUsers = (user_a, user_b) => {
+	const is_friend = db.prepare("SELECT is_friend FROM friendship WHERE (user_a=? AND user_b=?)")
+		.get(user_a, user_b);
+	const friendship = db.prepare("SELECT * FROM friendship WHERE (user_a=? AND user_b=?)")
+		.get(user_a, user_b);
+	const senderSocket = getReceiverSocket(user_a);
+	const receiverSocket = getReceiverSocket(user_b);
+	if (is_friend.is_friend === 0) {
+		const toDelete = db.prepare(`SELECT id FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
+		const id = toDelete.id;
+		if (senderSocket)
+			fastify.io.to(senderSocket).emit("non-friend user unblocked", friendship);
+		if (receiverSocket)
+			fastify.io.to(receiverSocket).emit("non-friend user unblocked", friendship);
+		if (id)
+			db.prepare(`DELETE FROM friendship WHERE id=?`).run(id);
+	} else {
+		if (senderSocket)
+			fastify.io.to(senderSocket).emit("friend unblocked", friendship);
+		if (receiverSocket)
+			fastify.io.to(receiverSocket).emit("friend unblocked", friendship);
+		db.prepare(`UPDATE friendship SET blocked_by=NULL WHERE (user_a=? AND user_b=?)`).run(user_a, user_b);
+	}
+}
+
+const whatToEmit = (user_a, user_b) => {
+	const is_friend = db.prepare("SELECT is_friend FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
+	const friendship = db.prepare("SELECT * FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
+	const receiverSocket = getReceiverSocket(user_a);
+	const senderSocket = getReceiverSocket(user_b);
+	if (is_friend.is_friend === 0) {
+		if (senderSocket)
+			fastify.io.to(senderSocket).emit("non-friend user blocked", friendship);
+		if (receiverSocket)
+			fastify.io.to(receiverSocket).emit("non-friend user blocked", friendship);
+	} else {
+		if (senderSocket)
+			fastify.io.to(senderSocket).emit("friend blocked", friendship);
+		if (receiverSocket)
+			fastify.io.to(receiverSocket).emit("friend blocked", friendship);
+	}
+}
+
+const isFriend = (user_a, user_b) => {
+	const is_friend = db.prepare("SELECT is_friend FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
+	if (is_friend.is_friend === 0) {
+		return false;
+	}
+	return true;
+}
+
+export { getUsername, getWhat, friendsList, thoseWhoSentMe, getCookies, deleteBlockedUsers, whatToEmit, isFriend };

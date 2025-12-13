@@ -1,7 +1,7 @@
 import db from "../migration.js";
 import { fastify, getReceiverSocket } from "../server.js";
 import { insertBlockedUser } from "./nonFriendController.js";
-import { friendsList, getUsername, getWhat, thoseWhoSentMe } from "./verify.js";
+import { deleteBlockedUsers, friendsList, getUsername, getWhat, isFriend, thoseWhoSentMe, whatToEmit } from "./verify.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -156,9 +156,10 @@ const blockUser = async (req, rep) => {
 		const request = db.prepare(`UPDATE friendship SET status='blocked',blocked_by=? WHERE (user_a=? AND user_b=?)`)
 			.run(loggedInUsername, user_a, user_b);
 		if (request.changes > 0) {
-			rep.status(200).send({ status: "User blocked" });
+			whatToEmit(user_a, user_b);
+			return rep.status(200).send({ status: "User blocked" });
 		} else {
-			rep.status(404).send({ status: "User not found" });
+			return rep.status(404).send({ status: "User not found" });
 		}
 	} catch(error) {
 		rep.status(500).send({
@@ -174,10 +175,10 @@ const unblockUser = async (req, rep) => {
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't block yourself" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
-		const request = db.prepare(`UPDATE friendship SET status='accepted',blocked_by=NULL WHERE (user_a=? AND user_b=?)`)
-			.run(user_a, user_b);
+		const request = db.prepare(`UPDATE friendship SET status='accepted' WHERE (user_a=? AND user_b=?)`).run(user_a, user_b);
 		if (request.changes > 0) {
 			rep.status(200).send({ status: "User unblocked" });
+			deleteBlockedUsers(user_a, user_b);
 		} else {
 			rep.status(404).send({ status: "User not found" });
 		}
