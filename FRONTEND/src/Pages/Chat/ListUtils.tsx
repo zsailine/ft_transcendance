@@ -79,11 +79,11 @@ export function UnfriendButton({friend, setSelectedUser, type}: UnfriendButtonPr
 	const { socketFriend } = useSocket();
 
 	const handleClick = () => {
-		if (type === "research") {
+		if (type === "research" && !sent) {
 			addFriend(friend);
 			setSent(true);
 			socketFriend?.emit("add friend button clicked", {user: user, friend: friend});
-		} else {
+		} else if (type !== "research" && !confirm) {
 			acceptInvite(friend);
 			setConfirm(true);
 		}

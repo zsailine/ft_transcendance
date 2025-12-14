@@ -6,13 +6,11 @@ interface FriendActionProps {
 	setFriendRequests: (user: UserInterface[]) => void,
 	setUnknowns: (user: UserInterface[] | ((prev: UserInterface[]) => UserInterface[])) => void,
 	setBlockedUsers: (user: UserInterface[]) => void,
-	setFriendsList: (user: UserInterface[]) => void,
-	blockedUsers: UserInterface[],
-	friendsList: UserInterface[]
+	friendRequests: UserInterface[]
 }
 
 export const useFriendAction = ({
-	setFriendRequests, setUnknowns, setBlockedUsers, setFriendsList, blockedUsers, friendsList
+	setFriendRequests, setUnknowns, setBlockedUsers, friendRequests
 	}: FriendActionProps) => {
 		const fetchFriendRequests = async () => {
 		try {
@@ -57,6 +55,8 @@ export const useFriendAction = ({
 		})
 		.catch(() => {
 			toast.error("Something went wrong");
+			const filtered = friendRequests.filter((f) => f.username !== friend.username);
+			setFriendRequests(filtered);
 		})
 	}
 
@@ -68,6 +68,8 @@ export const useFriendAction = ({
 		.catch((err) => {
 			console.log(err);
 			toast.error("Something went wrong");
+			const filtered = friendRequests.filter((f) => f.username !== friend.username);
+			setFriendRequests(filtered);
 		})
 	}
 

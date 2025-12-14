@@ -1,7 +1,7 @@
 import db from "../migration.js";
 import { fastify, getReceiverSocket } from "../server.js";
 import { insertBlockedUser } from "./nonFriendController.js";
-import { deleteBlockedUsers, friendsList, getUsername, getWhat, isFriend, thoseWhoSentMe, whatToEmit } from "./verify.js";
+import { deleteBlockedUsers, friendsList, getUsername, getWhat, isBlocked, isFriend, thoseWhoSentMe, whatToEmit } from "./verify.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
 
@@ -73,6 +73,8 @@ const acceptRequest = async (req, rep) => {
 		if (loggedInUsername === receiverUsername) {
 			rep.status(400).send({ error: "Can't accept your own request" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		if (isBlocked(user_a, user_b))
+			return rep.status(400).send({error: "blocked"});
 		const request = db.prepare(`UPDATE friendship SET status='accepted',is_friend=1 WHERE (user_a=? AND user_b=?)`)
 			.run(user_a, user_b);
 		if (request.changes > 0) {
@@ -99,8 +101,10 @@ const declineRequest = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
-			rep.status(400).send({ error: "Can't decline your own request" }); }
+			return rep.status(400).send({ error: "Can't decline your own request" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		if (isBlocked(user_a, user_b))
+			return rep.status(400).send({error: "blocked"});
 		const request = db.prepare(`UPDATE friendship SET status='declined',is_friend=0 WHERE (user_a=? AND user_b=?)`)
 			.run(user_a, user_b);
 		if (request.changes > 0) {

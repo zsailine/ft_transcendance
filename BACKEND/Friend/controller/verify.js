@@ -143,4 +143,12 @@ const isFriend = (user_a, user_b) => {
 	return true;
 }
 
-export { getUsername, getWhat, friendsList, thoseWhoSentMe, getCookies, deleteBlockedUsers, whatToEmit, isFriend };
+const isBlocked = (user_a, user_b) => {
+	const status = db.prepare("SELECT status FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
+	if (status.status === "blocked") {
+		return true;
+	}
+	return false;
+}
+
+export { getUsername, getWhat, friendsList, thoseWhoSentMe, getCookies, deleteBlockedUsers, whatToEmit, isFriend, isBlocked };

@@ -21,16 +21,14 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 	const [ blockedUsers, setBlockedUsers ] = useState<UserInterface[]>([]);
 	const [ blockedUsername, setBlockedUsername ] = useState<string[]>([]);
 	const { user } = useAuth();
-	const { friendsList, setFriendsList } = useChat();
+	const { friendsList, setFriendsList, fetchFriends } = useChat();
 	const { socketFriend } = useSocket();
 
 	const friendAction = useFriendAction({
 		setFriendRequests: setFriendRequests,
 		setUnknowns: setUnknowns,
 		setBlockedUsers: setBlockedUsers,
-		setFriendsList: setFriendsList,
-		blockedUsers: blockedUsers,
-		friendsList: friendsList
+		friendRequests: friendRequests
 	});
 	
 	useEffect(() => {
@@ -45,6 +43,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			friendAction.fetchNotFriends();
 			friendAction.fetchBlockedUsers();
 			setSelectedUserProfil(null);
+			fetchFriends();
 		}
 	}, [user]);
 
@@ -121,10 +120,8 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 				});
 			}
 			if (friendship.user_a === user) {
-				console.log("user_a");
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_b));
 			} else if (friendship.user_b === user) {
-				console.log("user_b", friendship.user_a);
 				console.log(unknowns.filter(u => u.username !== friendship.user_a));
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_a));
 			}
@@ -161,7 +158,7 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			socketFriend?.off("friend unblocked");
 			socketFriend?.off("non-friend user unblocked");
 		}
-	}, [socketFriend]);
+	}, [socketFriend, friendsList]);
 
 	const value = {
 		friendRequests, setFriendRequests,
