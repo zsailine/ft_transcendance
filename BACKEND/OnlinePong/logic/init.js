@@ -2,7 +2,7 @@ import { initGame } from './start.js';
 import { startMulti } from './multi.js';
 import { io } from '../server.js';
 
-export function init(roomName, player1, username1, player2, username2) {
+export async function init(roomName, player1, username1, player2, username2, activeGames, userRooms) {
     const random = Math.random() < 0.5;
 
     const p1 = random ? player1 : player2;
@@ -22,7 +22,18 @@ export function init(roomName, player1, username1, player2, username2) {
 
     p1.emit("ready");
     p2.emit("ready");
-    initGame(io, roomName, p1.id, p2.id);
+    const handleGameEnd = (room, u1, u2) => {
+        console.log(`Partie terminée dans la room ${room}`);
+        activeGames.delete(room);
+        userRooms.delete(u1);
+        userRooms.delete(u2);
+    };
+
+    const gameController = await initGame(io, roomName, username1, username2, handleGameEnd);
+
+    activeGames.set(roomName, gameController);
+    userRooms.set(username1, roomName);
+    userRooms.set(username2, roomName);
 }
 
 export function initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4) {
@@ -55,7 +66,7 @@ export function initMulti(roomName, player1, username1, player2, username2, play
     const allPlayersNames = [u1, u2, u3, u4];
 
     p1.emit("role", "player1");
-   p1.emit("players_info", allPlayersNames);
+    p1.emit("players_info", allPlayersNames);
 
     p2.emit("role", "player2");
     p2.emit("players_info", allPlayersNames);

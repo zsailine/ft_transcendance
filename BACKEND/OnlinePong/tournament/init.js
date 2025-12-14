@@ -32,19 +32,23 @@ function generateMatches(tournament) {
 
 export default function initTournament(tournament) {
     io.to(tournament.id).emit("started");
-    setTimeout(() => {
-        const players = Array.from(tournament.players.keys());
-        players.sort(() => Math.random() - 0.5);
-        io.to(tournament.id).emit("matchmaking", players);
-        for (let i = 10; i > 0; i--) {
-            for (let i = 10; i > 0; i--) {
-                setTimeout(() => {
-                    io.to(tournament.id).emit("count", `Match starts in ${i} seconds`);
-                }, (11 - i) * 1000);
-            }
-        }
+    // while (tournament.players.size > 1)
+    // {
         setTimeout(() => {
-            io.to(tournament.id).emit("count", "GO!");
-        }, 11 * 1000);
-    }, 500);
+            const players = Array.from(tournament.players.keys());
+            players.sort(() => Math.random() - 0.5);
+            io.to(tournament.id).emit("matchmaking", players);
+            for (let i = 10; i > 0; i--) {
+                for (let i = 10; i > 0; i--) {
+                    setTimeout(() => {
+                        io.to(tournament.id).emit("count", `Match starts in ${i} seconds`);
+                    }, (11 - i) * 1000);
+                }
+            }
+            setTimeout(() => {
+                io.to(tournament.id).emit("count", "GO!");
+            }, 11 * 1000);
+            t
+        }, 500);
+    // }
 }

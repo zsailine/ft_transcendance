@@ -5,73 +5,75 @@ const board = {
   width: 0,
   height: 0
 }
-
-export async function initGame(io, roomName, player1Id, player2Id) {
+export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
   let gameOver = false;
+
+  let players = {
+    player1: { userId: user1Id, socketId: null, socket: null },
+    player2: { userId: user2Id, socketId: null, socket: null }
+  };
+
+  resizeBoard();
   let paddle1Speed = board.height / 250;
   let paddle2Speed = board.height / 250;
-  io.in(roomName).fetchSockets().then((sockets) => {
-    sockets.forEach((socket) => {
-      if (socket.data.listenersAttached) return;
-      socket.data.listenersAttached = true;
 
-      socket.on("arrowUp", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = -1;
-        } else {
-          paddle2Direction = -1;
-        }
-      });
+  const attachListeners = (socket, role) => {
+    socket.removeAllListeners("arrowUp");
+    socket.removeAllListeners("arrowDown");
+    socket.removeAllListeners("arrowUpRelease");
+    socket.removeAllListeners("arrowDownRelease");
+    socket.removeAllListeners("disconnect");
 
-      socket.on("arrowDown", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 1;
-        } else {
-          paddle2Direction = 1;
-        }
-      });
-      socket.on("speed", (speed) => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Speed = board.height / speed;
-        } else {
-          paddle2Speed = board.height / speed;
-        }
-      });
+    socket.data.gameRole = role;
 
-      socket.on("arrowUpRelease", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 0;
-        } else {
-          paddle2Direction = 0;
-        }
-      });
-
-      socket.on("arrowDownRelease", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 0;
-        } else {
-          paddle2Direction = 0;
-        }
-      });
-      socket.on("disconnect", () => {
-        if (gameOver) return;
-
-        const winner = (socket.id === player1Id) ? "player2" : "player1";
-        io.to(roomName).emit("stop", winner);
-        gameOver = true;
-
-        stopGameLoop();
-      });
+    socket.on("arrowUp", () => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Direction = -1;
+      else paddle2Direction = -1;
     });
+
+    socket.on("arrowDown", () => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Direction = 1;
+      else paddle2Direction = 1;
+    });
+
+    socket.on("arrowUpRelease", () => {
+      if (role === "player1") paddle1Direction = 0;
+      else paddle2Direction = 0;
+    });
+
+    socket.on("arrowDownRelease", () => {
+      if (role === "player1") paddle1Direction = 0;
+      else paddle2Direction = 0;
+    });
+    socket.on("speed", (speed) => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Speed = board.height / speed;
+      else paddle2Speed = board.height / speed;
+    });
+
+    socket.on("disconnect", () => {
+      console.log(`${role} s'est déconnecté. En attente de reconnexion...`);
+      if (role === "player1") players.player1.socket = null;
+      else players.player2.socket = null;
+    });
+  };
+
+  const sockets = await io.in(roomName).fetchSockets();
+  sockets.forEach(socket => {
+    if (socket.username === user1Id) {
+      players.player1.socketId = socket.id;
+      players.player1.socket = socket;
+      attachListeners(socket, "player1");
+    } else if (socket.username === user2Id) {
+      players.player2.socketId = socket.id;
+      players.player2.socket = socket;
+      attachListeners(socket, "player2");
+    }
   });
 
   io.to(roomName).emit("start");
-  resizeBoard();
 
   let paddle1 = {
     width: board.width * 0.02,
@@ -140,9 +142,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       io.to(roomName).emit("paddle2", paddle2.y);
     }
   }
-  function add(board){
-    if (ballSpeed < board.width * 0.006)
-    {
+  function add(board) {
+    if (ballSpeed < board.width * 0.006) {
       ballSpeed += board.width * 0.0005;
     }
   }
@@ -151,34 +152,34 @@ export async function initGame(io, roomName, player1Id, player2Id) {
 
     const closestX = Math.max(paddle.x, Math.min(ballX, paddle.x + paddle.width));
     const closestY = Math.max(paddle.y, Math.min(ballY, paddle.y + paddle.height));
-  
+
     const distanceX = ballX - closestX;
     const distanceY = ballY - closestY;
     const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-  
+
     if (distanceSquared < (ballRadius * ballRadius)) {
-  
+
       const paddleCenterX = paddle.x + paddle.width / 2;
       const paddleCenterY = paddle.y + paddle.height / 2;
-  
+
       const overlapX = (paddle.width / 2 + ballRadius) - Math.abs(ballX - paddleCenterX);
       const overlapY = (paddle.height / 2 + ballRadius) - Math.abs(ballY - paddleCenterY);
-  
+
       if (overlapY < overlapX) {
         ballYDirection = -ballYDirection;
-  
+
         if (ballY < paddleCenterY) {
           ballY = paddle.y - ballRadius;
         } else {
           ballY = paddle.y + paddle.height + ballRadius;
         }
-  
+
         ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
-  
+
       } else {
         ballXDirection = -ballXDirection;
         add(board);
-  
+
         if (ballX < paddleCenterX) {
           ballX = paddle.x - ballRadius;
         } else {
@@ -192,8 +193,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     ballX += ballSpeed * ballXDirection;
     ballY += ballSpeed * ballYDirection;
 
-    if (ballSpeed === 0)
-    {
+    if (ballSpeed === 0) {
       io.to(roomName).emit("update", {
         ballX: 1700, ballY: 1000,
         paddle1Y: paddle1.y,
@@ -235,6 +235,7 @@ export async function initGame(io, roomName, player1Id, player2Id) {
           ? "player1"
           : "player2";
       io.to(roomName).emit("finish", winner);
+      if (onEnd) onEnd(roomName, user1Id, user2Id);
     }
   }
 
@@ -261,4 +262,37 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     createBall();
   }, 1000);
   startGameLoop();
+  return {
+    reconnectPlayer: (userId, newSocket) => {
+      let role = null;
+      if (userId === players.player1.userId) {
+        newSocket.emit("role", "player1");
+        newSocket.emit("opponent", players.player2.userId);
+        role = "player1";
+      }
+      else if (userId === players.player2.userId) {
+        newSocket.emit("role", "player2");
+        newSocket.emit("opponent", players.player1.userId);
+        role = "player2";
+      }
+      if (role) {
+        console.log(`Reconnexion réussie pour ${role}`);
+        players[role].socket = newSocket;
+        players[role].socketId = newSocket.id;
+        attachListeners(newSocket, role);
+        
+        newSocket.emit("ready");
+        setTimeout(() => {
+          newSocket.join(roomName);
+          newSocket.emit("score", { paddle1Score, paddle2Score });
+          newSocket.emit("paddle2", paddle2.y);
+          newSocket.emit("paddle1", paddle1.y)
+        }, 500)
+
+        return true;
+      }
+      return false;
+    },
+    stop: () => stopGameLoop() // Pour pouvoir tuer le jeu de l'extérieur
+  };
 }

@@ -1,5 +1,8 @@
 import { init, initMulti } from "./logic/init.js";
 
+const activeGames = new Map();
+const userRooms = new Map();
+
 export function removeSocket(socket, AllMode, waitingPlayers, privateRoom, waitingMultiplayers) {
     if (!socket.username)
         return;
@@ -8,7 +11,7 @@ export function removeSocket(socket, AllMode, waitingPlayers, privateRoom, waiti
     }
     if (waitingPlayers.has(socket.username)) {
         waitingPlayers.delete(socket.username);
-    } 
+    }
     if (waitingMultiplayers.has(socket.username)) {
         waitingMultiplayers.delete(socket.username);
     }
@@ -36,20 +39,30 @@ export function generateQuick(AllMode, waitingPlayers, socket, username) {
         socket.emit("duplicate");
         return;
     }
-    socket.username = username;
+    if (userRooms.has(username)) {
+        const roomName = userRooms.get(username);
+        const game = activeGames.get(roomName);
 
+        if (game) {
+            game.reconnectPlayer(username, socket);
+            return;
+        }
+    }
+
+    socket.username = username;
     AllMode.set(username, socket);
     waitingPlayers.set(username, socket);
-    1
+
     if (waitingPlayers.size >= 2) {
         const iterator = waitingPlayers.entries();
         const [[username1, player1], [username2, player2]] = [iterator.next().value, iterator.next().value];
-
+        AllMode.delete(username1);
+        AllMode.delete(username2);
         waitingPlayers.delete(username1);
         waitingPlayers.delete(username2);
         const roomName = generateRoom();
 
-        init(roomName, player1, username1, player2, username2);
+        init(roomName, player1, username1, player2, username2, activeGames, userRooms);
     }
 }
 
@@ -71,6 +84,10 @@ export function generateMultiplayer(AllMode, waitingMultiplayers, socket, userna
         const [username2, player2] = iterator.next().value;
         const [username3, player3] = iterator.next().value;
         const [username4, player4] = iterator.next().value;
+        AllMode.delete(username1);
+        AllMode.delete(username2);
+        AllMode.delete(username3);
+        AllMode.delete(username4);
         waitingMultiplayers.delete(username1);
         waitingMultiplayers.delete(username2);
         waitingMultiplayers.delete(username3);
@@ -90,6 +107,15 @@ export function createRoom(AllMode, privateRooms, socket, data) {
     if (privateRooms.has(room)) {
         socket.emit("exist");
         return;
+    }
+    if (userRooms.has(username)) {
+        const roomName = userRooms.get(username);
+        const game = activeGames.get(roomName);
+
+        if (game) {
+            game.reconnectPlayer(username, socket);
+            return;
+        }
     }
     socket.username = username;
     AllMode.set(username, socket);
@@ -117,6 +143,7 @@ export function joinRoom(AllMode, privateRooms, socket, data) {
     const username2 = username;
     const player2 = socket;
     privateRooms.delete(room);
-
-    init(room, player1, username1, player2, username2);
+    AllMode.delete(username1);
+    AllMode.delete(username2);
+    init(room, player1, username1, player2, username2, activeGames, userRooms);
 }

@@ -43,7 +43,7 @@ export default function MatchMaking({ aliases }: { aliases: string[] }) {
                 "
                     >
                         {p1 && p2 ? (
-                            <span className="text-cyan-300">{p1} <span className="text-blue-400">vs</span> {p2}</span>
+                            <span className="text-cyan-300">{p1} <span className="text-blue-400 ">vs</span> {p2}</span>
                         ) : p1 ? (
                             <span className="text-cyan-300">{p1} passe au round suivant</span>
                         ) : (
