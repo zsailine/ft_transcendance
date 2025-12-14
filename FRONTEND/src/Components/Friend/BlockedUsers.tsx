@@ -20,14 +20,10 @@ function BlockedUsers() {
 					<div className="flex gap-2 md:gap-5 items-center w-full">
 
 						<div className="w-12 h-12 md:w-15 md:h-15">
-							{friend.avatar ?
 							<img	alt={friend.username?.at(0)?.toUpperCase()}
-										src={getImageUrlFromBlob(friend.avatar)?.toString()}
+										src={friend.avatar ? getImageUrlFromBlob(friend.avatar)?.toString() : "/images/avatar.jpg"}
 										className="w-full h-full rounded-full object-cover border border-cyan-500/20"
-							/> :
-							<div className="font-helvetica w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-md md:text-lg font-semibold border border-cyan-500/20">
-								{friend.username?.at(0)?.toUpperCase()}
-							</div>}
+							/>
 						</div>
 
 						<div className="text-sm text-white font-medium truncate">
