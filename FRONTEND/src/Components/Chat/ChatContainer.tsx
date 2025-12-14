@@ -7,6 +7,7 @@ import { useFriend } from "../../Providers/FriendProvider";
 import { useEffect, useState } from "react";
 import BlockedNotification from "../Friend/BlockedNotification";
 import { getRelationship } from "../../Utils/getter";
+import { useSocket } from "../../Providers/SocketProvider";
 
 interface ChatContainerProps {
 	headerClick: () => void,
@@ -14,12 +15,23 @@ interface ChatContainerProps {
 
 function ChatContainer({headerClick}: ChatContainerProps ) {
 	const { selectedUser } = useChat();
+	const { socketFriend } = useSocket();
 	const { blockedUsername } = useFriend();
 	const [ relationship, setRelationship ] = useState<string | null>("")
 
 	useEffect(() => {
 		getRelationship(selectedUser?.username || "", setRelationship);
 	}, [selectedUser]);
+
+	useEffect(() => {
+		socketFriend?.on("i am blocked", () => {
+			setRelationship("blocked");
+		});
+
+		return () => {
+			socketFriend?.off("i am blocked");
+		}
+	}, [socketFriend, selectedUser]);
 
 	if (selectedUser === null) {
 		return (

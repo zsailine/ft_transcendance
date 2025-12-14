@@ -8,10 +8,12 @@ import { useEffect, useState } from "react";
 import FriendProfil from "../Profil/FriendProfil";
 import { getRelationship } from "../../Utils/getter";
 import { useFriend } from "../../Providers/FriendProvider";
+import { useSocket } from "../../Providers/SocketProvider";
 
 function Discussion() {
 	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat();
 	const { setSelectedUserProfil } = useFriend();
+	const { socketFriend } = useSocket();
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
 	const [ relation, setRelation ] = useState<string | null>("");
 
@@ -29,6 +31,20 @@ function Discussion() {
 	useEffect(() => {
 		getRelationship(selectedUser?.username || "", setRelation);
 	}, [selectedUser]);
+
+	useEffect(() => {
+		socketFriend?.on("i am blocked", () => {
+			setRelation("blocked");
+		});
+		socketFriend?.on("i blocked", () => {
+			setRelation("blocked");
+		});
+
+		return () => {
+			socketFriend?.off("i am blocked");
+			socketFriend?.off("i blocked");
+		}
+	}, [socketFriend, selectedUser]);
 
 	return (
 		<div className="flex justify-center h-full w-full min-h-[450px]">

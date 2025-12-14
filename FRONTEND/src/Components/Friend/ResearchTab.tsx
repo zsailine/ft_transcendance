@@ -25,6 +25,13 @@ function ResearchTab({click}: ResearchTabProps) {
 	}
 
 	useEffect(() => {
+		if (searchValue !== "") {
+			setFoundUsers(unknowns.filter((user : UserInterface) =>
+				user.username?.toLowerCase().includes(searchValue.toLowerCase())));
+		}
+	}, [unknowns]);
+
+	useEffect(() => {
 		socketFriend?.on("add friend button handled", (friend) => {
 			const filtered = unknowns.filter((f) => f.username !== friend.username);
 			setUnknowns(filtered);

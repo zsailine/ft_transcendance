@@ -8,12 +8,16 @@ import BlockedUsers from "./BlockedUsers";
 import { FaUserSlash } from "react-icons/fa";
 import { useFriend } from "../../Providers/FriendProvider";
 import FriendProfil from "../Profil/FriendProfil";
+import { useSocket } from "../../Providers/SocketProvider";
+import { getRelationship } from "../../Utils/getter";
 
 function FriendTabSwitch() {
 	const [ tabSelected, setTabSelected ] = useState<string>("friends");
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const [ relation, setRelation ] = useState<string | null>("");
 	const [ type, setType ] = useState<string>("");
 	const { selectedUserProfil } = useFriend();
+	const { socketFriend } = useSocket();
 
 	const clickProfil = () => {
 		setPreviewProfil(prev => !prev);
@@ -48,6 +52,24 @@ function FriendTabSwitch() {
 		}
 	}
 
+	useEffect(() => {
+		getRelationship(selectedUserProfil?.username || "", setRelation);
+	}, [selectedUserProfil]);
+
+	useEffect(() => {
+		socketFriend?.on("i am blocked", () => {
+			setRelation("blocked");
+		});
+		socketFriend?.on("i blocked", () => {
+			setRelation("blocked");
+		});
+
+		return () => {
+			socketFriend?.off("i am blocked");
+			socketFriend?.off("i blocked");
+		}
+	}, [socketFriend, selectedUserProfil]);
+
 	return (
 	<div className="flex flex-col items-center w-full h-full p-4 gap-5 md:gap-8">
 		<div className="flex justify-center w-full border-slate-700/50 gap-4 md:gap-8">
@@ -72,7 +94,7 @@ function FriendTabSwitch() {
 			{selectedTab}
 		</div>
 
-		{previewProfil && selectedUserProfil && (
+		{previewProfil && selectedUserProfil && relation !== "blocked" && (
 			<FriendProfil
 				user={selectedUserProfil}
 				click={clickProfil}

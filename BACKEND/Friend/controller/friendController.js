@@ -156,7 +156,7 @@ const blockUser = async (req, rep) => {
 		const request = db.prepare(`UPDATE friendship SET status='blocked',blocked_by=? WHERE (user_a=? AND user_b=?)`)
 			.run(loggedInUsername, user_a, user_b);
 		if (request.changes > 0) {
-			whatToEmit(user_a, user_b);
+			whatToEmit(user_a, user_b, loggedInUsername, receiverUsername);
 			return rep.status(200).send({ status: "User blocked" });
 		} else {
 			return rep.status(404).send({ status: "User not found" });

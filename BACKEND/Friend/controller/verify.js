@@ -111,11 +111,13 @@ const deleteBlockedUsers = (user_a, user_b) => {
 	}
 }
 
-const whatToEmit = (user_a, user_b) => {
+const whatToEmit = (user_a, user_b, loggedInUsername, receiverUsername) => {
 	const is_friend = db.prepare("SELECT is_friend FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
 	const friendship = db.prepare("SELECT * FROM friendship WHERE (user_a=? AND user_b=?)").get(user_a, user_b);
 	const receiverSocket = getReceiverSocket(user_a);
 	const senderSocket = getReceiverSocket(user_b);
+	const recSockets = getReceiverSocket(receiverUsername);
+	const logSockets = getReceiverSocket(loggedInUsername);
 	if (is_friend.is_friend === 0) {
 		if (senderSocket)
 			fastify.io.to(senderSocket).emit("non-friend user blocked", friendship);
@@ -126,6 +128,10 @@ const whatToEmit = (user_a, user_b) => {
 			fastify.io.to(senderSocket).emit("friend blocked", friendship);
 		if (receiverSocket)
 			fastify.io.to(receiverSocket).emit("friend blocked", friendship);
+		if (recSockets)
+			fastify.io.to(recSockets).emit("i am blocked");
+		if (logSockets)
+			fastify.io.to(logSockets).emit("i blocked");
 	}
 }
 

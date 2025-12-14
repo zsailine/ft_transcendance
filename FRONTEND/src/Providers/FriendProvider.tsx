@@ -121,8 +121,11 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 				});
 			}
 			if (friendship.user_a === user) {
+				console.log("user_a");
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_b));
 			} else if (friendship.user_b === user) {
+				console.log("user_b", friendship.user_a);
+				console.log(unknowns.filter(u => u.username !== friendship.user_a));
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_a));
 			}
 		});
