@@ -8,6 +8,7 @@ import { FaUserTimes, FaUserSlash } from "react-icons/fa";
 import { FaUserPen } from "react-icons/fa6";
 import { useSocket } from "../../Providers/SocketProvider";
 import { useAuth } from "../../Providers/AuthProvider";
+import { handleUnfriend } from "../../Components/Utils/ProfilUtils";
 
 interface MessageFriendProps {
 	handleClick: () => void
@@ -18,11 +19,7 @@ interface AddFriendButtonProps {
 }
 
 interface UnfriendButtonProps {
-	user: UserInterface,
-	handleUnfriend: (user: UserInterface, c: boolean, f: (b: boolean) => void,
-		unfriend: (user: UserInterface) => void, 
-		setSelectedUser: (user: UserInterface | null) => void) => void,
-	unfriend: (user: UserInterface) => void,
+	friend: UserInterface,
 	setSelectedUser: (user: UserInterface | null) => void,
 	type: string
 }
@@ -73,15 +70,23 @@ export function AddFriendButton({ friend }: AddFriendButtonProps) {
 	);
 }
 
-export function UnfriendButton({user, handleUnfriend, unfriend, setSelectedUser, type}: UnfriendButtonProps) {
+export function UnfriendButton({friend, setSelectedUser, type}: UnfriendButtonProps) {
 	const [ clicked, setClicked ] = useState<boolean>(false);
 	const [ sent, setSent ] = useState<boolean>(false);
 	const [ confirm, setConfirm ] = useState<boolean>(false);
-	const { addFriend, acceptInvite } = useFriend();
+	const { addFriend, acceptInvite, unfriend } = useFriend();
+	const { user } = useAuth();
+	const { socketFriend } = useSocket();
 
 	const handleClick = () => {
-		(type === "research") ? addFriend(user) : acceptInvite(user);
-		(type === "research") ? setSent(true) : setConfirm(true);
+		if (type === "research") {
+			addFriend(friend);
+			setSent(true);
+			socketFriend?.emit("add friend button clicked", {user: user, friend: friend});
+		} else {
+			acceptInvite(friend);
+			setConfirm(true);
+		}
 	}
 
 	if (type === "research") {
@@ -105,7 +110,7 @@ export function UnfriendButton({user, handleUnfriend, unfriend, setSelectedUser,
 	}
 	return (
 	<button className="flex-1 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-500 transition duration-150 shadow-lg text-sm flex items-center justify-center space-x-2"
-		onClick={() => handleUnfriend(user, clicked, setClicked, unfriend, setSelectedUser)} >
+		onClick={() => handleUnfriend(friend, clicked, setClicked, unfriend, setSelectedUser)} >
 		{clicked ? 
 			<BiUserCheck className="w-4 h-4"/> :
 			<FaUserTimes className="w-4 h-4"/>}

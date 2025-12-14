@@ -29,7 +29,6 @@ function ResearchTab({click}: ResearchTabProps) {
 			const filtered = unknowns.filter((f) => f.username !== friend.username);
 			setUnknowns(filtered);
 			const foundFiltered = foundUsers.filter((f) => f.username !== friend.username);
-			console.log(foundFiltered);
 			setFoundUsers(foundFiltered);
 		});
 		return () => {

@@ -84,10 +84,7 @@ export const useFriendAction = ({
 
 	const unfriend = async (friend: UserInterface) => {
 		await api.put(`/friend/request/${friend.username}/decline`)
-		.then(() => {
-			const filtered = friendsList.filter((f) => f.username !== friend.username);
-			setFriendsList(filtered);
-		})
+		.then(() => {});
 	}
 
 	const unblock = async (friend: UserInterface) => {

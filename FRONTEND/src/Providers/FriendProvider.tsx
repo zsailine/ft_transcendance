@@ -72,6 +72,8 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			if (friendship.user_a === user) {
 				const filtered = friendRequests.filter((f) => f.username !== friendship.user_b);
 				setFriendRequests(filtered);
+				const filteredFriends = friendsList.filter((f) => f.username !== friendship.user_b);
+				setFriendsList(filteredFriends);
 				getUserInfo(friendship.user_b).then(data => {
 					setUnknowns((prev) => [...prev, {
 						id: data.id,
@@ -82,6 +84,8 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			} else if (friendship.user_b === user) {
 				const filtered = friendRequests.filter((f) => f.username !== friendship.user_a);
 				setFriendRequests(filtered);
+				const filteredFriends = friendsList.filter((f) => f.username !== friendship.user_a);
+				setFriendsList(filteredFriends);
 				getUserInfo(friendship.user_a).then(data => {
 					setUnknowns((prev) => [...prev, {
 						id: data.id,

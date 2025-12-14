@@ -6,8 +6,6 @@ import { getImageUrlFromBlob } from "../../Utils/blob";
 import { toast } from "react-toastify";
 import { BlockButton, UnfriendButton } from "../../Pages/Chat/ListUtils";
 import { handleBlocked, handleUnfriend } from "../Utils/ProfilUtils";
-import { useFriend } from "../../Providers/FriendProvider";
-
 
 interface FriendProfilProps {
 	click: () => void,
@@ -16,7 +14,6 @@ interface FriendProfilProps {
 }
 
 function FriendProfil({click, user, type}: FriendProfilProps) {
-	const { unfriend } = useFriend();
 	const { setSelectedUser } = useChat();
 	const [ banner, setBanner ] = useState<ImageBuffer | null>(null);
 	const [ stat, setStat ] = useState<statInterface>({total_losses: 0, total_matches: 0, total_wins:0});
@@ -73,9 +70,7 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 
 			<div className="flex gap-5 w-[80%] flex-shrink-0 mt-10">
 				<UnfriendButton
-					user={user}
-					handleUnfriend={handleUnfriend}
-					unfriend={unfriend}
+					friend={user}
 					setSelectedUser={setSelectedUser}
 					type={type}/>
 				<BlockButton 
