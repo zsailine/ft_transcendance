@@ -57,16 +57,16 @@ function FriendTabSwitch() {
 	}, [selectedUserProfil]);
 
 	useEffect(() => {
-		socketFriend?.on("i am blocked", () => {
-			setRelation("blocked");
-		});
-		socketFriend?.on("i blocked", () => {
-			setRelation("blocked");
-		});
+		socketFriend?.on("i am blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i am unblocked", () => { setRelation(""); });
+		socketFriend?.on("i unblocked", () => { setRelation(""); });
 
 		return () => {
 			socketFriend?.off("i am blocked");
 			socketFriend?.off("i blocked");
+			socketFriend?.off("i am unblocked");
+			socketFriend?.off("i unblocked");
 		}
 	}, [socketFriend, selectedUserProfil]);
 

@@ -24,12 +24,12 @@ function ChatContainer({headerClick}: ChatContainerProps ) {
 	}, [selectedUser]);
 
 	useEffect(() => {
-		socketFriend?.on("i am blocked", () => {
-			setRelationship("blocked");
-		});
+		socketFriend?.on("i am blocked", () => { setRelationship("blocked"); });
+		socketFriend?.on("i am unblocked", () => { setRelationship(""); });
 
 		return () => {
 			socketFriend?.off("i am blocked");
+			socketFriend?.off("i am unblocked");
 		}
 	}, [socketFriend, selectedUser]);
 

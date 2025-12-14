@@ -85,13 +85,15 @@ const thoseWhoSentMe = async (req, rep, friends) => {
 	return allRequests;
 }
 
-const deleteBlockedUsers = (user_a, user_b) => {
+const deleteBlockedUsers = (user_a, user_b, loggedInUsername, receiverUsername) => {
 	const is_friend = db.prepare("SELECT is_friend FROM friendship WHERE (user_a=? AND user_b=?)")
 		.get(user_a, user_b);
 	const friendship = db.prepare("SELECT * FROM friendship WHERE (user_a=? AND user_b=?)")
 		.get(user_a, user_b);
 	const senderSocket = getReceiverSocket(user_a);
 	const receiverSocket = getReceiverSocket(user_b);
+	const recSockets = getReceiverSocket(receiverUsername);
+	const logSockets = getReceiverSocket(loggedInUsername);
 	if (is_friend.is_friend === 0) {
 		const toDelete = db.prepare(`SELECT id FROM friendship WHERE (user_a=? AND user_b=?)`)
 			.get(user_a, user_b);
@@ -107,6 +109,10 @@ const deleteBlockedUsers = (user_a, user_b) => {
 			fastify.io.to(senderSocket).emit("friend unblocked", friendship);
 		if (receiverSocket)
 			fastify.io.to(receiverSocket).emit("friend unblocked", friendship);
+		if (recSockets)
+			fastify.io.to(recSockets).emit("i am unblocked");
+		if (logSockets)
+			fastify.io.to(logSockets).emit("i unblocked");
 		db.prepare(`UPDATE friendship SET blocked_by=NULL WHERE (user_a=? AND user_b=?)`).run(user_a, user_b);
 	}
 }

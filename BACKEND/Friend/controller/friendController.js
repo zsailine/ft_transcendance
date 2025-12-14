@@ -182,7 +182,7 @@ const unblockUser = async (req, rep) => {
 		const request = db.prepare(`UPDATE friendship SET status='accepted' WHERE (user_a=? AND user_b=?)`).run(user_a, user_b);
 		if (request.changes > 0) {
 			rep.status(200).send({ status: "User unblocked" });
-			deleteBlockedUsers(user_a, user_b);
+			deleteBlockedUsers(user_a, user_b, loggedInUsername, receiverUsername);
 		} else {
 			rep.status(404).send({ status: "User not found" });
 		}
