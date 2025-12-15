@@ -22,7 +22,6 @@ const getStats = (req, rep) => {
 const addMatch = async (req, rep) => {
 	const { player1, player2, winner, score_p1, score_p2, duration } = req.body;
 	const loser = (winner === player1) ? player2 : player1;
-	console.log(duration);
 	const insertMatch = db.prepare("INSERT into matches (player1, player2, winner, score_p1, score_p2, duration) VALUES (?, ?, ?, ?, ?, ?)");
 
 	const updateWinner = db.prepare(`

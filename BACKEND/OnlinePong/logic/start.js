@@ -16,14 +16,15 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
   resizeBoard();
   let paddle1Speed = board.height / 250;
   let paddle2Speed = board.height / 250;
-
-  const attachListeners = (socket, role) => {
+  const removeListeners = (socket) => {
     socket.removeAllListeners("arrowUp");
     socket.removeAllListeners("arrowDown");
     socket.removeAllListeners("arrowUpRelease");
     socket.removeAllListeners("arrowDownRelease");
     socket.removeAllListeners("disconnect");
-
+  }
+  const attachListeners = (socket, role) => {
+    removeListeners(socket);
     socket.data.gameRole = role;
 
     socket.on("arrowUp", () => {
@@ -52,11 +53,11 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
       if (role === "player1") paddle1Speed = board.height / speed;
       else paddle2Speed = board.height / speed;
     });
-
     socket.on("disconnect", () => {
-      console.log(`${role} s'est déconnecté. En attente de reconnexion...`);
-      if (role === "player1") players.player1.socket = null;
-      else players.player2.socket = null;
+      if (role === "player1")
+        players.player1.socket = null;
+      else
+        players.player2.socket = null;
     });
   };
 
@@ -66,7 +67,8 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
       players.player1.socketId = socket.id;
       players.player1.socket = socket;
       attachListeners(socket, "player1");
-    } else if (socket.username === user2Id) {
+    }
+    else if (socket.username === user2Id) {
       players.player2.socketId = socket.id;
       players.player2.socket = socket;
       attachListeners(socket, "player2");
@@ -276,11 +278,15 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
         role = "player2";
       }
       if (role) {
-        console.log(`Reconnexion réussie pour ${role}`);
+        if (players[role].socket)
+        {
+          removeListeners(players[role].socket);
+          players[role].socket.emit("removed");
+        }
         players[role].socket = newSocket;
         players[role].socketId = newSocket.id;
         attachListeners(newSocket, role);
-        
+
         newSocket.emit("ready");
         setTimeout(() => {
           newSocket.join(roomName);
@@ -293,6 +299,6 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
       }
       return false;
     },
-    stop: () => stopGameLoop() // Pour pouvoir tuer le jeu de l'extérieur
+    stop: () => stopGameLoop()
   };
 }

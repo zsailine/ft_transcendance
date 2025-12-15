@@ -13,6 +13,7 @@ import { generateRoom } from "../../Utils/tools.ts";
 function OnlineGame() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(false);
+	const [closed, setClosed] = useState(false);
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [winner, setWinner] = useState<string>("");
@@ -89,8 +90,14 @@ function OnlineGame() {
 				setOverlay(true);
 			},
 		);
-		return () => {
+		socket.on("removed", () => {
+			displayError("Connection made on another device");
+			setClosed(true);
 			clean();
+		})
+		return () => {
+			if (!closed)
+				clean();
 		};
 	}, [begin, socket, player]);
 

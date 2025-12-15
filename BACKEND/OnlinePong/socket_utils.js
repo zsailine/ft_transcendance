@@ -39,6 +39,7 @@ export function generateQuick(AllMode, waitingPlayers, socket, username) {
         socket.emit("duplicate");
         return;
     }
+    socket.username = username;
     if (userRooms.has(username)) {
         const roomName = userRooms.get(username);
         const game = activeGames.get(roomName);
@@ -49,7 +50,6 @@ export function generateQuick(AllMode, waitingPlayers, socket, username) {
         }
     }
 
-    socket.username = username;
     AllMode.set(username, socket);
     waitingPlayers.set(username, socket);
 
@@ -67,7 +67,7 @@ export function generateQuick(AllMode, waitingPlayers, socket, username) {
 }
 
 export function generateMultiplayer(AllMode, waitingMultiplayers, socket, username) {
-    if (AllMode.has(username)) {
+    if (AllMode.has(username) || userRooms.has(username)) {
         socket.emit("duplicate");
         return;
     }
@@ -104,6 +104,7 @@ export function createRoom(AllMode, privateRooms, socket, data) {
         socket.emit("duplicate");
         return;
     }
+    socket.username = username;
     if (privateRooms.has(room)) {
         socket.emit("exist");
         return;
@@ -117,7 +118,6 @@ export function createRoom(AllMode, privateRooms, socket, data) {
             return;
         }
     }
-    socket.username = username;
     AllMode.set(username, socket);
     privateRooms.set(room, {
         owner: socket,
@@ -140,6 +140,7 @@ export function joinRoom(AllMode, privateRooms, socket, data) {
     }
 
     const { username: username1, owner: player1 } = roomData;
+    socket.username = username;
     const username2 = username;
     const player2 = socket;
     privateRooms.delete(room);
