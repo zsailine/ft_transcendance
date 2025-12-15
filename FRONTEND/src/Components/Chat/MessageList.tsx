@@ -4,6 +4,7 @@ import { getImageUrlFromBlob } from "../../Utils/blob";
 import { NoChatHistory, NoChatHistoryBlocked } from "../../Pages/Chat/NoChatHistory";
 import { useFriend } from "../../Providers/FriendProvider";
 import { getRelationship } from "../../Utils/getter";
+import { useSocket } from "../../Providers/SocketProvider";
 
 const senderStyle = "self-end bg-cyan-500 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mb-3 mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/15 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow mb-3 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
@@ -29,8 +30,10 @@ const getHour = (timestamp: string) => {
 function MessageList() {
 	const { messages, selectedUser } = useChat();
 	const { blockedUsername } = useFriend();
+	const { socketFriend } = useSocket();
 	const bottomScroll = useRef<HTMLDivElement | null>(null);
 	const [ relationship, setRelationship ] = useState<string | null>("");
+	const [ typing, setTyping ] = useState<boolean>(false);
 	
 	useEffect(() => {
 		getRelationship(selectedUser?.username || "", setRelationship);
@@ -41,6 +44,16 @@ function MessageList() {
 			bottomScroll.current.scrollIntoView({ behavior: "smooth" });
 		}
 	}, [messages]);
+
+	useEffect(() => {
+		socketFriend?.on("typing", () => { setTyping(true); });
+		socketFriend?.on("stop typing", () => { setTyping(false); });
+
+		return () => {
+			socketFriend?.off("typing");
+			socketFriend?.off("stop typing");
+		}
+	}, [socketFriend, selectedUser]);
 
 	if ((messages.length === 0 && selectedUser?.username && blockedUsername.includes(selectedUser?.username)) ||
 		(messages.length === 0 && relationship === "blocked")) {
@@ -73,6 +86,10 @@ function MessageList() {
 				}`}>{getHour(message.created_at)}</div>
 			</li>
 		)}
+		{typing &&
+		<li key={Date.now()}>
+			TYPING
+		</li>}
 		</ul>
 		<div ref={bottomScroll}></div>
 	</div>
