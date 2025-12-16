@@ -1,6 +1,6 @@
-import { init } from "./logic/init.js";
+import { init, initMulti } from "./logic/init.js";
 
-export function removeSocket(socket, AllMode, waitingPlayers, privateRoom) {
+export function removeSocket(socket, AllMode, waitingPlayers, privateRoom, waitingMultiplayers) {
     if (!socket.username)
         return;
     if (AllMode.has(socket.username)) {
@@ -8,6 +8,9 @@ export function removeSocket(socket, AllMode, waitingPlayers, privateRoom) {
     }
     if (waitingPlayers.has(socket.username)) {
         waitingPlayers.delete(socket.username);
+    }
+    if (waitingMultiplayers.has(socket.username)) {
+        waitingMultiplayers.delete(socket.username);
     }
     for (const [room, info] of privateRoom.entries()) {
         if (info.owner === socket) {
@@ -49,16 +52,43 @@ export function generateQuick(AllMode, waitingPlayers, socket, username) {
     }
 }
 
+export function generateMultiplayer(AllMode, waitingMultiplayers, socket, username) {
+    if (AllMode.has(username)) {
+        socket.emit("duplicate");
+        return;
+    }
+    socket.username = username;
+
+    AllMode.set(username, socket);
+    waitingMultiplayers.set(username, socket);
+    1
+
+    if (waitingMultiplayers.size >= 4) {
+        const iterator = waitingMultiplayers.entries();
+
+        const [username1, player1] = iterator.next().value;
+        const [username2, player2] = iterator.next().value;
+        const [username3, player3] = iterator.next().value;
+        const [username4, player4] = iterator.next().value;
+        waitingMultiplayers.delete(username1);
+        waitingMultiplayers.delete(username2);
+        waitingMultiplayers.delete(username3);
+        waitingMultiplayers.delete(username4);
+
+        const roomName = generateRoom();
+        initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4);
+    }
+}
+
 export function createRoom(AllMode, privateRooms, socket, data) {
     const { username, room } = data;
     if (AllMode.has(username)) {
         socket.emit("duplicate");
         return;
     }
-    if (privateRooms.has(room))
-    {
+    if (privateRooms.has(room)) {
         socket.emit("exist");
-        return ;
+        return;
     }
     socket.username = username;
     AllMode.set(username, socket);

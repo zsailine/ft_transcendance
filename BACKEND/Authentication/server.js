@@ -11,11 +11,21 @@ dotenv.config();
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, {
-    origin: "https://localhost:8443",
+    origin: "https://localhost:9443",
     credentials: true
 })
 
 await fastify.register(fastifyCookie);
+
+fastify.register(fastifyJwt , 
+  {
+    secret : process.env.JWT_SECRET,
+    cookie: {
+      cookieName: 'token',
+      signed: false
+    } 
+  }
+);
 
 const axiosInstance = axios.create({
 baseURL: "http://userservice:3001",
@@ -25,7 +35,7 @@ timeout: 1000,
 
 fastify.decorate("axios", axiosInstance);
 
-fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
+// fastify.register(fastifyJwt , {secret : process.env.JWT_SECRET});
 
 fastify.register(authGoogleRoutes);
 

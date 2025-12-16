@@ -28,7 +28,7 @@ user:
 friend:
 	docker compose up -d --build friendservice
 
-re: down prune start
+re: fclean start
 
 fclean: down prune
 

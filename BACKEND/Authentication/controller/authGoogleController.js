@@ -51,7 +51,7 @@ const googleCallback = async (request, reply) => {
     username: userInfo.data.given_name
   });
   if (user.data.error){
-    return reply.redirect('https://localhost:8443/login?oauth=error');
+    return reply.redirect('https://localhost:9443/login?oauth=error');
   }
   // Générer un token JWT pour l'utilisateur
   const token = request.server.jwt.sign({ username: user.data.username , id: user.data.id });
@@ -63,7 +63,7 @@ const googleCallback = async (request, reply) => {
       secure : true
   });
 
-  return reply.redirect(`https://localhost:8443/login?oauth=success&username=${encodeURIComponent(user.data.username)}`);
+  return reply.redirect(`https://localhost:9443/login?oauth=success&username=${encodeURIComponent(user.data.username)}`);
 }
 
 export { loginWithGoogle, googleCallback };

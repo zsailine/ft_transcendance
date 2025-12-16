@@ -2,7 +2,17 @@ services:
   web:
     build: ./FRONTEND
     ports:
-      - "8443:8443"
+      - "8080:8080"
+    networks:
+      - webnet
+
+  wafnginx:
+    build: ./FRONTEND/WAF
+    ports:
+      - "9443:9443"
+    depends_on:
+      - web
+      - gateway
     networks:
       - webnet
 
@@ -20,6 +30,8 @@ services:
     build: ./BACKEND/User
     ports:
       - "3001:3001"
+    env_file:
+      - ./BACKEND/User/.env
     networks:
       - webnet
   
@@ -50,6 +62,8 @@ services:
     build: ./BACKEND/Friend
     ports:
       - "3006:3006"
+    env_file:
+      - ./BACKEND/Friend/.env
     networks:
       - webnet
 

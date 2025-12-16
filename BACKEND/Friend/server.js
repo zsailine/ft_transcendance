@@ -13,7 +13,7 @@ const fastify = Fastify({ logger: true });
 await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
-	origin: "https://localhost:8443",
+	origin: "https://localhost:9443",
 	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });

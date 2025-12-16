@@ -22,6 +22,7 @@ export default function Login() {
     email?: string;
     password: string;
     confirmPassword?: string;
+    totpCode?: string;
   }
 
   const { login, register } = useAuth();
@@ -30,26 +31,27 @@ export default function Login() {
     username: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    totpCode: ""
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [canSubmit, setCanSubmit] = useState<boolean>(true);
   const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
+  const [show2FAInput, setShow2FAInput] = useState<boolean>(false);
 
   useEffect(() => {
     if (isLogin) {
-      if (formData.username !== "" || formData.password !== "") {
+      if (formData.username !== "" && formData.password !== "") {
         setCanSubmit(true);
       } else {
         setCanSubmit(false);
       }
     } else {
       if (
-
-        formData.username !== "" ||
-        formData.password !== "" ||
-        formData.email !== "" ||
+        formData.username !== "" &&
+        formData.password !== "" &&
+        formData.email !== "" &&
         formData.confirmPassword !== ""
       ) {
         if (isSamePassword && formData.confirmPassword !== "") {
@@ -79,35 +81,54 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setFormData({
-      username: "",
-      password: "",
-      email: "",
-      confirmPassword: "",
-    });
+    
     try {
       if (!isLogin) {
         const { success } = await register(formData.username, formData.password, formData.email!);
-        setTimeout(() => {
-        }, 2000);
         if (success) {
+          setFormData({
+            username: "",
+            password: "",
+            email: "",
+            confirmPassword: "",
+            totpCode: ""
+          });
           navigate("/login");
           toast.success("User created !");
         }
         return;
       }
-      const { success } = await login(formData.username, formData.password);
+      
+      const { success, requires2FA } = await login(formData.username, formData.password, formData.totpCode);
+      
+      if (requires2FA && !show2FAInput) {
+        setShow2FAInput(true);
+        toast.info("Enter your 2FA code");
+        setIsLoading(false);
+        return;
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       if (success) {
+        setFormData({
+          username: "",
+          password: "",
+          email: "",
+          confirmPassword: "",
+          totpCode: ""
+        });
+        setShow2FAInput(false);
         navigate("/dashboard");
         toast.success("Successfully logged in !");
       }
-      else
-        toast.error("Username or Password incorect. Please try again.");
+      else {
+        toast.error("Username, Password or 2FA code incorrect. Please try again.");
+      }
     }
     catch (error) {
       console.error("Authentication error:", error);
+      toast.error("Authentication failed");
     }
     finally {
       setIsLoading(false);
@@ -123,7 +144,6 @@ export default function Login() {
     return <OauthLoading />;
   }
 
-
   return (
     <>
       <div
@@ -131,8 +151,7 @@ export default function Login() {
     bg-[url('/images/bg.jpg')] bg-center bg-fixed bg-no-repeat
     bg-cover object-cover"
       >
-
-        <div className=" dark:bg-zinc-900/70 p-8 rounded-2xl shadow-xl w-96 ">
+        <div className="dark:bg-zinc-900/70 p-8 rounded-2xl shadow-xl w-96">
           <h2 className="text-2xl font-bold text-center text-amber-50 mb-6">
             {isLogin ? "Sign in" : "Create Account"}
           </h2>
@@ -165,7 +184,7 @@ export default function Login() {
             />
             {!isLogin && (
               <>
-                {!isSamePassword && <small className="text-red-700" >Password not identical</small>}
+                {!isSamePassword && <small className="text-red-700">Password not identical</small>}
                 <input
                   type="password"
                   name="confirmPassword"
@@ -176,9 +195,26 @@ export default function Login() {
                 />
               </>
             )}
+            
+            {isLogin && show2FAInput && (
+              <div className="mb-6">
+                <input
+                  type="text"
+                  name="totpCode"
+                  placeholder="Enter 2FA code (6 digits)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                  onChange={handleChange}
+                  value={formData.totpCode}
+                  maxLength={6}
+                  autoFocus
+                />
+                <small className="text-gray-400">Enter the 6-digit code from your authenticator app</small>
+              </div>
+            )}
+
             <button
               type="submit"
-              className={`"cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle} "`}
+              className={`cursor-pointer w-full bg-linear-to-r from-sky-300 to-cyan-400 text-white py-2 rounded shadow hover:bg-blue-700 transition ${disablesStyle}`}
               onClick={handleSubmit}
               disabled={isLoading}
             >

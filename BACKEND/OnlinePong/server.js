@@ -2,7 +2,7 @@
 
 import Fastify from 'fastify';
 import fastifySocketIO from 'fastify-socket.io';
-import { removeSocket, generateQuick, createRoom, joinRoom } from './socket_utils.js';
+import { removeSocket, generateQuick, createRoom, joinRoom, generateMultiplayer } from './socket_utils.js';
 
 const fastify = Fastify();
 
@@ -13,34 +13,29 @@ await fastify.register(fastifySocketIO, {
 });
 
 fastify.ready().then(() => {
-    // initGame(fastify.io);
     fastify.io.on("connection", process);
 });
 
 const AllMode = new Map();
 const waitingPlayers = new Map();
 const privateRooms = new Map();
+const waitingMultiplayers = new Map();
 
 function process(socket) {
     socket.on("quick", (username) => {
         generateQuick(AllMode, waitingPlayers, socket, username);
     });
-
-    socket.on("create quick", (data) => {
-        createRoom(AllMode, privateRooms, socket, data);
-    });
-
-    socket.on("join quick", data => {
-        joinRoom(AllMode, privateRooms, socket, data);
-    })
     socket.on("invite", (data) => {
         if (privateRooms.has(data.room))
             joinRoom(AllMode, privateRooms, socket, data);
         else
             createRoom(AllMode, privateRooms, socket, data);
     })
+    socket.on("multiplayer", (username) => {
+        generateMultiplayer(AllMode, waitingMultiplayers, socket, username);
+    })
     socket.on("disconnect", () => {
-        removeSocket(socket, AllMode, waitingPlayers, privateRooms);
+        removeSocket(socket, AllMode, waitingPlayers, privateRooms, waitingMultiplayers);
     });
 }
 

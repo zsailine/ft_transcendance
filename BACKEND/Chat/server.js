@@ -19,7 +19,7 @@ await fastify.register(fastifySocketIo, {
 await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
-	origin: "https://localhost:8443",
+	origin: "https://localhost:9443",
 	methods: ['GET', 'POST', 'DELETE', 'PUT'],
 	credentials: true
 });
@@ -30,7 +30,7 @@ fastify.register(chatRoutes);
 
 fastify.ready().then(() => {
 	fastify.io.use(socketAuth);
-	
+
 	fastify.io.on("connection", (socket) => {
 		const userName = socket.username;
 
@@ -46,17 +46,17 @@ fastify.ready().then(() => {
 			const user = data.user;
 
 			if (receiverSockets && receiverSockets.length > 0) {
-				receiverSockets.forEach(socketId => {
-					fastify.io.to(socketId).emit("join", { room, user });
-				});
+				// receiverSockets.forEach(socketId => {
+					fastify.io.to(receiverSockets).emit("join", { room, user });
+				// });
 			}
 		});
 		socket.on("received", data => {
 			const receiverSockets = userSocketMap[data];
 			if (receiverSockets && receiverSockets.length > 0) {
-				receiverSockets.forEach(socketId => {
-					fastify.io.to(socketId).emit("received");
-				});
+				// receiverSockets.forEach(socketId => {
+					fastify.io.to(receiverSockets).emit("received");
+				// });
 			}
 		})
 

@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useDashboard, type ThemeColors } from "../../../Providers/DashboardProvider";
 import { clearBoard, drawBall, drawPaddles, type Paddle, drawScore, } from "../../../Pong/draw";
-import ThemeSelector from "./Theme";
+import {ThemeSelector, defaultTheme } from "./Theme";
+import PaddleSelector from "./PaddleSelector";
 
 interface GameProps {
     handleSubmit: (e: any) => void;
@@ -32,11 +33,23 @@ function drawBoard(color: ThemeColors) {
 }
 
 export default function Game({ handleSubmit, hoverEffect }: GameProps) {
-    const { theme } = useDashboard();
+    const { setTheme, theme } = useDashboard();
     useEffect(() => {
         if (theme)
             drawBoard(theme);
     }, [theme]);
+    function Reset() {
+        if (!theme) return;
+        setTheme(defaultTheme);
+        setTheme((prevTheme: ThemeColors) => ({
+			...prevTheme,
+			paddleSpeed: 250
+		}));
+        setTheme(prevTheme => ({
+            ...prevTheme,
+            slide: false
+        }))
+    }
 
     return (
         <div className="flex flex-col items-center gap-6 w-full h-full p-4">
@@ -56,11 +69,23 @@ export default function Game({ handleSubmit, hoverEffect }: GameProps) {
                 >Player 2</p>
             </div>
             <ThemeSelector />
-            <button
-                onClick={handleSubmit}
-                type="submit"
-                className={`justify-center cursor-pointer rounded-md bg-cyan-400 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 
-                            focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${hoverEffect}`}>Update</button>
+            <PaddleSelector />
+            <div className="flex flex-col items-center gap-6 w-full h-full p-4">
+                <div className="flex justify-end w-full">
+                <button
+                        onClick={Reset}
+                        type="submit"
+                        className={`cursor-pointer rounded-md bg-white/10 mr-3 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 
+                    focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${hoverEffect}`}>Reset
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        type="submit"
+                        className={`cursor-pointer rounded-md bg-cyan-400 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 
+                    focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${hoverEffect}`}>Update
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
