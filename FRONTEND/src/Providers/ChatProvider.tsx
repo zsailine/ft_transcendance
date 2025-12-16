@@ -17,7 +17,7 @@ interface MessageDataInterface {
 
 export interface UserInterface {
 	id: number,
-	username: string | null,
+	username: string,
 	avatar: ImageBuffer | null,
 };
 
@@ -42,9 +42,7 @@ interface ChatInterface {
 	setMessages: (messages: MessageInterface[]) => void,
 	fetchFriends: () => void,
 	fetchMessages: () => void,
-	sendMessages: (message: MessageDataInterface) => void,
-	subscribeMessage: () => void,
-	unsubscribeMessage: () => void
+	sendMessages: (message: MessageDataInterface) => void
 };
 
 const ChatContext = createContext<ChatInterface | null>(null);
@@ -89,18 +87,23 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		}
 	}
 
+	const readMessage = async (messageId: number) => {
+		try {
+			await api.put(`/message/${messageId}/read`);
+		} catch(error) {
+			console.log(error);
+		}
+	}
+
 	const subscribeMessage = () => {
 		if (!selectedUser) return;
 
 		socket?.on("new message", (newMessage) => {
 			if ((selectedUser.username === newMessage.receiver_username && user === newMessage.sender_username) ||
-				selectedUser.username === newMessage.sender_username && user === newMessage.receiver_username)
-				setMessages((prevMessages) => [...prevMessages, newMessage]);
+				selectedUser.username === newMessage.sender_username && user === newMessage.receiver_username) {
+					setMessages((prevMessages) => [...prevMessages, newMessage]);
+				}
 		})
-	}
-
-	const unsubscribeMessage = () => {
-		socket?.off("new message");
 	}
 
 	useEffect(() => {
@@ -119,8 +122,18 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	useEffect(() => {
 		subscribeMessage();
-		return () => unsubscribeMessage();
-	}, [socket, selectedUser]);
+		socket?.on("message read", (data) => {
+			if (selectedUser && data.conversation === selectedUser.username) {
+				setMessages((curr) => curr.map(m => 
+				(m.id <= data.last && m.sender_username === user) ? {...m, status: data.status} : m
+				));
+			}
+		})
+		return () => {
+			socket?.off("new message");
+			socket?.off("message read");
+		}
+	}, [socket, selectedUser, user, onlineUsers]);
 
 	useEffect(() => {
 		socketFriend?.on("request accepted", (friendship) => {
@@ -148,6 +161,15 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		}
 	}, [socketFriend]);
 
+	useEffect(() => {
+		if (selectedUser && messages.length > 0) {
+			const lastMessages = messages[messages.length - 1];
+			if (lastMessages.sender_username === selectedUser.username && lastMessages.status !== "read") {
+				readMessage(lastMessages.id);
+			}
+		}
+	}, [socket, messages])
+
 	const value = {
 		friendsList, setFriendsList,
 		searchValue, setSearchValue,
@@ -155,8 +177,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		messages, setMessages,
 		fetchFriends,
 		fetchMessages,
-		sendMessages,
-		subscribeMessage, unsubscribeMessage
+		sendMessages
 	};
 
 	return (

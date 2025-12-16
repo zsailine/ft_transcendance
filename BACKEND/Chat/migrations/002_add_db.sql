@@ -1,1 +1,1 @@
-ALTER TABLE message ADD COLUMN status TEXT NOT NULL DEFAULT 'sent' CHECK(status IN ('sent', 'delivered', 'read'));
+ALTER TABLE message ADD COLUMN status TEXT NOT NULL DEFAULT 'sent' CHECK(status IN ('sent', 'read'));

@@ -71,7 +71,7 @@ fastify.ready().then(() => {
 	});
 });
 
-fastify.listen({ port: 3006 }, (err, address) => {
+fastify.listen({ port: 3007 }, (err, address) => {
 	if (err) {
 		console.log(err);
 		process.exit(1);

@@ -3,7 +3,7 @@ import { friendsList, getCookies, getUsername } from "./verify.js";
 import db from "../migration.js";
 
 const CHAT_URL = "http://localhost:3004";
-const FRIEND_URL = "http://localhost:3006"
+const FRIEND_URL = "http://localhost:3007"
 
 const getUsersRelated = async (req, rep) => {
 	try {

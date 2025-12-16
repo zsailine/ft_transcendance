@@ -5,7 +5,7 @@ import { NoChatHistory, NoChatHistoryBlocked } from "../../Pages/Chat/NoChatHist
 import { useFriend } from "../../Providers/FriendProvider";
 import { getRelationship } from "../../Utils/getter";
 import { useSocket } from "../../Providers/SocketProvider";
-import { PiChecks, PiCheck } from "react-icons/pi";
+import { PiChecks } from "react-icons/pi";
 import Typing from "../../Pages/Chat/isTyping";
 
 const senderStyle = "self-end bg-cyan-500/20 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
@@ -93,12 +93,8 @@ function MessageList() {
 					message.receiver_username === selectedUser?.username ? "self-end" : "self-start"
 				}`}>{getHour(message.created_at)}</div>
 				{
-				message.receiver_username === selectedUser?.username && message.status === "delivered" &&
-				<PiChecks className="self-end text-xl mr-4 text-gray-200/30" />
-				}
-				{
 				message.receiver_username === selectedUser?.username && message.status === "sent" &&
-				<PiCheck className="self-end text-xl mr-4 text-gray-200/30" />
+				<PiChecks className="self-end text-xl mr-4 text-gray-200/30" />
 				}
 				{
 				message.receiver_username === selectedUser?.username && message.status === "read" &&
