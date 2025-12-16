@@ -6,10 +6,12 @@ import { MdClose } from "react-icons/md";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import type { ImageBuffer } from "../../Providers/DashboardProvider";
 import { useSocket } from "../../Providers/SocketProvider";
+import { useAuth } from "../../Providers/AuthProvider";
 
 function MessageInput() {
 
 	const [ text, setText ] = useState<string>("");
+	const { user } = useAuth();
 	const [ image, setImage ] = useState<ImageBuffer | null>(null);
 	const { sendMessages, selectedUser } = useChat();
 	const timeout = useRef<number | null>(null);
@@ -24,6 +26,7 @@ function MessageInput() {
 			text: text.trim(),
 			image: image
 		});
+		socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
 		setText("");
 		setImage(null);
 	}
@@ -47,16 +50,16 @@ function MessageInput() {
 		setText(e.target.value);
 		if (text.length > 0) {
 			if (timeout.current === null)
-				socketFriend?.emit("typing", ({ friend: selectedUser }));
+				socketFriend?.emit("typing", ({ friend: selectedUser?.username, user: user }));
 			clearTimeout(timeout.current || undefined);
 			timeout.current = setTimeout(() => {
-                socketFriend?.emit("stop typing", ({ friend: selectedUser }));                
-                timeout.current = null;
-            }, 2000);
+				socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
+				timeout.current = null;
+			}, 1000);
 		} else {
 			if (timeout.current !== null) {
 				clearTimeout(timeout.current);
-				socketFriend?.emit("stop typing", ({ friend: selectedUser }));
+				socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
 				timeout.current = null;
 			}
 		}

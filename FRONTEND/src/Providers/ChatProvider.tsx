@@ -54,7 +54,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	const [searchValue, setSearchValue] = useState<string>("");
 	const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
 	const [messages, setMessages] = useState<MessageInterface[]>([]);
-	const { user, socket } = useAuth();
+	const { user, socket, onlineUsers } = useAuth();
 	const { socketFriend } = useSocket();
 
 	const fetchFriends = async () => {
@@ -92,7 +92,9 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		if (!selectedUser) return;
 
 		socket?.on("new message", (newMessage) => {
-			setMessages((prevMessages) => [...prevMessages, newMessage]);
+			if ((selectedUser.username === newMessage.receiver_username && user === newMessage.sender_username) ||
+				selectedUser.username === newMessage.sender_username && user === newMessage.receiver_username)
+				setMessages((prevMessages) => [...prevMessages, newMessage]);
 		})
 	}
 

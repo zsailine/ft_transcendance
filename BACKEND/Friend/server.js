@@ -57,16 +57,16 @@ fastify.ready().then(() => {
 				fastify.io.to(sockets).emit("add friend button handled", friend);
 		});
 
-		socket.on("typing", ({ friend }) => {
+		socket.on("typing", ({ friend, user }) => {
 			const sockets = userSocketMap[friend];
 			if (sockets)
-				fastify.io.to(sockets).emit("typing");
+				fastify.io.to(sockets).emit("typing", user);
 		});
 
-		socket.on("stop typing", ({ friend }) => {
+		socket.on("stop typing", ({ friend, user }) => {
 			const sockets = userSocketMap[friend];
 			if (sockets)
-				fastify.io.to(sockets).emit("stop typing");
+				fastify.io.to(sockets).emit("stop typing", user);
 		});
 	});
 });
