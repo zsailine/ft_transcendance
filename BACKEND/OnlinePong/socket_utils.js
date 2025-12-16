@@ -2,6 +2,7 @@ import { init, initMulti } from "./logic/init.js";
 
 const activeGames = new Map();
 const userRooms = new Map();
+const multiRooms = new Map();
 
 export function removeSocket(socket, AllMode, waitingPlayers, privateRoom, waitingMultiplayers) {
     if (!socket.username)
@@ -35,7 +36,7 @@ export function generateRoom() {
 }
 
 export function generateQuick(AllMode, waitingPlayers, socket, username) {
-    if (AllMode.has(username)) {
+    if (AllMode.has(username) || multiRooms.has(username)) {
         socket.emit("duplicate");
         return;
     }
@@ -72,7 +73,14 @@ export function generateMultiplayer(AllMode, waitingMultiplayers, socket, userna
         return;
     }
     socket.username = username;
-
+    if (multiRooms.has(username)) {
+        const roomName = multiRooms.get(username);
+        const game = activeGames.get(roomName);
+        if (game) {
+            game.reconnectPlayer(username, socket);
+            return;
+        }
+    }
     AllMode.set(username, socket);
     waitingMultiplayers.set(username, socket);
     1
@@ -94,7 +102,7 @@ export function generateMultiplayer(AllMode, waitingMultiplayers, socket, userna
         waitingMultiplayers.delete(username4);
 
         const roomName = generateRoom();
-        initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4);
+        initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4, multiRooms, activeGames);
     }
 }
 

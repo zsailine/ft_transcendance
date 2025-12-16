@@ -13,6 +13,7 @@ function OnlineMulti() {
 	const [error, setError] = useState(false);
 	const [overlay, setOverlay] = useState(false);
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const [closed, setClosed] = useState(false);
 	const [winner, setWinner] = useState<string>("");
 	const [role, setRole] = useState<string>("");
 	const [begin, setBegin] = useState(false);
@@ -59,8 +60,14 @@ function OnlineMulti() {
 				setOverlay(true);
 			},
 		);
-		return () => {
+		socket.on("removed", () => {
+			displayError("Connection made on another device");
+			setClosed(true);
 			clean();
+		})
+		return () => {
+			if (!closed)
+				clean();
 		};
 	}, [begin, socket, player]);
 

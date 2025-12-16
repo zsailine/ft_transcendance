@@ -34,7 +34,8 @@ export async function init(roomName, player1, username1, player2, username2, act
     userRooms.set(username2, roomName);
 }
 
-export function initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4) {
+export async function initMulti(roomName, player1, username1, player2, username2, 
+    player3, username3, player4, username4, multiRooms, activeGames) {
     let players = [
         { socket: player1, username: username1 },
         { socket: player2, username: username2 },
@@ -79,5 +80,19 @@ export function initMulti(roomName, player1, username1, player2, username2, play
     p2.emit("ready");
     p3.emit("ready");
     p4.emit("ready");
-    startMulti(io, roomName, p1.id, p2.id, p3.id, p4.id);
+    const handleGameEnd = (room, u1, u2, u3, u4) => {
+        activeGames.delete(room);
+        multiRooms.delete(u1);
+        multiRooms.delete(u2);
+        multiRooms.delete(u3);
+        multiRooms.delete(u4);
+    };
+
+    const gameController = await startMulti(io, roomName, u1, u2, u3, u4, handleGameEnd);
+    activeGames.set(roomName, gameController);
+    multiRooms.set(u1, roomName);
+    multiRooms.set(u2, roomName);
+    multiRooms.set(u3, roomName);
+    multiRooms.set(u4, roomName);
+    
 }
