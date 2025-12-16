@@ -27,7 +27,8 @@ interface MessageInterface {
 	sender_username: string | null,
 	receiver_username: string | null,
 	text: string | null,
-	image: ImageBuffer | null
+	image: ImageBuffer | null,
+	status: string
 };
 
 interface ChatInterface {
