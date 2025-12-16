@@ -24,7 +24,7 @@ await fastify.register(cors, {
 	credentials: true
 });
 
-fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
+// fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 
 fastify.register(chatRoutes);
 
