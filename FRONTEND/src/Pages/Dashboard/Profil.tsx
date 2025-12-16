@@ -11,6 +11,7 @@ export interface statInterface {
     total_matches: number;
     total_losses: number;
     total_wins: number;
+    xp: number;
 }
 
 const Profil = () => {
@@ -18,14 +19,17 @@ const Profil = () => {
         total_matches: 0,
         total_losses: 0,
         total_wins: 0,
+        xp: 0
     };
     const { avatar, coverImage, username, nickname, isOverlayOpen, setIsOverlayOpen } = useDashboard();
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
     const [stats, setStats] = useState<statInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
-    const [score, setScore] = useState<number>(0);
-
+    async function getLeaderBoard() {
+        const response = await api.get(`/matches/leaderboard`);
+        console.log(response.data);
+    }
     async function getStats() {
         const response = await api.get(`/matches/stats/${username}`);
         if (response.data.total_matches)
@@ -41,13 +45,12 @@ const Profil = () => {
         try {
             getStats();
             getRecentMatches();
-            if ((stats.total_wins - stats.total_losses) > 0)
-                setScore((stats.total_wins - stats.total_losses) * 10);
+            getLeaderBoard();
         }
         catch (error) {
             console.error(error);
         }
-    }, [username, stats.total_wins, stats.total_losses]);
+    }, [username]);
     useEffect(() => {
         let url: string | null = getImageUrlFromBlob(avatar?.data);
         setAvatarURL(url);
@@ -101,7 +104,7 @@ const Profil = () => {
                                 </div>
                                 <div className="text-right ">
                                     <p>Score</p>
-                                    <p className="text-amber-400 text-3xl">{score} XP</p>
+                                    <p className="text-amber-400 text-3xl">{stats?.xp} XP</p>
                                     <p>Victory</p>
                                     <p className="text-amber-400 text-3xl">{stats?.total_wins}</p>
                                     <p>Defeat</p>
@@ -118,7 +121,6 @@ const Profil = () => {
                             <h1
                                 className="text-xl text-blue-500 hover:text-blue-700 cursor-pointer mb-4"
                                 onClick={() => openOverlay()}
-
                             >
                                 ... view all
                             </h1>
@@ -146,7 +148,7 @@ const Profil = () => {
             </div>
             {
                 isOverlayOpen && (
-                    <OverlayMatch matches={matches} username={username} />
+                    <OverlayMatch username={username} />
                 )
             }
         </>

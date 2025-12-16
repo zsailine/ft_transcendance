@@ -2,16 +2,24 @@ import { motion } from "framer-motion";
 import Story from "../../Components/Profil/Story";
 import { IoMdClose } from "react-icons/io";
 import { useDashboard } from "../../Providers/DashboardProvider";
-
+import api from "../../Utils/axios";
+import { useEffect, useState } from "react";
 interface ProfilProps {
     username: string | null;
-    matches: any;
 }
 
 
-export default function OverlayMatches({ matches, username }: ProfilProps) {
-    
-    const {setIsOverlayOpen} = useDashboard();
+export default async function OverlayMatches({ username }: ProfilProps) {
+    const [matches, setMatches] = useState<any>(null);
+    const { setIsOverlayOpen } = useDashboard();
+    async function getMatches() {
+        const response = await api.get(`/matches/${username}`);
+        if (response.data.length)
+            setMatches(response.data);
+    }
+    useEffect(() => {
+        getMatches();
+    }, [])
 
     return (
         <motion.div
@@ -34,7 +42,6 @@ export default function OverlayMatches({ matches, username }: ProfilProps) {
                     <Story key={match.id} username={username} match={match} />
                 ))}
                 {!matches && <p>No matches to show</p>}
-
             </div>
             <div className="absolute top-4 right-4 text-cyan-400 text-3xl cursor-pointer">
                 <IoMdClose onClick={() => setIsOverlayOpen(false)} />

@@ -1,7 +1,7 @@
 import NoConversation from "../../Pages/Chat/NoConversation";
 import { useChat } from "../../Providers/ChatProvider";
 import MessageInput from "./MessageInput";
-import MessageList from "./MessageList";
+import {MessageList} from "./MessageList";
 import ReceiverHeader from "./ReceiverHeader";
 
 interface ChatContainerProps {

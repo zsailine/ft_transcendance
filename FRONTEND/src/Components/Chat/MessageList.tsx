@@ -6,7 +6,7 @@ import NoChatHistory from "../../Pages/Chat/NoChatHistory";
 const senderStyle = "self-end bg-cyan-500 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mb-3 mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/15 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow mb-3 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 
-const getHour = (timestamp: string) => {
+export const getHour = (timestamp: string) => {
 	const date = new Date(timestamp);
 	const newDate = date.toLocaleTimeString([], {
 		hour: '2-digit',
@@ -24,7 +24,7 @@ const getHour = (timestamp: string) => {
 	});
 }
 
-function MessageList() {
+export function MessageList() {
 	const { messages, selectedUser } = useChat();
 	const bottomScroll = useRef<HTMLDivElement | null>(null);
 	
@@ -66,4 +66,3 @@ function MessageList() {
 	)
 }
 
-export default MessageList

@@ -1,6 +1,7 @@
 "use strict";
-import fastifySocketIO from 'fastify-socket.io';
-import { generateRoom } from '../socket_utils.js';
+
+import axios from "axios";
+
 const board = {
   width: 0,
   height: 0
@@ -12,7 +13,7 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
     player1: { userId: user1Id, socketId: null, socket: null },
     player2: { userId: user2Id, socketId: null, socket: null }
   };
-
+  const debut = Date.now();
   resizeBoard();
   let paddle1Speed = board.height / 250;
   let paddle2Speed = board.height / 250;
@@ -228,6 +229,25 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
     });
   }
 
+  async function addMatch(winner) {
+    const fin = Date.now();
+    const duration = fin - debut;
+    const body = {
+      player1: user1Id,
+      player2: user2Id,
+      score_p1: paddle1Score,
+      score_p2: paddle2Score,
+      winner: winner === "player1" ? user1Id : user2Id,
+      played_at: new Date(),
+      duration: Math.floor(duration / 1000)
+    };
+    await axios.post('http://localhost:3001/matches/add', body)
+      .then(() => {
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
   function checkWinner() {
     if (paddle1Score === 5 || paddle2Score === 5) {
       gameOver = true;
@@ -237,6 +257,7 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
           ? "player1"
           : "player2";
       io.to(roomName).emit("finish", winner);
+      addMatch(winner);
       if (onEnd) onEnd(roomName, user1Id, user2Id);
     }
   }
@@ -278,8 +299,7 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
         role = "player2";
       }
       if (role) {
-        if (players[role].socket)
-        {
+        if (players[role].socket) {
           removeListeners(players[role].socket);
           players[role].socket.emit("removed");
         }
