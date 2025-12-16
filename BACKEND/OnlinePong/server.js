@@ -2,8 +2,7 @@
 
 import Fastify from 'fastify';
 import fastifySocketIO from 'fastify-socket.io';
-import { removeSocket, generateQuick, createRoom, joinRoom, generateMultiplayer, generateRoom } from './socket_utils.js';
-import processTournament from './tournament/socketProcess.js';
+import { removeSocket, generateQuick, createRoom, joinRoom, generateMultiplayer } from './socket_utils.js';
 const fastify = Fastify();
 
 await fastify.register(fastifySocketIO, {
@@ -38,7 +37,6 @@ function process(socket) {
     socket.on("disconnect", () => {
         removeSocket(socket, AllMode, waitingPlayers, privateRooms, waitingMultiplayers);
     });
-    processTournament(socket, AllMode);
 }
 
 export const io = fastify.io;

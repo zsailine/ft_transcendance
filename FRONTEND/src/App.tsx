@@ -8,7 +8,6 @@ import { Suspense } from "react";
 
 import { Menu } from "./Pages/Pong/Menu"
 import PongGame from "./Pages/Pong/PongGame";
-import OnlineTournament from "./Pages/Tournament/OnlineTournament.tsx";
 import OnlineGame from "./Pages/Pong/onlineGame";
 import PongTournament from "./Pages/Pong/Tournament/PongTournament"; import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard.tsx";
@@ -20,7 +19,6 @@ import Play from "./Pages/Dashboard/Play";
 import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
-import { OnlineTournamentProvider } from "./Providers/OnlineTournamentProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
 
 function App() {
@@ -64,11 +62,6 @@ function App() {
                         }
                       />
                     </Route>
-                    <Route path="tournament" element={
-                        <OnlineTournamentProvider>
-                          <OnlineTournament />
-                        </OnlineTournamentProvider>
-                    }/>
                         <Route path="friends" element={<Friend />} />
                         <Route path="discussion" element={<Discussion />} />
                       </Route>
