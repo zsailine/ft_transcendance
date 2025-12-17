@@ -2,6 +2,9 @@ import type { ImageBuffer } from "../../Providers/DashboardProvider";
 import { MdDateRange } from "react-icons/md";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useEffect, useState } from "react";
+
+import { getHour } from "../Chat/MessageList";
+
 import api from "../../Utils/axios";
 interface matchInterface {
     player1: string;
@@ -60,7 +63,7 @@ const Story = ({ username, match }: { username: string | null, match: matchInter
 
             <div className="flex items-center gap-2 text-amber-400">
                 <MdDateRange />
-                <p>{match.played_at}</p>
+                <p>{getHour(match.played_at)}</p>
             </div>
         </div>
     );

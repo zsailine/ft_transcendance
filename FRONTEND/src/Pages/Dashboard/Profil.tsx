@@ -6,6 +6,7 @@ import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
 import api from "../../Utils/axios";
 import WinLossChart from "../../Components/Profil/DonutGraph";
+import Rank from "../../Components/Profil/Rank";
 
 export interface statInterface {
     total_matches: number;
@@ -26,9 +27,11 @@ const Profil = () => {
     const [coverURL, setCoverURL] = useState<string | null>(null);
     const [stats, setStats] = useState<statInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
+    const [rank, setRank] = useState<any>(null);
     async function getLeaderBoard() {
-        const response = await api.get(`/matches/leaderboard`);
-        console.log(response.data);
+        const response = await api.get(`/matches/rank/${username}`);
+        if (response.data)
+            setRank(response.data);
     }
     async function getStats() {
         const response = await api.get(`/matches/stats/${username}`);
@@ -36,7 +39,7 @@ const Profil = () => {
             setStats(response.data);
     }
     async function getRecentMatches() {
-        const response = await api.get(`/matches/${username}?size=5`);
+        const response = await api.get(`/matches/${username}?size=3`);
         if (response.data.length)
             setMatches(response.data);
     }
@@ -131,7 +134,6 @@ const Profil = () => {
                                     <Story key={match.id} username={username} match={match} />
                                 ))}
                                 {!matches && <p>No matches to show</p>}
-
                             </div>
                         </div>
                     </div>
@@ -141,7 +143,8 @@ const Profil = () => {
                             <WinLossChart wins={stats?.total_wins} losses={stats.total_losses} />
                         </div>
                         <div className="shadow-amber-400 shadow-md p-5 mt-2 rounded-lg  h-fit">
-                            <GraphDisplayed />
+                            {/* <GraphDisplayed /> */}
+                            <Rank username={username} players={rank} />
                         </div>
                     </div>
                 </div>

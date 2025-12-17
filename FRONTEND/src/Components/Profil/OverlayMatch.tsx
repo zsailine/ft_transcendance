@@ -9,7 +9,7 @@ interface ProfilProps {
 }
 
 
-export default async function OverlayMatches({ username }: ProfilProps) {
+export default function OverlayMatches({ username }: ProfilProps) {
     const [matches, setMatches] = useState<any>(null);
     const { setIsOverlayOpen } = useDashboard();
     async function getMatches() {

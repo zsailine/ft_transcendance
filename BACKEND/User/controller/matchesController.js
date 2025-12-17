@@ -24,10 +24,7 @@ const getLeaderboard = async (req, rep) => {
 		const stmt = db.prepare(`
             SELECT
                 username, 
-                xp, 
-                total_matches, 
-                total_wins, 
-                total_losses,
+                xp,
                 CAST(total_wins AS FLOAT) / total_matches as win_rate,
                 DENSE_RANK() OVER (ORDER BY xp DESC) as rank
             FROM user_stats 
@@ -42,6 +39,46 @@ const getLeaderboard = async (req, rep) => {
 		rep.code(500).send(err);
 	}
 }
+
+const getPlayerRank = async (req, rep) => {
+	const { username } = req.params;
+
+	try {
+		const stmt = db.prepare(`
+            WITH RankedPlayers AS (
+                SELECT 
+                    username, 
+                    xp, 
+                    total_wins,
+                    ROW_NUMBER() OVER (ORDER BY xp DESC, total_wins DESC, username ASC) as row_num
+                FROM user_stats
+            )
+            SELECT 
+                username, 
+                xp, 
+                total_wins,
+                DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank
+            FROM RankedPlayers
+            WHERE row_num BETWEEN 
+                (SELECT row_num - 1 FROM RankedPlayers WHERE username = ?) 
+                AND 
+                (SELECT row_num + 1 FROM RankedPlayers WHERE username = ?)
+            ORDER BY row_num ASC
+        `);
+
+		const neighbors = stmt.all(username, username);
+
+		if (neighbors.length === 0) {
+			return rep.code(404).send({ error: "Player not found" });
+		}
+
+		rep.send(neighbors);
+	} catch (err) {
+		console.error(err);
+		rep.code(500).send({ error: "Erreur serveur" });
+	}
+}
+
 const addMatch = async (req, rep) => {
 	const { player1, player2, winner, score_p1, score_p2, duration } = req.body;
 	const loser = (winner === player1) ? player2 : player1;
@@ -80,4 +117,4 @@ const addMatch = async (req, rep) => {
 	}
 }
 
-export { addMatch, getuserMatches, getStats, getLeaderboard }
+export { addMatch, getuserMatches, getStats, getLeaderboard, getPlayerRank }
