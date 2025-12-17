@@ -7,6 +7,7 @@ import { getRelationship } from "../../Utils/getter";
 import { useSocket } from "../../Providers/SocketProvider";
 import { PiChecks } from "react-icons/pi";
 import Typing from "../../Pages/Chat/isTyping";
+import { useAuth } from "../../Providers/AuthProvider";
 
 const senderStyle = "self-end bg-cyan-500/20 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/10 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
@@ -30,6 +31,7 @@ const getHour = (timestamp: string) => {
 }
 
 function MessageList() {
+	const { user } = useAuth();
 	const { messages, selectedUser } = useChat();
 	const { blockedUsername } = useFriend();
 	const { socketFriend } = useSocket();
@@ -87,7 +89,10 @@ function MessageList() {
 					className="max-w-l max-h-60 rounded-lg mt-1"
 					onLoad={() => {bottomScroll.current?.scrollIntoView({behavior: "smooth"})}}/>
 				)}
-				{message.text && <div className="text-lg">{message.text}</div>}
+				{message.text &&
+					<div className={`text-lg
+					${message.sender_username === user ? "self-end" : "self-start"}`}>
+						{message.text}</div>}
 				<div className="flex self-end gap-2">
 				<div className={`text-xs ${
 					message.receiver_username === selectedUser?.username ? "self-end" : "self-start"
