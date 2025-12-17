@@ -31,6 +31,7 @@ export const getHour = (timestamp: string) => {
 }
 
 export function MessageList() {
+	const { user } = useAuth();
 	const { messages, selectedUser } = useChat();
 	const { blockedUsername } = useFriend();
 	const { socketFriend } = useSocket();

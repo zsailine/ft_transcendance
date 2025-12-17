@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import Story from "../../Components/Profil/Story";
 import OverlayMatch from "../../Components/Profil/OverlayMatch";
-import GraphDisplayed from "../../Components/Profil/GraphDisplayed";
 import api from "../../Utils/axios";
 import WinLossChart from "../../Components/Profil/DonutGraph";
 import Rank from "../../Components/Profil/Rank";
@@ -22,7 +21,10 @@ const Profil = () => {
         total_wins: 0,
         xp: 0
     };
+
+    const queryParams = new URLSearchParams(location.search);
     const { avatar, coverImage, username, nickname, isOverlayOpen, setIsOverlayOpen } = useDashboard();
+	const friendUsername = queryParams.get("username") || "";
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
     const [stats, setStats] = useState<statInterface>(defaultStats);

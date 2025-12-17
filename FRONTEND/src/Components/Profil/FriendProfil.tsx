@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { BlockButton, UnfriendButton } from "../../Pages/Chat/ListUtils";
 import { handleBlocked } from "../Utils/ProfilUtils";
 import { useAuth } from "../../Providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 interface FriendProfilProps {
 	click: () => void,
@@ -16,12 +17,13 @@ interface FriendProfilProps {
 
 function FriendProfil({click, user, type}: FriendProfilProps) {
 	const { onlineUsers } = useAuth();
+	const navigate = useNavigate();
 	const { setSelectedUser } = useChat();
 	const [ banner, setBanner ] = useState<ImageBuffer | null>(null);
 	const [ stat, setStat ] = useState<statInterface>({total_losses: 0, total_matches: 0, total_wins:0});
 
 	const handleFullViewProfil = () => {
-
+		navigate(`/dashboard?username=${user.username}`);
 	}
 
 	useEffect(() => {
