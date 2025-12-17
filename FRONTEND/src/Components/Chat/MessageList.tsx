@@ -12,7 +12,7 @@ import { useAuth } from "../../Providers/AuthProvider";
 const senderStyle = "self-end bg-cyan-500/20 text-white px-4 py-2 rounded-2xl rounded-br-none max-w-sm break-words shadow-md mr-4 transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 const receiverStyle = "self-start bg-gray-200/10 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 
-const getHour = (timestamp: string) => {
+export const getHour = (timestamp: string) => {
 	const date = new Date(timestamp);
 	const newDate = date.toLocaleTimeString([], {
 		hour: '2-digit',
@@ -30,8 +30,7 @@ const getHour = (timestamp: string) => {
 	});
 }
 
-function MessageList() {
-	const { user } = useAuth();
+export function MessageList() {
 	const { messages, selectedUser } = useChat();
 	const { blockedUsername } = useFriend();
 	const { socketFriend } = useSocket();
@@ -119,4 +118,3 @@ function MessageList() {
 	)
 }
 
-export default MessageList

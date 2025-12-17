@@ -54,9 +54,6 @@ export function start(
     clearBoard(ctx, board, theme.boardBackground);
     gameOver = true;
     clearTimeout(intervalID);
-    window.removeEventListener("keydown", (e: KeyboardEvent) => {
-
-    });
     window.removeEventListener("resize", () => {
       ft_resize();
     });
@@ -74,7 +71,7 @@ export function start(
   }
 
   function nextTick(): void {
-    intervalID = setTimeout(() => {
+    intervalID = setInterval(() => {
       if (gameOver) return;
       clearBoard(ctx, board, theme.boardBackground);
       movePaddles(board, paddleSpeed, paddle1, paddle2);

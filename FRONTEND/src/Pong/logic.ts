@@ -104,7 +104,6 @@ function moveBall(mode: number, ball:BallInterface, board: HTMLCanvasElement, ct
 		return (0);
 	if (ball.Y - ball.Radius < 0 || ball.Y + ball.Radius > board.height)
 		ball.YDirection = -ball.YDirection;
-
 	checkPaddleCollision(board, paddle1, ball);
 	checkPaddleCollision(board, paddle2, ball);
 	if (ball.X + ball.Radius < 0) {

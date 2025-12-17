@@ -83,11 +83,9 @@ const AuthProvider = ({ children }: any) => {
 			}
 
 			if (err.response?.data?.error === "Invalid 2FA code") {
-				toast.error("Invalid 2FA code!");
 				return { success: false, requires2FA: true };
 			}
 
-			toast.error(err.response?.data?.error || "User not found!");
 			return { success: false, error: err.message, requires2FA: false };
 		}
 	}

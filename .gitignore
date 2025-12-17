@@ -1,6 +1,6 @@
 node_modules
 .env
-pacakek-lock.json
+package-lock.json
 dist
 build
 .DS_Store

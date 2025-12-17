@@ -1,0 +1,1 @@
+ALTER TABLE user_stats ADD COLUMN total_duration INTEGER DEFAULT 0
