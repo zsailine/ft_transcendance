@@ -1,6 +1,22 @@
 services:
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: vault
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/data
+      - ./vault/config.hcl:/vault/config/config.hcl
+      - ./vault/config:/vault/config/
+    environment:
+      VAULT_ADDR: https://0.0.0.0:8200
+    command: vault server -config=/vault/config/config.hcl
+    
   web:
     build: ./FRONTEND
+    container_name: web
     ports:
       - "8080:8080"
     networks:
@@ -8,6 +24,7 @@ services:
 
   wafnginx:
     build: ./FRONTEND/WAF
+    container_name: wafnginx
     ports:
       - "9443:9443"
     depends_on:
@@ -18,6 +35,7 @@ services:
 
   gateway:
     build: ./BACKEND/Gateway
+    container_name: gateway
     ports:
       - "3000:3000"
     depends_on:
@@ -28,6 +46,7 @@ services:
   
   userservice:
     build: ./BACKEND/User
+    container_name: userservice
     ports:
       - "3001:3001"
     env_file:
@@ -37,6 +56,7 @@ services:
   
   authservice:
     build: ./BACKEND/Authentication
+    container_name: authservice
     ports:
       - "3002:3002"
     env_file:
@@ -46,6 +66,7 @@ services:
 
   chatservice:
     build: ./BACKEND/Chat
+    container_name: chatservice
     ports:
       - "3004:3004"
     networks:
@@ -53,6 +74,7 @@ services:
 
   onlinepongservice:
     build: ./BACKEND/OnlinePong
+    container_name: onlinepongservice
     ports:
       - "3005:3005"
     networks:
@@ -60,6 +82,7 @@ services:
 
   friendservice:
     build: ./BACKEND/Friend
+    container_name: friendservice
     ports:
       - "3006:3006"
     env_file:
@@ -70,3 +93,7 @@ services:
 networks:
   webnet:
     driver: bridge
+
+volumes:
+  vault-data:
+    driver: local
