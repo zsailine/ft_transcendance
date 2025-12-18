@@ -1,11 +1,12 @@
-import { motion } from "framer-motion";
+import { hover, motion } from "framer-motion";
 import ButtonMenu from "./ButtonMenu";
+import { useNavigate } from "react-router-dom";
 
 type OverlayResultProps = {
 	winner: string;
 	onQuit: () => void;
 	hoverEffect?: string;
-    buttonText: string;
+    buttonText: string
 };
 
 export default function OverlayResult({ buttonText, winner, onQuit, hoverEffect }: OverlayResultProps) {

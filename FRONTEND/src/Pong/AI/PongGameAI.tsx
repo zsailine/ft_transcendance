@@ -1,19 +1,25 @@
 import { useNavigate } from "react-router-dom"
-import { useDashboard } from "../../../Providers/DashboardProvider";
-import { useEffect } from "react";
+import { useDashboard } from "../../Providers/DashboardProvider";
+import { useEffect, useState } from "react";
 import { gameAI } from "./Logic/game";
-import { useAuth } from "../../../Providers/AuthProvider";
+import { useAuth } from "../../Providers/AuthProvider";
+import { AnimatePresence } from "framer-motion";
+import OverlayResult from "../../Components/pong/OverlayResult";
+import { hoverEffect } from "../../Utils/style";
 
 function PongGameAI() {
-
+	const [ result, setResult ] = useState<string>("");
+	const [ overlay, setOverlay ] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const { theme } = useDashboard();
 	const { user } = useAuth();
 
 	useEffect(() => {
 		if (!theme) return;
-		const clean = gameAI(theme);
-
+		const clean = gameAI(theme, (winnerRole: string) => {
+			setResult(winnerRole);
+			setOverlay(true);
+		});
 		return () => clean();
 	}, [theme]);
 
@@ -50,6 +56,17 @@ function PongGameAI() {
 					Quit
 				</button>
 			</div>
+
+			<AnimatePresence mode="wait">
+				{ overlay && 
+				<OverlayResult
+					key="overlay-result"
+					buttonText="Home"
+					winner={result}
+					onQuit={handleQuit}
+					hoverEffect={hoverEffect}
+				/>}
+			</AnimatePresence>
 		</>
 	);
 }

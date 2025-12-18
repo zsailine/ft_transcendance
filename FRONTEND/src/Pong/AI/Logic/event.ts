@@ -1,4 +1,4 @@
-import type { Paddle } from "../../../../Pong/logic";
+import type { Paddle } from "../../logic";
 
 function keySoloPlayerHandler(e: KeyboardEvent, paddle1: Paddle): void {
 	switch(e.key) {

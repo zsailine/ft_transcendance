@@ -1,11 +1,13 @@
 "use strict";
-import { clearBoard, drawBall, drawPaddles, drawScore } from "../../../../Pong/draw";
-import { createBall, moveBall, resetBall, type BallInterface, type Paddle } from "../../../../Pong/logic";
-import type { ThemeColors } from "../../../../Providers/DashboardProvider";
+import { clearBoard, drawBall, drawPaddles, drawScore } from "../../draw";
+import { createBall, moveBall, resetBall, type BallInterface, type Paddle } from "../../logic";
+import type { ThemeColors } from "../../../Providers/DashboardProvider";
 import { keySoloPlayerHandler, keySoloPlayerHandlerDown } from "./event";
 import { moveAIPaddle, movePlayerPaddle } from "./logic";
 
-export const gameAI = (theme: ThemeColors) => {
+export const gameAI = (
+	theme: ThemeColors,
+	onEnd: (winner: string) => void) => {
 	const board = document.getElementById("board") as HTMLCanvasElement;
 	let ctx = board.getContext("2d") as CanvasRenderingContext2D;
 	if (!ctx) throw new Error("Canvas context not found");
@@ -45,15 +47,31 @@ export const gameAI = (theme: ThemeColors) => {
 	const speedRatio = theme.paddleSpeed ? theme.paddleSpeed : 250;
 	let paddleSpeed = board.height / speedRatio;
 
+	const finish = () => {
+		clearInterval(intervalID);
+		clearBoard(ctx, board, theme.boardBackground);
+		drawScore(ctx, board, paddle1.Score.toString(), paddle2.Score.toString(), theme.boardBorder);
+		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
+		drawBall(ctx, ball.Radius, theme.ball, board.width / 2, board.height / 2);
+		if (paddle1.Score > paddle2.Score) {
+			onEnd("You win ! 🏆")
+		} else {
+			onEnd("You lose ! 🤕");
+		}
+	}
+
 	function nextTick(): void {
 		intervalID = setInterval(() => {
 			clearBoard(ctx, board, theme.boardBackground);
-			moveAIPaddle(ball, paddle2);
+			moveAIPaddle(ball, paddle2, board.height);
 			movePlayerPaddle(board, paddleSpeed, paddle1, paddle2);
 			drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 			moveBall(0, ball, board, ctx, theme.boardBorder, paddle1, paddle2);
 			drawScore(ctx, board, `${paddle1.Score}`, `${paddle2.Score}`, theme.boardBorder);
 			drawBall(ctx, ball.Radius, theme.ball, ball.X, ball.Y);
+			if (paddle1.Score >= 5 || paddle2.Score >= 5) {
+				finish();
+			}
 		}, 10);
 	}
 
