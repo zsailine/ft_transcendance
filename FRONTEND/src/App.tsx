@@ -48,6 +48,7 @@ function App() {
                       </ProtectedRoute>
                     }>
                     <Route index element={<Profil />} />
+                    <Route path="profile" element={<Profil />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="play"
                       element={

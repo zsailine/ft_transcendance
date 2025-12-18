@@ -4,6 +4,7 @@ import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useNavigate } from "react-router-dom";
 import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
 import { NoContacts, NotFound } from "../../Pages/Friend/NoContacts";
+import { useAuth } from "../../Providers/AuthProvider";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -11,11 +12,12 @@ interface FriendsListProps {
 	message: string,
 	setSelectedUser: (user: UserInterface) => void,
 	setSelectedUserProfil: (user: UserInterface) => void,
-	click: (() => void) | undefined 
+	click: (() => void) | undefined
 }
 
 function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSelectedUserProfil, click }: FriendsListProps) {
-	const [ filteredFriends, setFilteredFriends ] = useState<UserInterface[]>([]);
+	const { onlineUsers } = useAuth();
+	const [filteredFriends, setFilteredFriends] = useState<UserInterface[]>([]);
 	const navigate = useNavigate();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
@@ -24,7 +26,7 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 		setSelectedUser(friend);
 		navigate("/dashboard/discussion");
 	}
-	
+
 	useEffect(() => {
 		if (searchValue !== "") {
 			setFilteredFriends(friendsList.filter(friend => friend.username?.
@@ -35,7 +37,7 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 	}, [searchValue, friendsList]);
 
 	if (friendsList.length === 0 && searchValue === "") {
-		return (<NoContacts message={message}/>)
+		return (<NoContacts message={message} />)
 	} else if (filteredFriends.length === 0 && searchValue !== "") {
 		return (<NotFound />);
 	}
@@ -47,15 +49,16 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 				{filteredFriends.map((friend) =>
 					<li key={friend.id} className={`flex items-center p-2 rounded-lg cursor-pointer ${hoverEffect}`}>
 						<div className="flex gap-2 md:gap-5 items-center w-full"
-						onClick={() => setSelectedUser(friend)}>
+							onClick={() => setSelectedUser(friend)}>
 
-							<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
-								<img	alt={friend.username?.at(0)?.toUpperCase()}
-											src={friend.avatar ? getImageUrlFromBlob(friend.avatar)?.toString() : "/images/avatar.jpg"}
-											className="w-full h-full rounded-full object-cover border border-cyan-500/20"
-								/> 
+							<div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15">
+								<img
+									alt={friend.username?.at(0)?.toUpperCase()}
+									src={friend.avatar ? getImageUrlFromBlob(friend.avatar)?.toString() : "/images/avatar.jpg"}
+									className="w-full h-full rounded-full object-cover border border-cyan-500/20"
+								/>
+								<span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#101728] ${onlineUsers.includes(friend.username) ? "bg-green-400" : ""} rounded-full border-2 border-gray-600`}></span>
 							</div>
-
 							<div id="friends-username" className={`text-sm text-white font-medium truncate ${message !== "message" ? "hover:underline" : ""}`}
 								onClick={() => {
 									setSelectedUserProfil(friend);
@@ -65,12 +68,12 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 							</div>
 						</div>
 						<div>
-						{message !== "message" ? (message === "research" ? 
-							<AddFriendButton friend={friend} /> :
-							<MessageFriendButton handleClick={() => handleMessageClick(friend)}/> )
-							: <></>}
+							{message !== "message" ? (message === "research" ?
+								<AddFriendButton friend={friend} /> :
+								<MessageFriendButton handleClick={() => handleMessageClick(friend)} />)
+								: <></>}
 						</div>
-					</li> )}
+					</li>)}
 			</ul>
 		</div>
 	);
