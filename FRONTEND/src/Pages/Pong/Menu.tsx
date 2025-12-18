@@ -38,7 +38,7 @@ export const Menu = () => {
 					<MenuCard
 						title="VS AI"
 						description="Compete against an AI"
-						onClick={() => navigate("/dashboard/play/multiplayer")}
+						onClick={() => navigate("/dashboard/play/ai")}
 						buttonContent="Start"
 						bgCard="bg-[url(/images/bg-card5.png)] bg-cover"
 					/>

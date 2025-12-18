@@ -21,6 +21,7 @@ import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
 import { SocketProvider } from "./Providers/SocketProvider.tsx";
+import PongGameAI from "./Pages/Pong/AI/PongGameAI.tsx";
 
 function App() {
 
@@ -57,6 +58,7 @@ function App() {
                       <Route path="pong" element={<PongGame />} />
                       <Route path="tournament" element={<PongTournament />} />
                       <Route path="multiplayer" element={<OnlineMulti />} />
+                      <Route path="ai" element={<PongGameAI />} />
                       <Route
                         path="online"
                         element={
