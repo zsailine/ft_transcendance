@@ -1,0 +1,1 @@
+ALTER TABLE friendship ADD COLUMN is_friend BOOLEAN;

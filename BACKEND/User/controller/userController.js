@@ -142,5 +142,21 @@ const getBanner = async (req, rep) => {
     return rep.status(200).send(cover_image);
 }
 
+const getUserInfo = async (req, rep) => {
+    const { username } = req.params;
+    const { id, avatar } = db.prepare("SELECT id, avatar FROM users WHERE username=?").get(username);
+    return rep.status(200).send({id, avatar});
+}
 
-export { createUser, getAllUsers, getUserByUsername, updateColor, updateUser, getAvatar, getId, getBanner };
+
+export {
+    createUser,
+    getAllUsers,
+    getUserByUsername,
+    updateColor,
+    updateUser,
+    getAvatar,
+    getId,
+    getBanner,
+    getUserInfo
+};

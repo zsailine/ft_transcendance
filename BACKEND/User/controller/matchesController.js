@@ -41,15 +41,50 @@ const getLeaderboard = async (req, rep) => {
 }
 
 const getPlayerRank = async (req, rep) => {
-	const { username } = req.params;
+    const { username } = req.params;
 
-	try {
-		const stmt = db.prepare(`
+    try {
+        const stmt = db.prepare(`
             WITH RankedPlayers AS (
                 SELECT 
                     username, 
                     xp, 
                     total_wins,
+                    DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank
+                FROM user_stats
+            )
+            SELECT 
+                username, 
+                xp, 
+                total_wins,
+                display_rank
+            FROM RankedPlayers
+            WHERE username = ?
+        `);
+        const player = stmt.get(username);
+
+        if (!player) {
+            return rep.code(404).send({ error: "Player not found" });
+        }
+
+        rep.send(player);
+    } catch (err) {
+        console.error(err);
+        rep.code(500).send({ error: "Erreur serveur" });
+    }
+}
+
+const getPlayersRank = async (req, rep) => {
+    const { username } = req.params;
+
+    try {
+        const stmt = db.prepare(`
+            WITH RankedPlayers AS (
+                SELECT 
+                    username, 
+                    xp, 
+                    total_wins,
+                    DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank,
                     ROW_NUMBER() OVER (ORDER BY xp DESC, total_wins DESC, username ASC) as row_num
                 FROM user_stats
             )
@@ -57,7 +92,7 @@ const getPlayerRank = async (req, rep) => {
                 username, 
                 xp, 
                 total_wins,
-                DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank
+                display_rank
             FROM RankedPlayers
             WHERE row_num BETWEEN 
                 (SELECT row_num - 1 FROM RankedPlayers WHERE username = ?) 
@@ -66,17 +101,17 @@ const getPlayerRank = async (req, rep) => {
             ORDER BY row_num ASC
         `);
 
-		const neighbors = stmt.all(username, username);
+        const neighbors = stmt.all(username, username);
 
-		if (neighbors.length === 0) {
-			return rep.code(404).send({ error: "Player not found" });
-		}
+        if (neighbors.length === 0) {
+            return rep.code(404).send({ error: "Player not found" });
+        }
 
-		rep.send(neighbors);
-	} catch (err) {
-		console.error(err);
-		rep.code(500).send({ error: "Erreur serveur" });
-	}
+        rep.send(neighbors);
+    } catch (err) {
+        console.error(err);
+        rep.code(500).send({ error: "Erreur serveur" });
+    }
 }
 
 const addMatch = async (req, rep) => {
@@ -117,4 +152,4 @@ const addMatch = async (req, rep) => {
 	}
 }
 
-export { addMatch, getuserMatches, getStats, getLeaderboard, getPlayerRank }
+export { addMatch, getuserMatches, getStats, getLeaderboard, getPlayerRank, getPlayersRank }

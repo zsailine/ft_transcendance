@@ -5,11 +5,13 @@ import {
 	getAllFriends,
 	getFriendRequests,
 	getRelationship,
-	sendFriendRequest
+	sendFriendRequest,
+	unblockUser
 } from "../controller/friendController.js";
 
 import {
 	getAllBlocked,
+	getBlocker,
 	getNonFriends,
 	getUsersRelated
 } from "../controller/nonFriendController.js";
@@ -28,6 +30,8 @@ export default async function friendRoutes(fastify) {
 
 	fastify.get("/friend/non-friends", { handler: getNonFriends });
 
+	fastify.get("/friend/:username/blocked_by", { handler: getBlocker });
+
 	fastify.post("/friend/request/:username", { handler: sendFriendRequest });
 
 	fastify.put("/friend/request/:username/accept", { handler: acceptRequest });
@@ -35,4 +39,6 @@ export default async function friendRoutes(fastify) {
 	fastify.put("/friend/request/:username/decline", { handler: declineRequest });
 
 	fastify.put("/friend/request/:username/block", { handler: blockUser });
+
+	fastify.put("/friend/request/:username/unblock", { handler: unblockUser });
 }

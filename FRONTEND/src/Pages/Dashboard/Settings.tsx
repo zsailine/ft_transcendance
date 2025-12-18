@@ -5,6 +5,7 @@ import Game from "../../Components/Dashboard/Settings/Game";
 import { useDashboard } from "../../Providers/DashboardProvider";
 import api from "../../Utils/axios";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 
 const Settings = () => {
@@ -30,6 +31,7 @@ const Settings = () => {
         await api.post('/users/update', body)
             .then(() => {
                 refreshUserData && refreshUserData();
+                toast.success("Update successful");
                 navigate('/dashboard/')
             })
             .catch((error) => {

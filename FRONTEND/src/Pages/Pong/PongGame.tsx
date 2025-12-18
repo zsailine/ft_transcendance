@@ -1,16 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { initGame } from "../../Pong/game.ts";
 import { useNavigate } from "react-router-dom"
 import { useDashboard } from "../../Providers/DashboardProvider";
-
+import Board from "../../Components/pong/Board.tsx";
+import { AnimatePresence } from "framer-motion";
+import OverlayResult from "../../Components/pong/OverlayResult.tsx";
+import { hoverEffect } from "../../Utils/style.ts";
+import { start } from "../../Pong/tournamentGame.ts";
 
 function PongGame() {
 	const navigate = useNavigate();
 	const { theme } = useDashboard();
+	const [winner, setWinner] = useState(false);
+	const [push, setPush] = useState("");
+	const player = ["player1", "player2"];
 	useEffect(() => {
 		if (!theme) return;
-		const clean = initGame(theme);
+		const addWinner = (toAdd: string) => {
+			setPush(toAdd);
+			setWinner(true);
+		}
 
+		const clean = start(theme, player, addWinner);
 		return () => clean();
 	}, [theme]);
 
@@ -20,33 +31,14 @@ function PongGame() {
 
 	return (
 		<>
-			<div className="text-white flex flex-col items-center justify-center h-full font-sans">
-				<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
-					<p
-						id="player1"
-						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
-						style={{ color: theme?.paddle1 }}
-					>Player 1</p>
-					<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
-							style={{backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder}}
-					></canvas>
-					<p
-						id="player2"
-						className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
-						style={{ color: theme?.paddle2 }}
-					>Player 2</p>
-				</div>
-				<button id="rst"
-					className="px-4 py-2 border-2 border-white rounded-lg hover:bg-white hover:text-gray-900 transition-all">
-					Reset
-				</button>
-				<button
-					id="backBtn"
-					onClick={handleQuit}
-					className="px-3 py-1 mt-3 text-sm border border-gray-400 rounded hover:bg-gray-200 hover:text-gray-900 transition-all">
-					Quit
-				</button>
-			</div>
+			{theme && <Board player={player} theme={theme}/>}
+			<AnimatePresence mode="wait">
+				{winner && (
+					<OverlayResult key="overlay-result"
+						buttonText="Next" winner={`${push} won`}
+						onQuit={handleQuit} hoverEffect={hoverEffect} />
+				)}
+			</AnimatePresence>
 		</>
 	);
 }

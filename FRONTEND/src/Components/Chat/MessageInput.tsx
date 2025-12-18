@@ -1,16 +1,21 @@
 import { FaPaperPlane } from "react-icons/fa";
 import { AiFillPicture } from "react-icons/ai";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useChat } from "../../Providers/ChatProvider";
 import { MdClose } from "react-icons/md";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { useSocket } from "../../Providers/SocketProvider";
+import { useAuth } from "../../Providers/AuthProvider";
 
 function MessageInput() {
 
 	const [ text, setText ] = useState<string>("");
+	const { user } = useAuth();
 	const [ image, setImage ] = useState<ImageBuffer | null>(null);
-	const { sendMessages } = useChat();
+	const { sendMessages, selectedUser } = useChat();
+	const timeout = useRef<number | null>(null);
+	const { socketFriend } = useSocket();
 
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -21,6 +26,7 @@ function MessageInput() {
 			text: text.trim(),
 			image: image
 		});
+		socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
 		setText("");
 		setImage(null);
 	}
@@ -38,6 +44,25 @@ function MessageInput() {
 			e.target.value = "";
 		}
 		reader.readAsArrayBuffer(file);
+	}
+
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		setText(e.target.value);
+		if (text.length > 0) {
+			if (timeout.current === null)
+				socketFriend?.emit("typing", ({ friend: selectedUser?.username, user: user }));
+			clearTimeout(timeout.current || undefined);
+			timeout.current = setTimeout(() => {
+				socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
+				timeout.current = null;
+			}, 1000);
+		} else {
+			if (timeout.current !== null) {
+				clearTimeout(timeout.current);
+				socketFriend?.emit("stop typing", ({ friend: selectedUser?.username, user: user }));
+				timeout.current = null;
+			}
+		}
 	}
 
 	const removeImage = () => setImage(null);
@@ -77,7 +102,7 @@ function MessageInput() {
 				type="text"
 				className="min-w-0 py-2 pl-4 pr-4 text-md font-helvetica placeholder:italic text-white bg-slate-800 border-none rounded-lg flex-1"
 				value={text}
-				onChange={(e) => setText(e.target.value)} />
+				onChange={handleChange} />
 
 			<button type="submit"
 				className="min-w-12 shrink-0 w-12 text-sm text-white bg-slate-800 border-none rounded-lg flex justify-center items-center hover:ring-1 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"

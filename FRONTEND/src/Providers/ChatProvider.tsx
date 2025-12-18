@@ -3,6 +3,8 @@ import type { ImageBuffer } from "./DashboardProvider";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
 import { toast } from "react-toastify";
+import { useSocket } from "./SocketProvider";
+import { getUserInfo } from "../Utils/getter";
 
 interface ChatProviderProps {
 	children: ReactNode;
@@ -15,7 +17,7 @@ interface MessageDataInterface {
 
 export interface UserInterface {
 	id: number,
-	username: string | null,
+	username: string,
 	avatar: ImageBuffer | null,
 };
 
@@ -25,7 +27,8 @@ interface MessageInterface {
 	sender_username: string | null,
 	receiver_username: string | null,
 	text: string | null,
-	image: ImageBuffer | null
+	image: ImageBuffer | null,
+	status: string
 };
 
 interface ChatInterface {
@@ -39,9 +42,7 @@ interface ChatInterface {
 	setMessages: (messages: MessageInterface[]) => void,
 	fetchFriends: () => void,
 	fetchMessages: () => void,
-	sendMessages: (message: MessageDataInterface) => void,
-	subscribeMessage: () => void,
-	unsubscribeMessage: () => void
+	sendMessages: (message: MessageDataInterface) => void
 };
 
 const ChatContext = createContext<ChatInterface | null>(null);
@@ -52,7 +53,8 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 	const [searchValue, setSearchValue] = useState<string>("");
 	const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
 	const [messages, setMessages] = useState<MessageInterface[]>([]);
-	const { user, socket } = useAuth();
+	const { user, socket, onlineUsers } = useAuth();
+	const { socketFriend } = useSocket();
 
 	const fetchFriends = async () => {
 		try {
@@ -85,16 +87,23 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		}
 	}
 
+	const readMessage = async (messageId: number) => {
+		try {
+			await api.put(`/message/${messageId}/read`);
+		} catch(error) {
+			console.log(error);
+		}
+	}
+
 	const subscribeMessage = () => {
 		if (!selectedUser) return;
 
 		socket?.on("new message", (newMessage) => {
-			setMessages((prevMessages) => [...prevMessages, newMessage]);
+			if ((selectedUser.username === newMessage.receiver_username && user === newMessage.sender_username) ||
+				selectedUser.username === newMessage.sender_username && user === newMessage.receiver_username) {
+					setMessages((prevMessages) => [...prevMessages, newMessage]);
+				}
 		})
-	}
-
-	const unsubscribeMessage = () => {
-		socket?.off("new message");
 	}
 
 	useEffect(() => {
@@ -113,8 +122,53 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 
 	useEffect(() => {
 		subscribeMessage();
-		return () => unsubscribeMessage();
-	}, [socket, selectedUser]);
+		socket?.on("message read", (data) => {
+			if (selectedUser && data.conversation === selectedUser.username) {
+				setMessages((curr) => curr.map(m => 
+				(m.id <= data.last && m.sender_username === user) ? {...m, status: data.status} : m
+				));
+			}
+		})
+		return () => {
+			socket?.off("new message");
+			socket?.off("message read");
+		}
+	}, [socket, selectedUser, user, onlineUsers]);
+
+	useEffect(() => {
+		socketFriend?.on("request accepted", (friendship) => {
+			if (friendship.user_a === user) {
+				getUserInfo(friendship.user_b).then(data => {
+					setFriendsList((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_b
+					}]);
+				})
+			} else if (friendship.user_b === user) {
+				getUserInfo(friendship.user_a).then(data => {
+					setFriendsList((prev) => [...prev, {
+						id: data.id,
+						avatar: data.avatar,
+						username: friendship.user_a
+					}]);
+				})
+			}
+		});
+
+		return () => {
+			socketFriend?.off("request accepted");
+		}
+	}, [socketFriend]);
+
+	useEffect(() => {
+		if (selectedUser && messages.length > 0) {
+			const lastMessages = messages[messages.length - 1];
+			if (lastMessages.sender_username === selectedUser.username && lastMessages.status !== "read") {
+				readMessage(lastMessages.id);
+			}
+		}
+	}, [socket, messages])
 
 	const value = {
 		friendsList, setFriendsList,
@@ -123,8 +177,7 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		messages, setMessages,
 		fetchFriends,
 		fetchMessages,
-		sendMessages,
-		subscribeMessage, unsubscribeMessage
+		sendMessages
 	};
 
 	return (

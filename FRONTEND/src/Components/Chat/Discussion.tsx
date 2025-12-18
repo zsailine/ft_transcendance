@@ -4,12 +4,18 @@ import ChatTitle from "./ChatTitle";
 import SearchBar from "./SearchBar";
 import ChatContainer from "./ChatContainer";
 import { useChat } from "../../Providers/ChatProvider";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FriendProfil from "../Profil/FriendProfil";
+import { getRelationship } from "../../Utils/getter";
+import { useFriend } from "../../Providers/FriendProvider";
+import { useSocket } from "../../Providers/SocketProvider";
 
 function Discussion() {
-	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat()
+	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat();
+	const { setSelectedUserProfil } = useFriend();
+	const { socketFriend } = useSocket();
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const [ relation, setRelation ] = useState<string | null>("");
 
 	const exist = !!selectedUser?.username;
 	const leftClass = `md:w-75 shrink-0 flex flex-col gap-10 p-6 h-full w-full ${exist ? 'hidden md:flex' : 'flex'} ${exist && 'w-0 p-0'}`;
@@ -21,6 +27,24 @@ function Discussion() {
 			setPreviewProfil(prev => !prev);
 		}
 	};
+
+	useEffect(() => {
+		getRelationship(selectedUser?.username || "", setRelation);
+	}, [selectedUser]);
+
+	useEffect(() => {
+		socketFriend?.on("i am blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i am unblocked", () => { setRelation(""); });
+		socketFriend?.on("i unblocked", () => { setRelation(""); });
+
+		return () => {
+			socketFriend?.off("i am blocked");
+			socketFriend?.off("i blocked");
+			socketFriend?.off("i am unblocked");
+			socketFriend?.off("i unblocked");
+		}
+	}, [socketFriend, selectedUser]);
 
 	return (
 		<div className="flex justify-center h-full w-full min-h-[450px]">
@@ -38,7 +62,8 @@ function Discussion() {
 							friendsList={friendsList}
 							searchValue={searchValue}
 							setSelectedUser={setSelectedUser}
-							message={"message"} />
+							message={"message"}  click={undefined}
+							setSelectedUserProfil={setSelectedUserProfil}/>
 						</div>
 					</div>
 
@@ -51,10 +76,11 @@ function Discussion() {
 				</div>
 			</ChatBorder>
 
-			{previewProfil && selectedUser && (
+			{previewProfil && selectedUser && relation !== "blocked" && (
 				<FriendProfil
 					user={selectedUser}
-					click={clickProfil}/>
+					click={clickProfil}
+					type=""/>
 			)}
 
 		</div>

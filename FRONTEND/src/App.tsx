@@ -20,6 +20,7 @@ import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
+import { SocketProvider } from "./Providers/SocketProvider.tsx";
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
     <>
       <AuthProvider>
         <DashboardProvider>
+          <SocketProvider>
           <ChatProvider>
             <FriendProvider>
               <Router>
@@ -46,6 +48,7 @@ function App() {
                       </ProtectedRoute>
                     }>
                     <Route index element={<Profil />} />
+                    <Route path="profile" element={<Profil />} />
                     <Route path="settings" element={<Settings />} />
                     <Route path="play"
                       element={
@@ -80,6 +83,7 @@ function App() {
               />
             </FriendProvider>
           </ChatProvider>
+          </SocketProvider>
         </DashboardProvider>
       </AuthProvider>
     </>
