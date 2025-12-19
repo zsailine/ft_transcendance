@@ -1,11 +1,34 @@
 import { TbMessageDots } from "react-icons/tb";
 import { useChat } from "../../Providers/ChatProvider";
+import { useEffect, useState } from "react";
+import { useSocket } from "../../Providers/SocketProvider";
+import Typing from "./isTyping";
 
 interface NoChatHistory {
 	name: string | null
 }
 
 export function NoChatHistory({ name }: NoChatHistory) {
+
+	const [ typing, setTyping ] = useState<boolean>(false);
+	const { socketFriend } = useSocket();
+	const { selectedUser, messages } = useChat();
+
+	useEffect(() => {
+		socketFriend?.on("typing", (response) => {
+			if (response === selectedUser?.username)
+				setTyping(true); 
+		});
+		socketFriend?.on("stop typing", (response) => {
+			if (response === selectedUser?.username)
+				setTyping(false);
+		});
+
+		return () => {
+			socketFriend?.off("typing");
+			socketFriend?.off("stop typing");
+			}
+	}, [socketFriend, selectedUser, messages]);
 
 	const { sendMessages } = useChat();
 	const handleClick = (text: string) => {
@@ -16,7 +39,7 @@ export function NoChatHistory({ name }: NoChatHistory) {
 	};
 
 	return (
-	<div className="flex flex-col items-center justify-center flex-1 text-center w-full p-4">
+	<div className="relative flex flex-col items-center justify-center flex-1 text-center w-full p-4">
 	<div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-full flex items-center justify-center mb-5">
 		<TbMessageDots className="size-8 text-cyan-400" />
 	</div>
@@ -43,6 +66,9 @@ export function NoChatHistory({ name }: NoChatHistory) {
 		🎮 Play with them
 		</button>
 	</div>
+	{typing && <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6">
+		<Typing />
+	</div>}
 	</div>
 	)
 }

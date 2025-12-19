@@ -14,7 +14,7 @@ interface ReceiverHeaderProps {
 }
 
 function ReceiverHeader({click}: ReceiverHeaderProps) {
-	const { socket, user } = useAuth();
+	const { socket, user, onlineUsers } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
 	const [ relation, setRelation ] = useState<string | null>("");
@@ -71,11 +71,12 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 	return (
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
-			<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
-					<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
-						src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
-						className="w-full h-full rounded-full object-cover border border-cyan-500/20" />
-			</div>
+			{selectedUser && <div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15" onClick={click}>
+				<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
+					src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
+					className="w-full h-full rounded-full object-cover border border-cyan-500/20" />
+				<span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#101728] ${onlineUsers.includes(selectedUser.username) ? "bg-green-400" : ""} rounded-full border-2 border-gray-600`}></span>
+			</div>}
 
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica hover:underline"
 				onClick={click}>

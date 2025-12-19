@@ -9,14 +9,17 @@ export const moveAIPaddle = (
 	boardWidth: number,
 	slide: boolean | undefined ) => {
 	const now = Date.now();
-	const ballGoingToAI = ball.XDirection > 0;
+	const ballGoingToAI = ball.XDirection > 0 && ball.X + ball.Radius < boardWidth;
 	const ballInZone = ball.X > boardWidth * 0.75;
+	if (!ballGoingToAI || !ballInZone) {
+		if (!slide) {
+			paddle2.Direction = 0;
+		}
+		return;
+	}
 	if (ballGoingToAI && ballInZone && now - lastDecisionTime > 120) {
 		aiTargetY = ball.Y - paddle2.height / 2 + (Math.random() - 0.5) * paddle2.height * 0.2;
 		lastDecisionTime = now;
-	}
-	if (!ballGoingToAI) {
-		return;
 	}
 	const diff = aiTargetY - paddle2.y;
 	const deadzone = (slide) ? 50 : 10;
