@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../../Utils/axios";
 import { useDashboard } from "../../Providers/DashboardProvider";
 import Rank from "./Rank";
+import type { UserInterface } from "../../Providers/ChatProvider";
 
-export default function LeaderBoard() {
+export default function LeaderBoard({click, setter} : {click: () => void, setter: (user: UserInterface) => void}) {
 	const [leaderBoard, setLeaderBoard] = useState<any>(null);
 	const [rank, setRank] = useState<any>(null);
 	const { username } = useDashboard();
@@ -44,7 +45,7 @@ export default function LeaderBoard() {
 								</thead>
 								<tbody className="text-sm">
 									{leaderBoard.map((player: any, index: number) => (
-										<Rank key={player.username || index} player={player} />
+										<Rank key={player.username || index} player={player} click={click} setter={setter}/>
 									))}
 								</tbody>
 							</table>
@@ -54,7 +55,7 @@ export default function LeaderBoard() {
 							<table className="w-full text-left border-collapse">
 								<tbody className="text-sm">
 									{rank !== null ? (
-										<Rank player={rank} />
+										<Rank player={rank} click={click} setter={setter} />
 									) : (
 										<tr>
 											<td colSpan={3} className="py-4 text-center text-slate-500 italic">

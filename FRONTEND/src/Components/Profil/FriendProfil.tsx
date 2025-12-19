@@ -36,7 +36,7 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 	}, [user]);
 
 	return (
-	<div className="fixed inset-0 bg-black/10 backdrop-blur-md z-[100] flex items-center justify-center transition-opacity duration-300 overflow-y-auto font-helvetica"
+	<div className="fixed inset-0 bg-black/10 backdrop-blur-md z-[100] flex items-center justify-center transition-opacity duration-300 font-helvetica"
 		onClick={click}>
 		<div className="bg-gray-700 overflow-y-auto overflow-hidden rounded-2xl shadow-2xl w-[90%] md:w-[70%] lg:w-[40%] h-auto max-h-[90vh] min-h-[600px] m-4 transform scale-100 transition-transform duration-300 text-gray-200 p-4 flex items-center flex-col"
 			onClick={(e: React.MouseEvent) => e.stopPropagation()}>
@@ -82,7 +82,7 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 				</div>
 			</div>
 
-			<div className="flex gap-5 w-[80%] xl:w-[50%] flex-shrink-0 mt-10">
+			{type !== "leaderboard" && <div className="flex gap-5 w-[80%] xl:w-[50%] flex-shrink-0 mt-10">
 				<UnfriendButton
 					friend={user}
 					setSelectedUser={setSelectedUser}
@@ -91,10 +91,10 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 					user={user}
 					handleBlocked={handleBlocked}
 					type={type}/>
-			</div>
+			</div>}
 
 			<div className="flex gap-5 w-[80%] xl:w-[50%] flex-shrink-0 justify-center text-sm">
-				<button className="flex-1 mt-8 w-[50%] py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-indigo-600 transition duration-150 shadow-lg flex-shrink-0"
+				<button className="flex-1 mt-8 w-[50%] py-2 bg-gray-500 text-white font-semibold rounded-md hover:bg-gray-600 transition duration-150 shadow-lg flex-shrink-0"
 					onClick={handleFullViewProfil}>
 					See Profile
 				</button>

@@ -22,7 +22,6 @@ const Story = ({ username, match, shouldClick }: { username: string | null, matc
 
 	const handleOverlay = () => {
 		setIsOverlay((prev) => !prev);
-		console.log(match);
 	}
 
 	useEffect(() => {

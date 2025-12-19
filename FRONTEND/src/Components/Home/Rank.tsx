@@ -1,7 +1,8 @@
+import type { UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useEffect, useState } from "react";
 
-const Rank = ({ player }: { player: any }) => {
+const Rank = ({ player, click, setter }: { player: any, click: () => void, setter: (user: UserInterface) => void}) => {
 	const [imgUrl, setImgUrl] = useState<string | null>(null);
 	useEffect(() => {
 		let url: string | null = getImageUrlFromBlob(player.avatar);
@@ -17,7 +18,14 @@ const Rank = ({ player }: { player: any }) => {
 	};
 
 	return (
-		<tr className="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
+		<tr className="group hover:bg-white/5 transition-colors border-b border-white/5 last:border-0" onClick={() => {
+			click();
+			setter({
+				id: player.rank,
+				username: player.username,
+				avatar: player.avatar
+			})
+		}}>
 			<td className="py-4 pl-2 font-bold w-12">
 				{player.rank === 1 && <span className="text-amber-400 text-lg">#1</span>}
 				{player.rank === 2 && <span className="text-slate-300 text-lg">#2</span>}
@@ -42,4 +50,4 @@ const Rank = ({ player }: { player: any }) => {
 	);
 };
 
-export default Rank;
+export default Rank; 

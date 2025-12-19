@@ -34,14 +34,14 @@ const getRelationship = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
-			rep.status(400).send({ error: "Can't get relationship with yourself" }); }
+			return rep.status(200).send({ status: "none" }); }
 		const [ user_a, user_b ] = [loggedInUsername, receiverUsername].sort();
 		const status = db.prepare(`SELECT status FROM friendship WHERE (user_a=? AND user_b=?)`)
 			.get(user_a, user_b);
 		if (!status) {
-			rep.status(200).send({ status: "none" });
+			return rep.status(200).send({ status: "none" });
 		} else {
-			rep.status(200).send(status);
+			return rep.status(200).send(status);
 		}
 	} catch(error) {
 		rep.status(500).send({

@@ -3,9 +3,25 @@ import Header from '../../Components/Home/Header';
 import Play from '../../Components/Home/Play';
 import LeaderBoard from '../../Components/Home/LeaderBoard';
 import Achievements from '../../Components/Home/Achievements';
+import { useEffect, useState } from 'react';
+import type { UserInterface } from '../../Providers/ChatProvider';
+import FriendProfil from '../../Components/Profil/FriendProfil';
+import { getRelationship } from '../../Utils/getter';
 
 const Home = () => {
     const { username } = useDashboard();
+    const [ userProfil, setUserProfil ] = useState<UserInterface>({id: 0, username: "", avatar: null});
+    const [ overlayed, setIsOverlayed ] = useState<boolean>(false);
+    const [ relation, setRelation ] = useState<string | null>("");
+
+    const handleClick = () => {
+        setIsOverlayed((prev) => !prev);
+    }
+
+    useEffect(() => {
+            getRelationship(userProfil?.username || "", setRelation);
+        }, [userProfil]);
+
     return (
         <div className="min-h-screen text-white p-4 md:p-8 font-sans overflow-hidden relative">
 
@@ -18,9 +34,16 @@ const Home = () => {
                         <Play />
                         <Achievements viewAchievements={() => console.log('yo')} />
                     </div>
-                    <LeaderBoard />
+                    <LeaderBoard setter={setUserProfil} click={handleClick}/>
                 </div>
             </div>
+
+            {overlayed && userProfil && relation !== "blocked" &&
+            <FriendProfil
+                click={handleClick}
+                user={userProfil}
+                type="leaderboard"
+                />}
         </div>
     );
 };

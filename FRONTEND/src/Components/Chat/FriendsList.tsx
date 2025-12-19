@@ -51,7 +51,11 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 						<div className="flex gap-2 md:gap-5 items-center w-full"
 							onClick={() => setSelectedUser(friend)}>
 
-							<div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15">
+							<div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15"
+								onClick={() => {
+									setSelectedUserProfil(friend);
+									click?.();
+								}}>
 								<img
 									alt={friend.username?.at(0)?.toUpperCase()}
 									src={friend.avatar ? getImageUrlFromBlob(friend.avatar)?.toString() : "/images/avatar.jpg"}
