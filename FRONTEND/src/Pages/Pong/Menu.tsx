@@ -8,25 +8,25 @@ export const Menu = () => {
 			<div className="text-white flex flex-col items-center justify-center h-full font-sans font-helvetica">
 				<div className=" w-[100%] md:w-[70%] flex-wrap flex flex-col md:flex-row items-between items-center justify-center md:justify-around gap-20 md:space-y-0 mb-9">
 					<MenuCard
+						title="Online Play"
+						description="Compete against players from around the world to climb the rankings."
+						onClick={() => navigate("/dashboard/play/online")}
+						buttonContent="Start"
+						bgCard="bg-[url(/images/bg-card3.png)] bg-cover"
+					/>
+					<MenuCard
 						title="Local Play"
 						description="Challenge a friend on the same device."
 						onClick={() => navigate("/dashboard/play/pong")}
 						buttonContent="Start"
-						bgCard="bg-[url(/images/bg-card5.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card2.png)] bg-cover"
 					/>
 					<MenuCard
 						title="Local Tournament"
 						description="Challenge your friends to see who is the best on the same device."
 						onClick={() => navigate("/dashboard/play/tournament")}
 						buttonContent="Start"
-						bgCard="bg-[url(/images/bg-card5.png)] bg-cover"
-					/>
-					<MenuCard
-						title="Online Play"
-						description="Compete against players from around the world to climb the rankings."
-						onClick={() => navigate("/dashboard/play/online")}
-						buttonContent="Start"
-						bgCard="bg-[url(/images/bg-card5.png)] bg-cover"
+						bgCard="bg-[url(/images/bg-card4.png)] bg-cover"
 					/>
 					<MenuCard
 						title="Multiplayer Online"
