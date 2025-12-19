@@ -13,21 +13,15 @@ const senderStyle = "self-end bg-cyan-500/20 text-white px-4 py-2 rounded-2xl ro
 const receiverStyle = "self-start bg-gray-200/10 text-white px-4 py-2 rounded-2xl rounded-bl-none max-w-sm break-words shadow transition-transform hover:-translate-y-0.5 flex flex-col gap-2";
 
 export const getHour = (timestamp: string) => {
-	const date = new Date(timestamp);
-	const newDate = date.toLocaleTimeString([], {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false
-	});
-	const tempDate = new Date();
-	const [ h, m ] = newDate.split(':').map(Number);
-	tempDate.setHours(h, m);
-	tempDate.setHours(tempDate.getHours() + 3);
-	return tempDate.toLocaleTimeString([], {
-		hour: '2-digit',
-		minute: '2-digit',
-		hour12: false
-	});
+    const date = new Date(timestamp);
+    date.setHours(date.getHours() + 3);
+    return date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
 }
 
 export function MessageList() {

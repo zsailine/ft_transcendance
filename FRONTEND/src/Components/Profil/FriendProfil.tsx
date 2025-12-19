@@ -23,7 +23,7 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 	const [ stat, setStat ] = useState<statInterface>({total_losses: 0, total_matches: 0, total_wins:0});
 
 	const handleFullViewProfil = () => {
-		navigate(`/dashboard?username=${user.username}`);
+		navigate(`/dashboard/profile?username=${user.username}`);
 	}
 
 	useEffect(() => {
@@ -96,7 +96,7 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 			<div className="flex gap-5 w-[80%] xl:w-[50%] flex-shrink-0 justify-center text-sm">
 				<button className="flex-1 mt-8 w-[50%] py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-indigo-600 transition duration-150 shadow-lg flex-shrink-0"
 					onClick={handleFullViewProfil}>
-					See Profil
+					See Profile
 				</button>
 				<button className="flex-1 mt-8 w-[50%] py-2 bg-indigo-500 text-white font-semibold rounded-md hover:bg-indigo-600 transition duration-150 shadow-lg flex-shrink-0" 
 					onClick={click}>
