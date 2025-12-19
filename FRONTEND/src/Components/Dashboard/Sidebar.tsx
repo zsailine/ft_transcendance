@@ -49,7 +49,7 @@ const Sidebar = () => {
                 </div>
                 <div
                     onClick={() => navigate("/dashboard/discussion")}
-                    className={`rounded-br-lg flex gap-3.5 px-4 py-2 items-center border-t-1 border-cyan-800/10 ${hoverEffect}`} >
+                    className={`rounded-br-lg flex gap-3.5 px-4 py-2 items-center cursor-pointer border-t-1 border-cyan-800/10 ${hoverEffect}`} >
                     <IoChatboxEllipsesSharp className="text-cyan-500" />
                     <h2 className="hidden lg:block">Discussion</h2>
                 </div>

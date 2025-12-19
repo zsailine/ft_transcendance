@@ -17,7 +17,7 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 	const { socket, user, onlineUsers } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
-	const [ relation, setRelation ] = useState<string | null>("");
+	const [relation, setRelation] = useState<string | null>("");
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
 

@@ -20,26 +20,27 @@ const getStats = (req, rep) => {
 }
 
 const getLeaderboard = async (req, rep) => {
-	try {
-		const stmt = db.prepare(`
+    try {
+        const stmt = db.prepare(`
             SELECT
-                username, 
-                xp,
-                CAST(total_wins AS FLOAT) / total_matches as win_rate,
-                DENSE_RANK() OVER (ORDER BY xp DESC) as rank
-            FROM user_stats 
+                us.username, 
+                us.xp,
+                CAST(us.total_wins AS FLOAT) / us.total_matches as win_rate,
+                DENSE_RANK() OVER (ORDER BY us.xp DESC) as rank,
+                u.avatar
+            FROM user_stats us
+            JOIN users u ON us.username = u.username
             ORDER BY rank ASC
-            LIMIT 100
+            LIMIT 6
         `);
 
-		const leaderboard = stmt.all();
-		rep.send(leaderboard);
+        const leaderboard = stmt.all();
+        rep.send(leaderboard);
 
-	} catch (err) {
-		rep.code(500).send(err);
-	}
+    } catch (err) {
+        rep.code(500).send(err);
+    }
 }
-
 const getPlayerRank = async (req, rep) => {
     const { username } = req.params;
 
@@ -50,17 +51,20 @@ const getPlayerRank = async (req, rep) => {
                     username, 
                     xp, 
                     total_wins,
-                    DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank
+                    DENSE_RANK() OVER (ORDER BY xp DESC) as rank
                 FROM user_stats
             )
             SELECT 
-                username, 
-                xp, 
-                total_wins,
-                display_rank
-            FROM RankedPlayers
-            WHERE username = ?
+                rp.username, 
+                rp.xp, 
+                rp.total_wins, 
+                rp.rank,
+                u.avatar
+            FROM RankedPlayers rp
+            JOIN users u ON rp.username = u.username
+            WHERE rp.username = ?
         `);
+        
         const player = stmt.get(username);
 
         if (!player) {
@@ -84,7 +88,7 @@ const getPlayersRank = async (req, rep) => {
                     username, 
                     xp, 
                     total_wins,
-                    DENSE_RANK() OVER (ORDER BY xp DESC) as display_rank,
+                    DENSE_RANK() OVER (ORDER BY xp DESC) as rank,
                     ROW_NUMBER() OVER (ORDER BY xp DESC, total_wins DESC, username ASC) as row_num
                 FROM user_stats
             )
@@ -92,7 +96,7 @@ const getPlayersRank = async (req, rep) => {
                 username, 
                 xp, 
                 total_wins,
-                display_rank
+                rank
             FROM RankedPlayers
             WHERE row_num BETWEEN 
                 (SELECT row_num - 1 FROM RankedPlayers WHERE username = ?) 
@@ -115,8 +119,9 @@ const getPlayersRank = async (req, rep) => {
 }
 
 const addMatch = async (req, rep) => {
-	const { player1, player2, winner, score_p1, score_p2, duration } = req.body;
-	const loser = (winner === player1) ? player2 : player1;
+	const { player1, player2, winner, score_p1, score_p2, duration, stats_p1, stats_p2 } = req.body;
+	console.log(req.body);
+    const loser = (winner === player1) ? player2 : player1;
 
 	const insertMatch = db.prepare("INSERT into matches (player1, player2, winner, score_p1, score_p2, duration) VALUES (?, ?, ?, ?, ?, ?)");
 	const updateWinner = db.prepare(`
