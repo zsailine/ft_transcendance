@@ -63,7 +63,7 @@ export const gameAI = (
 	function nextTick(): void {
 		intervalID = setInterval(() => {
 			clearBoard(ctx, board, theme.boardBackground);
-			moveAIPaddle(ball, paddle2, board.height);
+			moveAIPaddle(ball, paddle2, board.width, theme.slide);
 			movePlayerPaddle(board, paddleSpeed, paddle1, paddle2);
 			drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 			moveBall(0, ball, board, ctx, theme.boardBorder, paddle1, paddle2);
