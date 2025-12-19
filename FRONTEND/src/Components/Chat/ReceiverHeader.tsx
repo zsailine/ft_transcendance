@@ -13,11 +13,11 @@ interface ReceiverHeaderProps {
 	click: () => void
 }
 
-function ReceiverHeader({click}: ReceiverHeaderProps) {
+function ReceiverHeader({ click }: ReceiverHeaderProps) {
 	const { socket, user } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
-	const [ relation, setRelation ] = useState<string | null>("");
+	const [relation, setRelation] = useState<string | null>("");
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
 
@@ -72,11 +72,11 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
 			<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
-					<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
-						src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
-						className="w-full h-full rounded-full object-cover border border-cyan-500/20" />
+				<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
+					src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
+					className="w-full h-full rounded-full object-cover border border-cyan-500/20"
+					onClick={click} />
 			</div>
-
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica hover:underline"
 				onClick={click}>
 				{selectedUser?.username}

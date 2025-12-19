@@ -6,7 +6,7 @@ import Story from "../../Components/Profil/Story";
 import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import api from "../../Utils/axios";
 import WinLossChart from "../../Components/Profil/DonutGraph";
-import Rank from "../../Components/Profil/Rank";
+import Achievements from "../../Components/Home/Achievements";
 
 export interface statInterface {
     total_matches: number;
@@ -47,6 +47,7 @@ const Profil = () => {
     const [stats, setStats] = useState<statInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
     const [rank, setRank] = useState<any>(null);
+
     async function getLeaderBoard() {
         const response = await api.get(`/matches/rank/${profile.username}`);
         if (response.data)
@@ -59,12 +60,12 @@ const Profil = () => {
                 const Profile: ProfilInterface = {
                     nickname: response.data.nickname,
                     username: response.data.username,
-                    avatar : response.data.avatar,
-                    coverImage : response.data.cover_image,
+                    avatar: response.data.avatar,
+                    coverImage: response.data.cover_image,
                 }
                 setProfile(Profile);
             }
-            catch (error) {}
+            catch (error) { }
         }
         else {
             const Profile: ProfilInterface = {
@@ -82,7 +83,7 @@ const Profil = () => {
             setStats(response.data);
     }
     async function getRecentMatches() {
-        const response = await api.get(`/matches/${profile.username}?size=3`);
+        const response = await api.get(`/matches/${profile.username}?size=5`);
         if (response.data.length)
             setMatches(response.data);
     }
@@ -151,7 +152,7 @@ const Profil = () => {
                                     <div className="flex justify-between text-left p-3 rounded-lg h-full bg-linear-65 from-cyan-200/15 to-cyan-800/30">
                                         <div>
                                             <h1 className="text-3xl font-bold">{profile.username}</h1>
-                                            <p className="text-xl italic">Rank : {rank?.display_rank}</p>
+                                            <p className="text-xl italic">Rank : {rank?.rank}</p>
                                             <p></p>
                                         </div>
                                         <div className="text-right ">
@@ -192,7 +193,7 @@ const Profil = () => {
                                     <WinLossChart wins={stats?.total_wins} losses={stats.total_losses} />
                                 </div>
                                 <div className="shadow-amber-400 shadow-md p-5 mt-2 rounded-lg  h-fit">
-                                    {/* <Rank username={profile.username} players={rank} /> */}
+                                    <Achievements viewAchievements={() => console.log('yo')} />
                                 </div>
                             </div>
                         </div>

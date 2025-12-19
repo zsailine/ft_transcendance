@@ -95,7 +95,9 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
     Direction: 0,
     Score: 0
   };
-
+  const date = new Date();
+  const paddle1Stats = { returns: 0, maxCombo: 0, combo: 0 };
+  const paddle2Stats = { returns: 0, maxCombo: 0, combo: 0 };
   let paddle1Score = 0;
   let paddle2Score = 0;
   let ballSpeed = 0;
@@ -151,46 +153,46 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
     }
   }
 
-  const checkPaddleCollision = (paddle) => {
+  const checkPaddleCollision = (paddle, paddleStats) => {
+    const left = paddle.x;
+    const right = paddle.x + paddle.width;
+    const top = paddle.y;
+    const bottom = paddle.y + paddle.height;
+    const centerX = left + paddle.width * 0.5;
+    const centerY = top + paddle.height * 0.5;
+    const closestX = Math.max(left, Math.min(ballX, right));
+    const closestY = Math.max(top, Math.min(ballY, bottom));
+    const dx = ballX - closestX;
+    const dy = ballY - closestY;
 
-    const closestX = Math.max(paddle.x, Math.min(ballX, paddle.x + paddle.width));
-    const closestY = Math.max(paddle.y, Math.min(ballY, paddle.y + paddle.height));
+    if (dx * dx + dy * dy >= ballRadius * ballRadius) return;
 
-    const distanceX = ballX - closestX;
-    const distanceY = ballY - closestY;
-    const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+    const overlapX =
+      (paddle.width * 0.5 + ballRadius) - Math.abs(ballX - centerX);
+    const overlapY =
+      (paddle.height * 0.5 + ballRadius) - Math.abs(ballY - centerY);
 
-    if (distanceSquared < (ballRadius * ballRadius)) {
+    if (overlapY < overlapX) {
+      ballYDirection = -ballYDirection;
 
-      const paddleCenterX = paddle.x + paddle.width / 2;
-      const paddleCenterY = paddle.y + paddle.height / 2;
-
-      const overlapX = (paddle.width / 2 + ballRadius) - Math.abs(ballX - paddleCenterX);
-      const overlapY = (paddle.height / 2 + ballRadius) - Math.abs(ballY - paddleCenterY);
-
-      if (overlapY < overlapX) {
-        ballYDirection = -ballYDirection;
-
-        if (ballY < paddleCenterY) {
-          ballY = paddle.y - ballRadius;
-        } else {
-          ballY = paddle.y + paddle.height + ballRadius;
-        }
-
-        ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
-
-      } else {
-        ballXDirection = -ballXDirection;
+      ballY = (ballY < centerY)
+        ? top - ballRadius
+        : bottom + ballRadius;
+      ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
+    }
+    else {
+      ballXDirection = -ballXDirection;
+      paddleStats.returns++;
+      paddleStats.combo++;
+      paddleStats.maxCombo = Math.max(paddleStats.combo, paddleStats.maxCombo),
         add(board);
 
-        if (ballX < paddleCenterX) {
-          ballX = paddle.x - ballRadius;
-        } else {
-          ballX = paddle.x + paddle.width + ballRadius;
-        }
-      }
+      ballX = (ballX < centerX)
+        ? left - ballRadius
+        : right + ballRadius;
     }
   };
+
 
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
@@ -212,13 +214,15 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
       ballYDirection = -ballYDirection;
       ballY = board.height - ballRadius;
     }
-    checkPaddleCollision(paddle1);
-    checkPaddleCollision(paddle2);
+    checkPaddleCollision(paddle1, paddle1Stats);
+    checkPaddleCollision(paddle2, paddle2Stats);
 
     if (ballX + ballRadius < 0) {
+      paddle1Stats.combo = 0;
       paddle2Score++;
       resetBall();
     } else if (ballX - ballRadius > board.width) {
+      paddle2Stats.combo = 0;
       paddle1Score++;
       resetBall();
     }
@@ -235,10 +239,18 @@ export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
     const body = {
       player1: user1Id,
       player2: user2Id,
+      stats_p1: {
+        returns: paddle1Stats.returns,
+        maxCombo: paddle1Stats.maxCombo ?? 0,
+      },
+      stats_p2: {
+        returns: paddle2Stats.returns,
+        maxCombo: paddle2Stats.maxCombo ?? 0,
+      },
       score_p1: paddle1Score,
       score_p2: paddle2Score,
       winner: winner === "player1" ? user1Id : user2Id,
-      played_at: new Date(),
+      played_at: date,
       duration: Math.floor(duration / 1000)
     };
     await axios.post('http://localhost:3001/matches/add', body)

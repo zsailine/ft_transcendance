@@ -207,45 +207,41 @@ export async function startMulti(io, roomName, user1Id, user2Id, user3Id, user4I
 	}
 
 	const checkPaddleCollision = (paddle) => {
-
-		const closestX = Math.max(paddle.x, Math.min(ballX, paddle.x + paddle.width));
-		const closestY = Math.max(paddle.y, Math.min(ballY, paddle.y + paddle.height));
-
-		const distanceX = ballX - closestX;
-		const distanceY = ballY - closestY;
-		const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-
-		if (distanceSquared < (ballRadius * ballRadius)) {
-
-			const paddleCenterX = paddle.x + paddle.width / 2;
-			const paddleCenterY = paddle.y + paddle.height / 2;
-
-			const overlapX = (paddle.width / 2 + ballRadius) - Math.abs(ballX - paddleCenterX);
-			const overlapY = (paddle.height / 2 + ballRadius) - Math.abs(ballY - paddleCenterY);
-
-			if (overlapY < overlapX) {
-				ballYDirection = -ballYDirection;
-
-				if (ballY < paddleCenterY) {
-					ballY = paddle.y - ballRadius;
-				} else {
-					ballY = paddle.y + paddle.height + ballRadius;
-				}
-
-				ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
-
-			} else {
-				ballXDirection = -ballXDirection;
-				add(board);
-
-				if (ballX < paddleCenterX) {
-					ballX = paddle.x - ballRadius;
-				} else {
-					ballX = paddle.x + paddle.width + ballRadius;
-				}
-			}
+		const left = paddle.x;
+		const right = paddle.x + paddle.width;
+		const top = paddle.y;
+		const bottom = paddle.y + paddle.height;
+		const centerX = left + paddle.width * 0.5;
+		const centerY = top + paddle.height * 0.5;
+		const closestX = Math.max(left, Math.min(ballX, right));
+		const closestY = Math.max(top, Math.min(ballY, bottom));
+		const dx = ballX - closestX;
+		const dy = ballY - closestY;
+	
+		if (dx * dx + dy * dy >= ballRadius * ballRadius) return;
+	
+		const overlapX =
+		  (paddle.width * 0.5 + ballRadius) - Math.abs(ballX - centerX);
+		const overlapY =
+		  (paddle.height * 0.5 + ballRadius) - Math.abs(ballY - centerY);
+	
+		if (overlapY < overlapX) {
+		  ballYDirection = -ballYDirection;
+	
+		  ballY = (ballY < centerY)
+			? top - ballRadius
+			: bottom + ballRadius;
+		  ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
 		}
-	};
+		else {
+		  ballXDirection = -ballXDirection;
+		  add(board);
+	
+		  ballX = (ballX < centerX)
+			? left - ballRadius
+			: right + ballRadius;
+		}
+	  };
 
 	function moveBall() {
 		ballX += ballSpeed * ballXDirection;
