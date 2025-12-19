@@ -142,7 +142,7 @@ const Profil = () => {
             {profile.username ?
                 <>
                     {isOverlayOpen && <div className="fixed inset-0 z-20 bg-black/30 backdrop-blur-lg w-full h-full blur-2xl"></div>}
-                    <div className=" text-white text-center my-8">
+                    <div className=" text-white text-center my-8 mx-8">
                         <div className="flex flex-col md:flex-row gap-10 md:gap-20 px-4 md:px-0">
                             <div className="w-full md:w-1/2">
                                 <div
@@ -181,7 +181,7 @@ const Profil = () => {
                                 <div className="sm:flex gap-8">
                                     <div className="w-full">
                                         {matches && matches.map((match: any) => (
-                                            <Story key={match.id} username={profile.username} match={match} />
+                                            <Story key={match.id} username={profile.username} match={match} shouldClick={false} />
                                         ))}
                                         {!matches && <p>No matches to show</p>}
                                     </div>
@@ -200,7 +200,9 @@ const Profil = () => {
                     </div>
                     {
                         isOverlayOpen && (
-                            <OverlayMatch username={profile.username} />
+                            <div className="fixed inset-0 z-20 w-full h-full">
+                                <OverlayMatch username={profile.username} />
+                            </div>
                         )
                     }
                 </> :
