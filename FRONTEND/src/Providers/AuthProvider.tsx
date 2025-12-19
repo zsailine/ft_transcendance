@@ -125,6 +125,7 @@ const AuthProvider = ({ children }: any) => {
 			withCredentials: true,
 			path: "/message/socket.io",
 			transports: ["websocket"],
+			reconnection: false,
 		})
 		newSocket.on("connect", () => { });
 		newSocket.on("onlineUser", (usernames: string[]) => {

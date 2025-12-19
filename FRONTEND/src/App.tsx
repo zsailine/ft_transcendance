@@ -23,6 +23,8 @@ import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
 import { SocketProvider } from "./Providers/SocketProvider.tsx";
 import PongGameAI from "./Pong/AI/PongGameAI.tsx";
 import Home from "./Pages/Dashboard/Home.tsx";
+import PrivacyPolicy from "./Legality/PrivacyPolicy.tsx";
+import TermsOfService from "./Legality/TermsOfService.tsx";
 
 function App() {
 
@@ -53,6 +55,8 @@ function App() {
                         onViewAllAchievements={() => console.log('achievements')}
                       />} />
                       <Route path="profile" element={<Profil />} />
+                      <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="terms-of-service" element={<TermsOfService />} />
                       <Route path="settings" element={<Settings />} />
                       <Route path="play"
                         element={

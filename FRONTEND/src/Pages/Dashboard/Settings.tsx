@@ -44,6 +44,7 @@ const Settings = () => {
         await api.post(`/users/${username}/updateColor`, theme)
             .then(() => {
                 refreshUserData && refreshUserData();
+                toast.success("Update successful");
                 navigate('/dashboard/')
             })
             .catch((error) => {

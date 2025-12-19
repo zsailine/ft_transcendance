@@ -8,6 +8,8 @@ import { FaUsers } from "react-icons/fa6";
 import { RiPingPongLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
+import { MdPrivacyTip, MdInfo } from "react-icons/md";
+import { IoMdLock } from "react-icons/io";
 
 const Sidebar = () => {
 
@@ -58,6 +60,20 @@ const Sidebar = () => {
                     className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
                     <IoSettings className="text-cyan-500" />
                     <h2 className="hidden lg:block">Settings</h2>
+                </div>
+            </div>
+            <div>
+                <div
+                    onClick = {() => navigate("/dashboard/privacy-policy")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                        <IoMdLock  className="text-cyan-500"/>
+                        <h2 className="hidden lg:block">Privacy Policy</h2>
+                </div>
+                <div
+                    onClick = {() => navigate("/dashboard/terms-of-service")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                        <MdInfo  className="text-cyan-500"/>
+                        <h2 className="hidden lg:block">Terms of Service</h2>
                 </div>
             </div>
         </div>

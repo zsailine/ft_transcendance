@@ -24,7 +24,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
 		const newSocket = io("http://localhost:3000", {
 			withCredentials: true,
 			path: "/friend/socket.io",
-			transports: ["websocket"]
+			transports: ["websocket"],
+			reconnection: false
 		});
 		setSocketFriend(newSocket);
 	}
