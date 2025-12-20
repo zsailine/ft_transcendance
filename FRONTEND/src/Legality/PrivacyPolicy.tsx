@@ -5,11 +5,12 @@ function PrivacyPolicy() {
 				<h1 className="text-3xl font-bold mb-6 text-gray-100 text-center"> Privacy Policy </h1>
 				<div className="space-y-6 text-sm sm:text-base leading-relaxed text-gray-100">
 
-					<h1 className="font-bold mb-0 mt-4">Online Pong Game Platform</h1>
+					<h1 className="font-bold mb-0 mt-4">Beyond The Pong Platform</h1>
 
 					<h2 className="font-bold mb-0 mt-4">1. Introduction</h2>
 
-					This Privacy Policy explains how we collect, use, and protect your information when you use our online Pong game platform (the “Platform”).
+					This Privacy Policy explains how we collect, use, and protect your information when you use our 
+					Platform Beyond The Pong.
 
 					<h2 className="font-bold mb-0 mt-4">2. Information We Collect</h2>
 
@@ -36,7 +37,7 @@ function PrivacyPolicy() {
 					<h2 className="font-bold mb-0 mt-4">4. Data Sharing</h2>
 
 					We do not sell, rent, or trade your personal data to third parties.
-					Data may be shared only if required by law or to protect the Platform’s security.
+					Data may be shared only if required by law or to protect the Platform's security.
 
 					<h2 className="font-bold mb-0 mt-4">5. Data Storage & Security</h2>
 
@@ -56,7 +57,8 @@ function PrivacyPolicy() {
 					<h2 className="font-bold mb-0 mt-4">7. Children’s Privacy</h2>
 
 					The Platform is intended for general audiences.
-					If you are under the minimum age required by local law, you should use the Platform only with parental consent.
+					If you are under the minimum age required by local law, you should use the Platform only with 
+					parental consent.
 
 					<h2 className="font-bold mb-0 mt-4">8. User Rights</h2>
 
@@ -69,7 +71,7 @@ function PrivacyPolicy() {
 
 					<h2 className="font-bold mb-0 mt-4">10. Contact</h2>
 
-					For privacy-related questions, please contact the Platform administrator.
+					For privacy-related questions, please contact the Platform administrator at mickaeljoestar@gmail.com.
 				</div>
 			</div>
 		</div>
