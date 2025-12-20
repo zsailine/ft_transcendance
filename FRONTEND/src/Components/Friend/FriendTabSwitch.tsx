@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Friends from "./Friends";
 import FriendRequests from "./FriendRequests";
 import ResearchTab from "./ResearchTab";
@@ -6,10 +6,24 @@ import { FaUserFriends, FaUserClock } from "react-icons/fa";
 import { MdPersonSearch } from "react-icons/md";
 import BlockedUsers from "./BlockedUsers";
 import { FaUserSlash } from "react-icons/fa";
+import { useFriend } from "../../Providers/FriendProvider";
+import FriendProfil from "../Profil/FriendProfil";
+import { useSocket } from "../../Providers/SocketProvider";
+import { getRelationship } from "../../Utils/getter";
 
 function FriendTabSwitch() {
-	const [ selectedTab, setSelectedTab ] = useState<React.ReactElement>(<Friends/>);
 	const [ tabSelected, setTabSelected ] = useState<string>("friends");
+	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
+	const [ relation, setRelation ] = useState<string | null>("");
+	const [ type, setType ] = useState<string>("");
+	const { selectedUserProfil } = useFriend();
+	const { socketFriend } = useSocket();
+
+	const clickProfil = () => {
+		setPreviewProfil(prev => !prev);
+	}
+
+	const [ selectedTab , setSelectedTab ] = useState<React.ReactElement>(<Friends click={clickProfil}/>);
 
 	const getTabClasses = (tab: string) => {
 		const base = "py-2 px-4 cursor-pointer transition-all duration-200 ease-in-out font-helvetica-b text-xl flex gap-2";
@@ -20,19 +34,41 @@ function FriendTabSwitch() {
 
 	const handleClick = (event: string) => {
 		if (event === "friends") {
-			setSelectedTab(<Friends/>);
+			setSelectedTab(<Friends click={clickProfil}/>);
 			setTabSelected("friends");
+			setType("");
 		} else if (event === "requests") {
-			setSelectedTab(<FriendRequests/>);
+			setSelectedTab(<FriendRequests click={clickProfil}/>);
 			setTabSelected("requests");
+			setType("request");
 		} else if (event === "research") {
-			setSelectedTab(<ResearchTab/>);
+			setSelectedTab(<ResearchTab click={clickProfil}/>);
 			setTabSelected("research");
+			setType("research");
 		} else if (event === "block") {
 			setSelectedTab(<BlockedUsers/>);
 			setTabSelected("block");
+			setType("");
 		}
 	}
+
+	useEffect(() => {
+		getRelationship(selectedUserProfil?.username || "", setRelation);
+	}, [selectedUserProfil]);
+
+	useEffect(() => {
+		socketFriend?.on("i am blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i blocked", () => { setRelation("blocked"); });
+		socketFriend?.on("i am unblocked", () => { setRelation(""); });
+		socketFriend?.on("i unblocked", () => { setRelation(""); });
+
+		return () => {
+			socketFriend?.off("i am blocked");
+			socketFriend?.off("i blocked");
+			socketFriend?.off("i am unblocked");
+			socketFriend?.off("i unblocked");
+		}
+	}, [socketFriend, selectedUserProfil]);
 
 	return (
 	<div className="flex flex-col items-center w-full h-full p-4 gap-5 md:gap-8">
@@ -45,18 +81,25 @@ function FriendTabSwitch() {
 				<FaUserClock />
 				<p className="hidden md:block text-sm">Requests</p>
 			</div>
-			<div onClick={() => handleClick("research") } className={getTabClasses("research")}>
-				<MdPersonSearch />
-				<p className="hidden md:block text-sm">Search</p>
-			</div>
 			<div onClick={() => handleClick("block") } className={getTabClasses("block")}>
 				<FaUserSlash />
 				<p className="hidden md:block text-sm">Blocked</p>
+			</div>
+			<div onClick={() => handleClick("research") } className={getTabClasses("research")}>
+				<MdPersonSearch />
+				<p className="hidden md:block text-sm">Search</p>
 			</div>
 		</div>
 		<div className="text-slate-200 w-full flex-1">
 			{selectedTab}
 		</div>
+
+		{previewProfil && selectedUserProfil && relation !== "blocked" && (
+			<FriendProfil
+				user={selectedUserProfil}
+				click={clickProfil}
+				type={type}/>
+		)}
 	</div>
 	)
 }

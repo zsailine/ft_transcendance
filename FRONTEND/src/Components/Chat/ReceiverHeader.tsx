@@ -7,20 +7,22 @@ import { useAuth } from "../../Providers/AuthProvider";
 import { generateRoom } from "../../Utils/tools";
 import { useNavigate } from "react-router-dom";
 import { BsBoxArrowInRight } from "react-icons/bs";
+import { getRelationship } from "../../Utils/getter";
 
 interface ReceiverHeaderProps {
 	click: () => void
 }
 
 function ReceiverHeader({click}: ReceiverHeaderProps) {
-	const { socket, user } = useAuth();
+	const { socket, user, onlineUsers } = useAuth();
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
+	const [relation, setRelation] = useState<string | null>("");
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
 
 	function invite() {
-		if (!user || !socket || !selectedUser) return;
+		if (!user || !socket || !selectedUser || relation === "blocked") return;
 		const room = generateRoom();
 		const toInvite = selectedUser.username;
 		socket.emit("invite", { user, toInvite, room });
@@ -62,18 +64,19 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 		};
 	}, [link, socket]);
 
+	useEffect(() => {
+		getRelationship(selectedUser?.username || "", setRelation);
+	}, [selectedUser]);
+
 	return (
 		<div className="flex items-center gap-4 rounded-lg cursor-pointer mb-0 pl-8 shrink-0">
 
-			<div id="friends-avatar" className="w-12 h-12 md:w-15 md:h-15">
-				{selectedUser?.avatar ?
-					<img alt={selectedUser.username?.at(0)?.toUpperCase()}
-						src={getImageUrlFromBlob(selectedUser.avatar.data)?.toString()}
-						className="w-full h-full rounded-full object-cover border border-cyan-500/20" /> :
-				<div className="font-helvetica w-full h-full rounded-full bg-cyan-500/10 text-cyan-300 flex items-center justify-center text-lg font-semibold border border-cyan-500/20">
-					{selectedUser?.username?.at(0)?.toUpperCase()}
-				</div> }
-			</div>
+			{selectedUser && <div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15" onClick={click}>
+				<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
+					src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
+					className="w-full h-full rounded-full object-cover border border-cyan-500/20" />
+				<span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#101728] ${onlineUsers.includes(selectedUser.username) ? "bg-green-400" : ""} rounded-full border-2 border-gray-600`}></span>
+			</div>}
 
 			<div id="friends-username" className="text-sm text-white font-medium truncate font-helvetica hover:underline"
 				onClick={click}>
@@ -83,7 +86,8 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 				{join && (
 					<AiFillNotification className="size-6 md:size-8 text-cyan-500" onClick={joinRoom} />
 				)}
-				<GiConsoleController className="size-6 md:size-8 text-cyan-500" onClick={invite} />
+				<GiConsoleController className={`size-6 md:size-8 text-cyan-500 ${relation === "blocked" ? "opacity-50 cursor-not-allowed" : ""}`}
+					onClick={invite} />
 				<BsBoxArrowInRight className="size-6 md:size-8 text-cyan-500"
 					onClick={() => setSelectedUser(null)} />
 			</div>

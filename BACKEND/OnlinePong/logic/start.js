@@ -1,77 +1,82 @@
 "use strict";
-import fastifySocketIO from 'fastify-socket.io';
-import { generateRoom } from '../socket_utils.js';
+
+import axios from "axios";
+
 const board = {
   width: 0,
   height: 0
 }
-
-export async function initGame(io, roomName, player1Id, player2Id) {
+export async function initGame(io, roomName, user1Id, user2Id, onEnd) {
   let gameOver = false;
+
+  let players = {
+    player1: { userId: user1Id, socketId: null, socket: null },
+    player2: { userId: user2Id, socketId: null, socket: null }
+  };
+  const debut = Date.now();
+  resizeBoard();
   let paddle1Speed = board.height / 250;
   let paddle2Speed = board.height / 250;
-  io.in(roomName).fetchSockets().then((sockets) => {
-    sockets.forEach((socket) => {
-      if (socket.data.listenersAttached) return;
-      socket.data.listenersAttached = true;
+  const removeListeners = (socket) => {
+    socket.removeAllListeners("arrowUp");
+    socket.removeAllListeners("arrowDown");
+    socket.removeAllListeners("arrowUpRelease");
+    socket.removeAllListeners("arrowDownRelease");
+    socket.removeAllListeners("disconnect");
+  }
+  const attachListeners = (socket, role) => {
+    removeListeners(socket);
+    socket.data.gameRole = role;
 
-      socket.on("arrowUp", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = -1;
-        } else {
-          paddle2Direction = -1;
-        }
-      });
-
-      socket.on("arrowDown", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 1;
-        } else {
-          paddle2Direction = 1;
-        }
-      });
-      socket.on("speed", (speed) => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Speed = board.height / speed;
-        } else {
-          paddle2Speed = board.height / speed;
-        }
-      });
-
-      socket.on("arrowUpRelease", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 0;
-        } else {
-          paddle2Direction = 0;
-        }
-      });
-
-      socket.on("arrowDownRelease", () => {
-        if (gameOver) return;
-        if (socket.id === player1Id) {
-          paddle1Direction = 0;
-        } else {
-          paddle2Direction = 0;
-        }
-      });
-      socket.on("disconnect", () => {
-        if (gameOver) return;
-
-        const winner = (socket.id === player1Id) ? "player2" : "player1";
-        io.to(roomName).emit("stop", winner);
-        gameOver = true;
-
-        stopGameLoop();
-      });
+    socket.on("arrowUp", () => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Direction = -1;
+      else paddle2Direction = -1;
     });
+
+    socket.on("arrowDown", () => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Direction = 1;
+      else paddle2Direction = 1;
+    });
+
+    socket.on("arrowUpRelease", () => {
+      if (role === "player1") paddle1Direction = 0;
+      else paddle2Direction = 0;
+    });
+
+    socket.on("arrowDownRelease", () => {
+      if (role === "player1") paddle1Direction = 0;
+      else paddle2Direction = 0;
+    });
+    socket.on("speed", (speed) => {
+      if (gameOver) return;
+      if (role === "player1") paddle1Speed = board.height / speed;
+      else paddle2Speed = board.height / speed;
+    });
+    socket.on("disconnect", () => {
+      if (role === "player1")
+        players.player1.socket = null;
+      else
+        players.player2.socket = null;
+    });
+  };
+
+  const sockets = await io.in(roomName).fetchSockets();
+  sockets.forEach(socket => {
+    if (socket.username === user1Id) {
+      players.player1.socketId = socket.id;
+      players.player1.socket = socket;
+      attachListeners(socket, "player1");
+    }
+    else if (socket.username === user2Id) {
+      players.player2.socketId = socket.id;
+      players.player2.socket = socket;
+      attachListeners(socket, "player2");
+    }
   });
 
   io.to(roomName).emit("start");
-  resizeBoard();
 
   let paddle1 = {
     width: board.width * 0.02,
@@ -90,7 +95,9 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     Direction: 0,
     Score: 0
   };
-
+  const date = new Date();
+  const paddle1Stats = { returns: 0, maxCombo: 0, combo: 0 };
+  const paddle2Stats = { returns: 0, maxCombo: 0, combo: 0 };
   let paddle1Score = 0;
   let paddle2Score = 0;
   let ballSpeed = 0;
@@ -140,60 +147,58 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       io.to(roomName).emit("paddle2", paddle2.y);
     }
   }
-  function add(board){
-    if (ballSpeed < board.width * 0.006)
-    {
+  function add(board) {
+    if (ballSpeed < board.width * 0.006) {
       ballSpeed += board.width * 0.0005;
     }
   }
 
-  const checkPaddleCollision = (paddle) => {
+  const checkPaddleCollision = (paddle, paddleStats) => {
+    const left = paddle.x;
+    const right = paddle.x + paddle.width;
+    const top = paddle.y;
+    const bottom = paddle.y + paddle.height;
+    const centerX = left + paddle.width * 0.5;
+    const centerY = top + paddle.height * 0.5;
+    const closestX = Math.max(left, Math.min(ballX, right));
+    const closestY = Math.max(top, Math.min(ballY, bottom));
+    const dx = ballX - closestX;
+    const dy = ballY - closestY;
 
-    const closestX = Math.max(paddle.x, Math.min(ballX, paddle.x + paddle.width));
-    const closestY = Math.max(paddle.y, Math.min(ballY, paddle.y + paddle.height));
-  
-    const distanceX = ballX - closestX;
-    const distanceY = ballY - closestY;
-    const distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
-  
-    if (distanceSquared < (ballRadius * ballRadius)) {
-  
-      const paddleCenterX = paddle.x + paddle.width / 2;
-      const paddleCenterY = paddle.y + paddle.height / 2;
-  
-      const overlapX = (paddle.width / 2 + ballRadius) - Math.abs(ballX - paddleCenterX);
-      const overlapY = (paddle.height / 2 + ballRadius) - Math.abs(ballY - paddleCenterY);
-  
-      if (overlapY < overlapX) {
-        ballYDirection = -ballYDirection;
-  
-        if (ballY < paddleCenterY) {
-          ballY = paddle.y - ballRadius;
-        } else {
-          ballY = paddle.y + paddle.height + ballRadius;
-        }
-  
-        ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
-  
-      } else {
-        ballXDirection = -ballXDirection;
+    if (dx * dx + dy * dy >= ballRadius * ballRadius) return;
+
+    const overlapX =
+      (paddle.width * 0.5 + ballRadius) - Math.abs(ballX - centerX);
+    const overlapY =
+      (paddle.height * 0.5 + ballRadius) - Math.abs(ballY - centerY);
+
+    if (overlapY < overlapX) {
+      ballYDirection = -ballYDirection;
+
+      ballY = (ballY < centerY)
+        ? top - ballRadius
+        : bottom + ballRadius;
+      ballY = Math.max(ballRadius, Math.min(ballY, board.height - ballRadius));
+    }
+    else {
+      ballXDirection = -ballXDirection;
+      paddleStats.returns++;
+      paddleStats.combo++;
+      paddleStats.maxCombo = Math.max(paddleStats.combo, paddleStats.maxCombo),
         add(board);
-  
-        if (ballX < paddleCenterX) {
-          ballX = paddle.x - ballRadius;
-        } else {
-          ballX = paddle.x + paddle.width + ballRadius;
-        }
-      }
+
+      ballX = (ballX < centerX)
+        ? left - ballRadius
+        : right + ballRadius;
     }
   };
+
 
   function moveBall() {
     ballX += ballSpeed * ballXDirection;
     ballY += ballSpeed * ballYDirection;
 
-    if (ballSpeed === 0)
-    {
+    if (ballSpeed === 0) {
       io.to(roomName).emit("update", {
         ballX: 1700, ballY: 1000,
         paddle1Y: paddle1.y,
@@ -209,13 +214,15 @@ export async function initGame(io, roomName, player1Id, player2Id) {
       ballYDirection = -ballYDirection;
       ballY = board.height - ballRadius;
     }
-    checkPaddleCollision(paddle1);
-    checkPaddleCollision(paddle2);
+    checkPaddleCollision(paddle1, paddle1Stats);
+    checkPaddleCollision(paddle2, paddle2Stats);
 
     if (ballX + ballRadius < 0) {
+      paddle1Stats.combo = 0;
       paddle2Score++;
       resetBall();
     } else if (ballX - ballRadius > board.width) {
+      paddle2Stats.combo = 0;
       paddle1Score++;
       resetBall();
     }
@@ -226,6 +233,33 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     });
   }
 
+  async function addMatch(winner) {
+    const fin = Date.now();
+    const duration = fin - debut;
+    const body = {
+      player1: user1Id,
+      player2: user2Id,
+      stats_p1: {
+        returns: paddle1Stats.returns,
+        maxCombo: paddle1Stats.maxCombo ?? 0,
+      },
+      stats_p2: {
+        returns: paddle2Stats.returns,
+        maxCombo: paddle2Stats.maxCombo ?? 0,
+      },
+      score_p1: paddle1Score,
+      score_p2: paddle2Score,
+      winner: winner === "player1" ? user1Id : user2Id,
+      played_at: date,
+      duration: Math.floor(duration / 1000)
+    };
+    await axios.post('http://localhost:3001/matches/add', body)
+      .then(() => {
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
   function checkWinner() {
     if (paddle1Score === 5 || paddle2Score === 5) {
       gameOver = true;
@@ -235,6 +269,8 @@ export async function initGame(io, roomName, player1Id, player2Id) {
           ? "player1"
           : "player2";
       io.to(roomName).emit("finish", winner);
+      addMatch(winner);
+      if (onEnd) onEnd(roomName, user1Id, user2Id);
     }
   }
 
@@ -261,4 +297,40 @@ export async function initGame(io, roomName, player1Id, player2Id) {
     createBall();
   }, 1000);
   startGameLoop();
+  return {
+    reconnectPlayer: (userId, newSocket) => {
+      let role = null;
+      if (userId === players.player1.userId) {
+        newSocket.emit("role", "player1");
+        newSocket.emit("opponent", players.player2.userId);
+        role = "player1";
+      }
+      else if (userId === players.player2.userId) {
+        newSocket.emit("role", "player2");
+        newSocket.emit("opponent", players.player1.userId);
+        role = "player2";
+      }
+      if (role) {
+        if (players[role].socket) {
+          removeListeners(players[role].socket);
+          players[role].socket.emit("removed");
+        }
+        players[role].socket = newSocket;
+        players[role].socketId = newSocket.id;
+        attachListeners(newSocket, role);
+
+        newSocket.emit("ready");
+        setTimeout(() => {
+          newSocket.join(roomName);
+          newSocket.emit("score", { paddle1Score, paddle2Score });
+          newSocket.emit("paddle2", paddle2.y);
+          newSocket.emit("paddle1", paddle1.y)
+        }, 500)
+
+        return true;
+      }
+      return false;
+    },
+    stop: () => stopGameLoop()
+  };
 }

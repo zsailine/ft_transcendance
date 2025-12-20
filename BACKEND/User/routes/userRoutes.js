@@ -5,7 +5,8 @@ import {  createUser,
           updateUser,
           updateColor,
           getId,
-          getBanner
+          getBanner,
+          getUserInfo
 } from "../controller/userController.js";
 
 export default async function userRoutes(fastify) {
@@ -18,6 +19,8 @@ export default async function userRoutes(fastify) {
   fastify.get("/users/:username/avatar", { handler: getAvatar });
 
   fastify.get("/users/:username/id", { handler: getId });
+
+  fastify.get("/users/:username/info", { handler: getUserInfo });
 
   fastify.get("/users/:username/banner", { handler: getBanner });
 

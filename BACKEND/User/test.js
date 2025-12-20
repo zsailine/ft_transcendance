@@ -1,15 +1,14 @@
 import db from "./migration.js";
-db.prepare("DROP TABLE IF EXISTS user_stats").run();
-db.prepare(`
- CREATE TABLE IF NOT EXISTS user_stats (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-	username TEXT UNIQUE NOT NULL,
-    total_matches INTEGER DEFAULT 0,
-    total_wins INTEGER DEFAULT 0,
-    total_losses INTEGER DEFAULT 0,
+try {
+	const sync = db.prepare(`
+		INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp)
+		SELECT username, 0, 0, 0, 0, 0
+		FROM users
+		WHERE username NOT IN (SELECT username FROM user_stats)
+	`);
 
-    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
-)
-`).run();
-
-
+	const result = sync.run();
+	console.log(`${result.changes} nouveaux profils de stats créés.`);
+} catch (err) {
+	console.error("Erreur lors de la synchronisation :", err);
+}

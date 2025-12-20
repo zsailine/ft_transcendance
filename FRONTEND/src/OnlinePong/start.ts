@@ -23,6 +23,7 @@ export function start(
 		x: number;
 		y: number;
 	}
+
 	let interval: number = 0;
 	let paddle1 = {
 		width: board.width * 0.02,
@@ -128,30 +129,12 @@ export function start(
 		paddle2Score = data.paddle2Score;
 	});
 
-	async function addMatch(winner: string) {
-		if (role !== winner)
-			return;
-		const body = {
-			player1: player[0],
-			player2: player[1],
-			score_p1: paddle1Score,
-			score_p2: paddle2Score,
-			winner: winner === "player1" ? player[0] : player[1]
-		};
-		await api.post('/matches/add', body)
-			.then(() => {
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	}
 	const finish = (data: string) => {
 		clearBoard(ctx, board, theme.boardBackground);
 		drawScore(ctx, board, `${paddle1Score}`, `${paddle2Score}`, theme.boardBorder);
 		drawPaddles(ctx, theme.paddle1, theme.paddle2, paddle1, paddle2);
 		drawBall(ctx, ballRadius, theme.ball, board.width / 2, board.height / 2);
 		onEnd(data);
-		addMatch(data);
 	};
 	socket.on("finish", finish);
 

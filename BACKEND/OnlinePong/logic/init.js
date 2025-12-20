@@ -2,30 +2,40 @@ import { initGame } from './start.js';
 import { startMulti } from './multi.js';
 import { io } from '../server.js';
 
-export function init(roomName, player1, username1, player2, username2) {
+export async function init(roomName, player1, username1, player2, username2, activeGames, userRooms) {
     const random = Math.random() < 0.5;
-
     const p1 = random ? player1 : player2;
     const u1 = random ? username1 : username2;
-
+    
     const p2 = random ? player2 : player1;
     const u2 = random ? username2 : username1;
 
     p1.join(roomName);
     p2.join(roomName);
-
+    
     p1.emit("role", "player1");
     p1.emit("opponent", u2);
-
+    
     p2.emit("role", "player2");
     p2.emit("opponent", u1);
-
+    
     p1.emit("ready");
     p2.emit("ready");
-    initGame(io, roomName, p1.id, p2.id);
+    const handleGameEnd = (room, u1, u2) => {
+        activeGames.delete(room);
+        userRooms.delete(u1);
+        userRooms.delete(u2);
+    };
+    
+    const gameController = await initGame(io, roomName, u1, u2, handleGameEnd);
+
+    activeGames.set(roomName, gameController);
+    userRooms.set(username1, roomName);
+    userRooms.set(username2, roomName);
 }
 
-export function initMulti(roomName, player1, username1, player2, username2, player3, username3, player4, username4) {
+export async function initMulti(roomName, player1, username1, player2, username2, 
+    player3, username3, player4, username4, multiRooms, activeGames) {
     let players = [
         { socket: player1, username: username1 },
         { socket: player2, username: username2 },
@@ -55,7 +65,7 @@ export function initMulti(roomName, player1, username1, player2, username2, play
     const allPlayersNames = [u1, u2, u3, u4];
 
     p1.emit("role", "player1");
-   p1.emit("players_info", allPlayersNames);
+    p1.emit("players_info", allPlayersNames);
 
     p2.emit("role", "player2");
     p2.emit("players_info", allPlayersNames);
@@ -70,5 +80,19 @@ export function initMulti(roomName, player1, username1, player2, username2, play
     p2.emit("ready");
     p3.emit("ready");
     p4.emit("ready");
-    startMulti(io, roomName, p1.id, p2.id, p3.id, p4.id);
+    const handleGameEnd = (room, u1, u2, u3, u4) => {
+        activeGames.delete(room);
+        multiRooms.delete(u1);
+        multiRooms.delete(u2);
+        multiRooms.delete(u3);
+        multiRooms.delete(u4);
+    };
+
+    const gameController = await startMulti(io, roomName, u1, u2, u3, u4, handleGameEnd);
+    activeGames.set(roomName, gameController);
+    multiRooms.set(u1, roomName);
+    multiRooms.set(u2, roomName);
+    multiRooms.set(u3, roomName);
+    multiRooms.set(u4, roomName);
+    
 }

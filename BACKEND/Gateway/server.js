@@ -83,9 +83,16 @@ fastify.register(httpProxy, {
 });
 
 fastify.register(httpProxy, {
-  upstream: "http://localhost:3006",
+  upstream: "http://localhost:3007",
   prefix: "/friend",
   rewritePrefix: '/friend'
+});
+
+fastify.register(httpProxy, {
+  upstream: "http://localhost:3007",
+  prefix: "/friend/socket.io",
+  rewritePrefix: '/socket.io',
+  websocket: true
 });
 
 fastify.listen({ port: 3000 }, (err, address) => {

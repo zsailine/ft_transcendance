@@ -3,32 +3,12 @@ import { start } from "../../../Pong/tournamentGame";
 import { useContext } from "react";
 import { hoverEffect } from "../../../Utils/style.ts";
 import { UserContext } from "../../../Providers/TournamentProvider"
-import { useDashboard, type ThemeColors } from "../../../Providers/DashboardProvider";
+import { useDashboard} from "../../../Providers/DashboardProvider";
 import OverlayLoading from "../../../Components/pong/OverlayLoading.tsx";
 import OverlayResult from "../../../Components/pong/OverlayResult.tsx";
 import { AnimatePresence } from "framer-motion";
+import Board from "../../../Components/pong/Board.tsx";
 
-function Board({ player, theme }: { player: string[], theme: ThemeColors }) {
-	return (
-		<div className="bg-gray-900 text-white flex flex-col items-center justify-center h-full font-sans">
-			<div id="MainBoard" className="flex h-[60%] w-[70%] mx-auto">
-				<p
-					id="player1"
-					className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
-					style={{ color: theme?.paddle1 }}
-				>{player[0]}</p>
-				<canvas id="board" className="border-4 rounded-lg h-full w-full shadow-lg"
-					style={{ backgroundColor: theme?.boardBackground, borderColor: theme?.boardBorder }}
-				></canvas>
-				<p
-					id="player2"
-					className="font-bold [writing-mode:vertical-rl] rotate-180 text-center"
-					style={{ color: theme?.paddle2 }}
-				>{player[1]}</p>
-			</div>
-		</div>
-	);
-}
 
 function TournamentGame() {
 	const [loading, setLoading] = useState(true);

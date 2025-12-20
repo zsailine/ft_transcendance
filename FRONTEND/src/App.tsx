@@ -8,7 +8,6 @@ import { Suspense } from "react";
 
 import { Menu } from "./Pages/Pong/Menu"
 import PongGame from "./Pages/Pong/PongGame";
-import OnlineTournament from "./Pages/Tournament/OnlineTournament.tsx";
 import OnlineGame from "./Pages/Pong/onlineGame";
 import PongTournament from "./Pages/Pong/Tournament/PongTournament"; import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard.tsx";
@@ -20,8 +19,12 @@ import Play from "./Pages/Dashboard/Play";
 import Discussion from "./Components/Chat/Discussion";
 import { ChatProvider } from "./Providers/ChatProvider.tsx";
 import { FriendProvider } from "./Providers/FriendProvider.tsx";
-import { OnlineGameProvider } from "./Providers/OnlineGameProvider.tsx";
 import OnlineMulti from "./Pages/Pong/OnlineMulti.tsx";
+import { SocketProvider } from "./Providers/SocketProvider.tsx";
+import PongGameAI from "./Pong/AI/PongGameAI.tsx";
+import Home from "./Pages/Dashboard/Home.tsx";
+import PrivacyPolicy from "./Legality/PrivacyPolicy.tsx";
+import TermsOfService from "./Legality/TermsOfService.tsx";
 
 function App() {
 
@@ -29,60 +32,67 @@ function App() {
     <>
       <AuthProvider>
         <DashboardProvider>
-          <ChatProvider>
-          <FriendProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Menu />} />
-              <Route path="/pong" element={<PongGame />} />
-              <Route path="/tournament" element={<PongTournament />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Login />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <Dashboard />
-                    </Suspense>
-                  </ProtectedRoute>
-                }>
-                <Route index element={<Profil />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="play"
-                  element={
-                    <Play />
-                  }>
-                  <Route index element={< Menu />} />
-                  <Route path="pong" element={<PongGame />} />
-                  <Route path="tournament" element={<PongTournament />} />
-                  <Route path = "multiplayer" element={<OnlineMulti />} />
-                  <Route
-                    path="online"
-                    element={
-                        <OnlineGame />
-                    }
-                  />
-                </Route>
-                  <Route path="tournament" element={<OnlineTournament />}/>
-                  <Route path="friends" element={<Friend />} />
-                  <Route path="discussion" element={<Discussion />} />
-              </Route>
+          <SocketProvider>
+            <ChatProvider>
+              <FriendProvider>
+                <Router>
+                  <Routes>
+                    <Route path="/" element={<Menu />} />
+                    <Route path="/pong" element={<PongGame />} />
+                    <Route path="/tournament" element={<PongTournament />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Login />} />
+                    <Route
+                      path="/dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <Dashboard />
+                          </Suspense>
+                        </ProtectedRoute>
+                      }>
+                      <Route index element={<Home
+                        onViewAllAchievements={() => console.log('achievements')}
+                      />} />
+                      <Route path="profile" element={<Profil />} />
+                      <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="terms-of-service" element={<TermsOfService />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="play"
+                        element={
+                          <Play />
+                        }>
+                        <Route index element={< Menu />} />
+                        <Route path="pong" element={<PongGame />} />
+                        <Route path="tournament" element={<PongTournament />} />
+                        <Route path="multiplayer" element={<OnlineMulti />} />
+                        <Route path="ai" element={<PongGameAI />} />
+                        <Route
+                          path="online"
+                          element={
+                            <OnlineGame />
+                          }
+                        />
+                      </Route>
+                      <Route path="friends" element={<Friend />} />
+                      <Route path="discussion" element={<Discussion />} />
+                    </Route>
 
-            </Routes>
-          </Router>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            pauseOnHover
-            draggable
-            theme="colored"
-          />
-          </FriendProvider>
-          </ChatProvider>
+                  </Routes>
+                </Router>
+                <ToastContainer
+                  position="top-right"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  pauseOnHover
+                  draggable
+                  theme="colored"
+                />
+              </FriendProvider>
+            </ChatProvider>
+          </SocketProvider>
         </DashboardProvider>
       </AuthProvider>
     </>

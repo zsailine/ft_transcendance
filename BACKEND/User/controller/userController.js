@@ -8,7 +8,10 @@ const createUser = async (req, rep) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp)
+        VALUES (?, 0, 0, 0, 0, 0)`)
         const result = stmt.run(username, email, hashedPassword);
+        add.run(username);
         rep.code(201).send({ id: result.lastInsertRowid, username, email, password: hashedPassword });
     }
     catch (e) {
@@ -139,5 +142,21 @@ const getBanner = async (req, rep) => {
     return rep.status(200).send(cover_image);
 }
 
+const getUserInfo = async (req, rep) => {
+    const { username } = req.params;
+    const { id, avatar } = db.prepare("SELECT id, avatar FROM users WHERE username=?").get(username);
+    return rep.status(200).send({id, avatar});
+}
 
-export { createUser, getAllUsers, getUserByUsername, updateColor, updateUser, getAvatar, getId, getBanner };
+
+export {
+    createUser,
+    getAllUsers,
+    getUserByUsername,
+    updateColor,
+    updateUser,
+    getAvatar,
+    getId,
+    getBanner,
+    getUserInfo
+};

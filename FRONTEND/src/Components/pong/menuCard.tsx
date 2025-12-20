@@ -13,7 +13,7 @@ const MenuCard = ({ title, description, onClick, buttonContent, bgCard}: MenuCar
             className={`
                 ${bgCard} rounded p-6 shadow-xl shadow-emerald-600 transition transform hover:scale-[1.03]
                 max-w-sm 
-                flex flex-col justify-between w-[250px]  h-[424px] 
+                flex flex-col justify-between w-[250px]  h-[300px] 
             `}
         >
             <div>

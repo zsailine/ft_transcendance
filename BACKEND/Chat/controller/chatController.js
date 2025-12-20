@@ -4,7 +4,7 @@ import { fastify, getReceiverSocket, userSocketMap } from "../server.js";
 
 const USER_URL = "http://localhost:3001/users";
 
-const getUsername = async (req, rep) => {
+export const getUsername = async (req, rep) => {
 	const cookies = req.cookies;
 	const realCookies = Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join("; ");
 	const user = await axios.get("http://localhost:3002/auth/me", {

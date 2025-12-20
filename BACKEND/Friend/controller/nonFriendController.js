@@ -3,7 +3,7 @@ import { friendsList, getCookies, getUsername } from "./verify.js";
 import db from "../migration.js";
 
 const CHAT_URL = "http://localhost:3004";
-const FRIEND_URL = "http://localhost:3006"
+const FRIEND_URL = "http://localhost:3007"
 
 const getUsersRelated = async (req, rep) => {
 	try {
@@ -63,8 +63,36 @@ const getAllBlocked = async (req, rep) => {
 	}
 }
 
+const insertBlockedUser = ([user_a, user_b], loggedInUsername) => {
+	try {
+		const relation = db.prepare(`SELECT * FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
+		if (relation)
+			return ;
+		db.prepare(`INSERT INTO friendship (user_a, user_b, sender, is_friend)
+			VALUES (?, ?, ?, ?)`).run(user_a, user_b, loggedInUsername, 0);
+	} catch(error) {
+		console.log("Error in inserting blocked:", error.message);
+	}
+}
+
+const getBlocker = async (req, rep) => {
+	try {
+		const loggedInUsername = await getUsername(req, rep);
+		const receiverUsername = req.params.username;
+		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const blocker = db.prepare(`SELECT blocked_by FROM friendship WHERE (user_a=? AND user_b=?)`)
+			.get(user_a, user_b);
+		rep.status(200).send(blocker);
+	} catch(error) {
+		console.log("Error in getting blocker:", error.message);
+	}
+}
+
 export {
 	getNonFriends,
 	getUsersRelated,
-	getAllBlocked
+	getAllBlocked,
+	insertBlockedUser,
+	getBlocker
 };

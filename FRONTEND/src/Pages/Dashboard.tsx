@@ -14,7 +14,7 @@ const Dashboard = () => {
                     <Sidebar />
                 </div>
                 <div className="w-full lg:w-5/6 overflow-y-auto h-screen">
-                    <div className={` ${isOverlayOpen ? "overflow-hidden" : ""} mx-1.5 sm:mx-6  relative flex flex-col h-full`}>
+                    <div className={` ${isOverlayOpen ? "overflow-hidden" : ""} relative flex flex-col h-full`}>
                         <div className="flex justify-end h-max mb-10">
                             <Navbar />
                         </div>

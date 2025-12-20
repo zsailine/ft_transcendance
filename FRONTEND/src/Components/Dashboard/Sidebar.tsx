@@ -7,7 +7,9 @@ import {
 import { FaUsers } from "react-icons/fa6";
 import { RiPingPongLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { FaTrophy } from "react-icons/fa6";
+import { MdPerson } from "react-icons/md";
+import { MdPrivacyTip, MdInfo } from "react-icons/md";
+import { IoMdLock } from "react-icons/io";
 
 const Sidebar = () => {
 
@@ -27,13 +29,13 @@ const Sidebar = () => {
                     onClick={() => navigate("/dashboard/")}
                     className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
                     <IoHome className="text-cyan-500" />
-                    <h2 className="hidden lg:block">Profil</h2>
+                    <h2 className="hidden lg:block">Home</h2>
                 </div>
                 <div
-                    onClick={() => navigate("/dashboard/settings")}
+                    onClick={() => navigate("/dashboard/profile")}
                     className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
-                    <IoSettings className="text-cyan-500" />
-                    <h2 className="hidden lg:block">Settings</h2>
+                    <MdPerson className="text-cyan-500 text-xl" />
+                    <h2 className="hidden lg:block">Profile</h2>
                 </div>
                 <div
                     onClick={() => navigate("/dashboard/play")}
@@ -42,24 +44,36 @@ const Sidebar = () => {
                     <h2 className="hidden lg:block">Play Games</h2>
                 </div>
                 <div
-                    onClick={() => navigate("/dashboard/tournament")}
-                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
-                    <FaTrophy className="text-cyan-500" />
-                    <h2 className="hidden lg:block">Tournament</h2>
-                </div>
-                <div
                     onClick={() => navigate("/dashboard/friends")}
                     className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
                     <FaUsers className="text-cyan-500" />
                     <h2 className="hidden lg:block">Friends</h2>
                 </div>
+                <div
+                    onClick={() => navigate("/dashboard/discussion")}
+                    className={`rounded-br-lg flex gap-3.5 px-4 py-2 items-center cursor-pointer border-t-1 border-cyan-800/10 ${hoverEffect}`} >
+                    <IoChatboxEllipsesSharp className="text-cyan-500" />
+                    <h2 className="hidden lg:block">Discussion</h2>
+                </div>
+                <div
+                    onClick={() => navigate("/dashboard/settings")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                    <IoSettings className="text-cyan-500" />
+                    <h2 className="hidden lg:block">Settings</h2>
+                </div>
             </div>
             <div>
                 <div
-                    onClick={() => navigate("/dashboard/discussion")}
-                    className={`rounded-br-lg flex gap-3.5 px-4 py-2 items-center border-t-1 border-cyan-800/10 ${hoverEffect}`} >
-                    <IoChatboxEllipsesSharp className="text-cyan-500" />
-                    <h2 className="hidden lg:block">Discussion</h2>
+                    onClick = {() => navigate("/dashboard/privacy-policy")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                        <IoMdLock  className="text-cyan-500"/>
+                        <h2 className="hidden lg:block">Privacy Policy</h2>
+                </div>
+                <div
+                    onClick = {() => navigate("/dashboard/terms-of-service")}
+                    className={`cursor-pointer w-full flex gap-3.5 px-4 py-2 items-center shadow-xs shadow-cyan-800/10 ${hoverEffect} `}>
+                        <MdInfo  className="text-cyan-500"/>
+                        <h2 className="hidden lg:block">Terms of Service</h2>
                 </div>
             </div>
         </div>

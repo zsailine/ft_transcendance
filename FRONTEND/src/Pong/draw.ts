@@ -1,4 +1,4 @@
-export type Paddle = {
+type Paddle = {
     width: number;
     height: number;
     x: number;
