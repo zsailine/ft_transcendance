@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../../Utils/axios";
-import { useDashboard } from "../../Providers/DashboardProvider";
+import { useDashboard, type ImageBuffer } from "../../Providers/DashboardProvider";
 import Rank from "./Rank";
 import type { UserInterface } from "../../Providers/ChatProvider";
+import { useSocket } from "../../Providers/SocketProvider";
+import { getSetAvatar } from "../../Utils/getter";
 
 export default function LeaderBoard({click, setter} : {click: () => void, setter: (user: UserInterface) => void}) {
-	const [leaderBoard, setLeaderBoard] = useState<any>(null);
+	const [leaderBoard, setLeaderBoard] = useState<any>([]);
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
+	const [ whoChanged, setWhoChanged ] = useState<string>("");
 	const [rank, setRank] = useState<any>(null);
 	const { username } = useDashboard();
+	const { socketUser } = useSocket();
 	async function getLeaderBoard() {
 		const response = await api.get(`/matches/leaderboard`);
 		if (response.data)
@@ -26,9 +31,26 @@ export default function LeaderBoard({click, setter} : {click: () => void, setter
 		}
 		catch { }
 	}, [username]);
+
+	useEffect(() => {
+		setLeaderBoard(leaderBoard.map((rank) => (rank.username === whoChanged) ? {
+			...rank,
+			avatar: avatar
+		} : rank ));
+	}, [avatar, whoChanged]);
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (leaderBoard && leaderBoard.some((p: any) => p.username === data.whoChanged)) {
+				getSetAvatar(data.whoChanged, setAvatar);
+				setWhoChanged(data.whoChanged);
+			}
+		});
+	}, [socketUser, leaderBoard]);
+
 	return (
 		<>
-			{leaderBoard !== null ? (
+			{leaderBoard.length !== 0 ? (
 				<div className="lg:col-span-5 h-full">
 					<div className="bg-[#0b101e]/80 border border-white/10 rounded-2xl p-6 backdrop-blur-md h-full flex flex-col shadow-xl">
 						<h3 className="text-2xl font-bold mb-6 text-white border-b border-white/10 pb-4">

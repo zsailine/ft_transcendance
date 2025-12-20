@@ -31,8 +31,8 @@ function App() {
   return (
     <>
       <AuthProvider>
+        <SocketProvider>
         <DashboardProvider>
-          <SocketProvider>
             <ChatProvider>
               <FriendProvider>
                 <Router>
@@ -92,8 +92,8 @@ function App() {
                 />
               </FriendProvider>
             </ChatProvider>
-          </SocketProvider>
         </DashboardProvider>
+        </SocketProvider>
       </AuthProvider>
     </>
   )

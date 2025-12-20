@@ -70,13 +70,13 @@ const verify = async (req , rep) => {
     try{
         const decodedToken = req.server.jwt.decode(token);
         const username = decodedToken.username
-        const user = await req.server.axios.get(`users/${username}`)
+        const user = await req.server.axios.get(`/users/${username}`)
         if (!user.data)
             rep.code(404).send({error : "User not found"})
         rep.code(200).send({user : user.data.username , enabled2FA : user.data.enabled2FA});
     }
     catch(e){
-        console.log(e)
+        console.log(e.message)
     }
 }
 

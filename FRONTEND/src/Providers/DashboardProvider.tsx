@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../Utils/axios";
 import { useAuth } from "./AuthProvider";
+import { useSocket } from "./SocketProvider";
 
 export interface ImageBuffer {
     type: "Buffer";
@@ -8,6 +9,7 @@ export interface ImageBuffer {
 }
 
 export interface ThemeColors {
+    username: string,
     paddle1: string;
     paddle2: string;
     ball: string;
@@ -49,6 +51,7 @@ export const DashboardProvider = ({ children }: any) => {
     const [avatar, setAvatar] = useState<ImageBuffer | null>(null);
     const [coverImage, setCoverImage] = useState<ImageBuffer | null>(null);
     const [theme, setTheme] = useState<ThemeColors>({
+        username: "",
         paddle1: "",
         paddle2: "",
         ball: "",
@@ -60,6 +63,7 @@ export const DashboardProvider = ({ children }: any) => {
     });
     const [isOverlayOpen, setIsOverlayOpen] = useState<boolean>(false);
     const { user } = useAuth()
+    const { socketUser } = useSocket();
 
     const refreshUserData = async () => {
         if (user) {
@@ -70,6 +74,7 @@ export const DashboardProvider = ({ children }: any) => {
                 setAvatar(response.data.avatar);
                 setCoverImage(response.data.cover_image);
                 setTheme({
+                    username: response.data.username,
                     paddle1: response.data.paddle1_color,
                     paddle2: response.data.paddle2_color,
                     ball: response.data.ball_color,
@@ -93,6 +98,22 @@ export const DashboardProvider = ({ children }: any) => {
             refreshUserData();
         }
     }, [user]);
+
+    useEffect(() => {
+        socketUser?.on("game customization updated", (data) => {
+            setTheme({
+                username: data.username,
+                paddle1: data.paddle1,
+                paddle2: data.paddle2,
+                ball: data.ball,
+                boardBackground: data.boardBackground,
+                boardBorder: data.boardBorder,
+                score: data.score,
+                slide: data.slide,
+                paddleSpeed: data.paddleSpeed,
+            });
+        });
+    }, [socketUser]);
 
     const value = {
         username,

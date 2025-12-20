@@ -55,6 +55,7 @@ function ResearchTab({click}: ResearchTabProps) {
 		
 		<FriendsList
 			friendsList={foundUsers}
+			setFriendsList={setFoundUsers}
 			searchValue=""
 			setSelectedUser={()=>{}}
 			message="research"

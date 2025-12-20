@@ -41,7 +41,7 @@ const Settings = () => {
     const updateColors =  async (e: any) => {
         if (!theme || !username) return ;
         e.preventDefault();
-        await api.post(`/users/${username}/updateColor`, theme)
+        await api.post(`/users/updateColor`, theme)
             .then(() => {
                 refreshUserData && refreshUserData();
                 toast.success("Update successful");

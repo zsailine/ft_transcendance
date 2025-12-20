@@ -11,7 +11,7 @@ import { useFriend } from "../../Providers/FriendProvider";
 import { useSocket } from "../../Providers/SocketProvider";
 
 function Discussion() {
-	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser } = useChat();
+	const { searchValue, setSearchValue, friendsList, setSelectedUser, selectedUser, setFriendsList } = useChat();
 	const { setSelectedUserProfil } = useFriend();
 	const { socketFriend } = useSocket();
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
@@ -59,6 +59,7 @@ function Discussion() {
 							className=""/>
 						<div className="flex-1 overflow-y-auto">
 						<FriendsList
+							setFriendsList={setFriendsList}
 							friendsList={friendsList}
 							searchValue={searchValue}
 							setSelectedUser={setSelectedUser}

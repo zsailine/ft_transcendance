@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import db from "../migration.js";
+import { getReceiverSocket, fastify } from "../server.js";
 
 const createUser = async (req, rep) => {
     const { username, email, password } = req.body;
@@ -55,13 +56,15 @@ const updateUser = async (req, rep) => {
             } catch (error) {
             }
         }
-
+        
         const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
         const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
-
+        
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });
         }
+        
+        fastify.io.emit("user profil updated", {whoChanged: usernameValue})
 
         rep.code(200).send({
             message: "Success",
@@ -79,10 +82,9 @@ const updateUser = async (req, rep) => {
     }
 }
 
-
 const updateColor = async (req, rep) => {
     try {
-        const { paddle1, paddle2, ball, boardBackground, boardBorder, score, paddleSpeed, slide} = req.body;
+        const { username, paddle1, paddle2, ball, boardBackground, boardBorder, score, paddleSpeed, slide } = req.body;
         const slideValueForDB = slide ? 1 : 0;
         const stmt = db.prepare(`
             UPDATE users SET 
@@ -97,7 +99,6 @@ const updateColor = async (req, rep) => {
 
             WHERE username = ?
         `);
-        const { username } = req.params;
         const result = stmt.run(
             paddle1,
             paddle2,
@@ -111,6 +112,13 @@ const updateColor = async (req, rep) => {
         );
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });
+        }
+
+        const mySockets = getReceiverSocket(username);
+        if (mySockets) {
+            fastify.io.to(mySockets).emit("game customization updated", {
+                username, paddle1, paddle2, ball, boardBackground, boardBorder, score, paddleSpeed, slide
+            });
         }
 
         rep.send({ success: true, message: "Theme colors updated successfully" });

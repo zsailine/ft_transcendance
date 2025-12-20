@@ -8,7 +8,7 @@ interface FriendsProps {
 }
 
 function Friends({click}: FriendsProps) {
-	const { friendsList, setSelectedUser } = useChat();
+	const { friendsList, setSelectedUser, setFriendsList } = useChat();
 	const { searchValue, setSearchValue, setSelectedUserProfil } = useFriend();
 
   return (
@@ -20,6 +20,7 @@ function Friends({click}: FriendsProps) {
 			className="md:w-[50%] w-full"/>}
 		<FriendsList
 			friendsList={friendsList}
+			setFriendsList={setFriendsList}
 			searchValue={searchValue}
 			setSelectedUser={setSelectedUser}
 			message={"friends"}

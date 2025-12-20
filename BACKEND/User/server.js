@@ -8,16 +8,23 @@ import fastifyMultipart from "@fastify/multipart";
 import axios from "axios";
 import fastifyCookie from "@fastify/cookie";
 import fastifyJwt from "@fastify/jwt";
+import fastifySocketIo from "fastify-socket.io";
 import dotenv from "dotenv";
+import { socketAuth } from "./controller/socketController.js";
 
 dotenv.config();
+const userSocketMap = {};
 const fastify = Fastify({ logger: false });
+
+await fastify.register(fastifySocketIo, {
+	cors: { origin: "*" }
+});
 
 await fastify.register(fastifyCookie);
 
 await fastify.register(cors, {
-    origin: "http://localhost:5173",
-    credentials: true
+  origin: "http://localhost:5173",
+  credentials: true
 })
 
 fastify.register(fastifyJwt , 
@@ -31,9 +38,9 @@ fastify.register(fastifyJwt ,
 );
 
 const axiosInstance = axios.create({
-baseURL: "http://localhost:3002",
-withCredentials: true,
-timeout: 1000,
+  baseURL: "http://localhost:3002",
+  withCredentials: true,
+  timeout: 1000,
 });
 
 fastify.decorate("db", new Database("./data/users.db"));
@@ -47,7 +54,28 @@ fastify.register(userRoutes);
 fastify.register(matchesRoutes);
 fastify.register(twoFactorRoutes);
 
+fastify.ready().then(() => {
+	fastify.io.use(socketAuth);
+  fastify.io.on("connection", (socket) => {
+    const username = socket.username;
+    if (!userSocketMap[username]) {
+      userSocketMap[username] = [];
+    }
+    userSocketMap[username].push(socket.id);
 
+    socket.on("disconnect", () => {
+			if (userSocketMap[username]) {
+				const index = userSocketMap[username].indexOf(socket.id);
+				if (index > -1) {
+					userSocketMap[username].splice(index, 1);
+				}
+				if (userSocketMap[username].length === 0) {
+					delete userSocketMap[username];
+				}
+			}
+		});
+  });
+});
 
 fastify.addHook('onSend', (request, reply, payload, next) => {
   next();
@@ -60,3 +88,9 @@ fastify.listen({ port: 3001 }, (err, address) => {
   }
   console.log(`🚀 Serveur démarré sur ${address}`);
 });
+
+export const getReceiverSocket = (username) => {
+	return userSocketMap[username];
+}
+
+export { fastify };

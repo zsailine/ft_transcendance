@@ -2,6 +2,8 @@ import { useDashboard } from "../../../Providers/DashboardProvider";
 import { useRef, useState , useEffect } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { getImageUrlFromBlob } from "../../../Utils/blob";
+import { useSocket } from "../../../Providers/SocketProvider";
+import { getSetAvatar } from "../../../Utils/getter";
 
 interface ProfilProps {
     hoverEffect: string;
@@ -9,7 +11,8 @@ interface ProfilProps {
 
 const Avatar = ({hoverEffect}: ProfilProps) => {
     const ImageRef = useRef<HTMLInputElement | null>(null);
-    const { avatar, setAvatar } = useDashboard()
+    const { avatar, setAvatar, username } = useDashboard();
+    const { socketUser } = useSocket();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
@@ -19,6 +22,14 @@ const Avatar = ({hoverEffect}: ProfilProps) => {
         let url: string | null = getImageUrlFromBlob(avatar?.data);
         setAvatarURL(url);
     }, [avatar]);
+
+    useEffect(() => {
+        socketUser?.on("user profil updated", (data) => {
+			if (username === data.whoChanged) {
+				getSetAvatar(data.whoChanged, setAvatar);
+			}
+		});
+    }, [socketUser, username]);
 
     const handleChange = (e: any) => {
         setAvatar(e.target?.files[0]);

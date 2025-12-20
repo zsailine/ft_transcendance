@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import type { ImageBuffer } from "../../Providers/DashboardProvider"
-import { getBanner, getStat, type statInterface } from "../../Utils/getter";
+import { getBanner, getSetAvatar, getStat, type statInterface } from "../../Utils/getter";
 import { useChat, type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { toast } from "react-toastify";
@@ -8,6 +8,7 @@ import { BlockButton, UnfriendButton } from "../../Pages/Chat/ListUtils";
 import { handleBlocked } from "../Utils/ProfilUtils";
 import { useAuth } from "../../Providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { useSocket } from "../../Providers/SocketProvider";
 
 interface FriendProfilProps {
 	click: () => void,
@@ -17,9 +18,11 @@ interface FriendProfilProps {
 
 function FriendProfil({click, user, type}: FriendProfilProps) {
 	const { onlineUsers } = useAuth();
+	const { socketUser } = useSocket();
 	const navigate = useNavigate();
 	const { setSelectedUser } = useChat();
 	const [ banner, setBanner ] = useState<ImageBuffer | null>(null);
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
 	const [ stat, setStat ] = useState<statInterface>({total_losses: 0, total_matches: 0, total_wins:0});
 
 	const handleFullViewProfil = () => {
@@ -30,10 +33,20 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 		try {
 			getStat(user.username, setStat);
 			getBanner(user.username, setBanner);
+			getSetAvatar(user.username, setAvatar);
 		} catch(error) {
 			toast.error("Something went wrong");
 		}
 	}, [user]);
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (user.username === data.whoChanged) {
+				getBanner(user.username, setBanner);
+				getSetAvatar(user.username, setAvatar);
+			}
+		});
+	}, [socketUser]);
 
 	return (
 	<div className="fixed inset-0 bg-black/10 backdrop-blur-md z-[100] flex items-center justify-center transition-opacity duration-300 font-helvetica"
@@ -51,8 +64,9 @@ function FriendProfil({click, user, type}: FriendProfilProps) {
 				<div className="relative -mt-12 mb-4 flex items-end">
 					<div className="relative">
 						<img
+							id="friendprofil-avatar"
 							alt="avatar"
-							src={getImageUrlFromBlob(user.avatar?.data)?.toString() || "/images/avatar.jpg"}
+							src={getImageUrlFromBlob(avatar?.data)?.toString() || "/images/avatar.jpg"}
 							className="w-32 h-32 rounded-full border-[6px] border-gray-700 object-cover shadow-lg"/>
 						<span className={`absolute bottom-1 right-1 w-4 h-4 ${onlineUsers.includes(user.username) ? "bg-green-400" : ""} rounded-full border-2 border-gray-600`}></span>
 					</div>

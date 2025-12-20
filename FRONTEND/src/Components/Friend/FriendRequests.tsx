@@ -2,17 +2,42 @@ import { IoMdCheckmark, IoMdClose } from "react-icons/io";
 import { useFriend } from "../../Providers/FriendProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { NoFriendRequests } from "../../Pages/Friend/NoFriendRequests";
+import { useEffect, useState } from "react";
+import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { useSocket } from "../../Providers/SocketProvider";
+import { getSetAvatar } from "../../Utils/getter";
 
 interface FriendRequestsProps {
 	click: () => void
 }
 
 function FriendRequests({click}: FriendRequestsProps) {
-	const { friendRequests, acceptInvite, declineInvite, setSelectedUserProfil } = useFriend();
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
+	const [ whoChanged, setWhoChanged ] = useState<string>("");
+	const { friendRequests, acceptInvite, declineInvite, setSelectedUserProfil, setFriendRequests } = useFriend();
+	const { socketUser } = useSocket();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
 	const acceptButton = "bg-green-500/20 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out shadow-md";
 	const declineButton = "bg-red-500/20 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-150 ease-in-out shadow-md";
+
+	useEffect(() => {
+		setFriendRequests(friendRequests.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+	}, [avatar, whoChanged])
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (friendRequests.some(f => f.username === data.whoChanged)) {
+				getSetAvatar(data.whoChanged, setAvatar);
+				setWhoChanged(data.whoChanged);
+			}
+		});
+	}, [socketUser, friendRequests]);
 
 	if (friendRequests.length === 0) {
 		return (<NoFriendRequests />);

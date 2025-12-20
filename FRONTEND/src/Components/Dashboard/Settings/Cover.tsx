@@ -2,6 +2,8 @@ import { GoPlusCircle } from "react-icons/go";
 import { useDashboard } from "../../../Providers/DashboardProvider";
 import { useRef, useState, useEffect } from "react";
 import { getImageUrlFromBlob } from "../../../Utils/blob";
+import { useSocket } from "../../../Providers/SocketProvider";
+import { getBanner, getSetAvatar } from "../../../Utils/getter";
 
 interface ProfilProps {
     hoverEffect: string;
@@ -11,8 +13,9 @@ const CoverInput = ({hoverEffect} : ProfilProps) => {
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const { coverImage, setCoverImage } = useDashboard()
+    const { coverImage, setCoverImage, username } = useDashboard()
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const { socketUser } = useSocket();
 
     const [coverURL, setCoverURL] = useState<string | null>(null);
 
@@ -21,6 +24,14 @@ const CoverInput = ({hoverEffect} : ProfilProps) => {
         let url: string | null = getImageUrlFromBlob(coverImage?.data);
         setCoverURL(url);
     }, [coverImage]);
+
+    useEffect(() => {
+        socketUser?.on("user profil updated", (data) => {
+			if (username === data.whoChanged) {
+				getBanner(data.whoChanged, setCoverImage);
+			}
+		});
+    }, [socketUser, username]);
 
     const handleChange = (e: any) => {
         setSelectedFile(e.target?.files[0]);

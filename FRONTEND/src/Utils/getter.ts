@@ -14,10 +14,17 @@ export const getStat = async (username: string | null, setStat: (stat: statInter
 	}
 }
 
-export const getBanner = async (username: string | null, setBanner: (image: ImageBuffer | null) => void) => {
+export const getBanner = async (username: string | null, setBanner: (image: ImageBuffer) => void) => {
 	const response = await api.get(`/users/${username}/banner`);
 	if (response) {
 		setBanner(response.data.cover_image);
+	}
+}
+
+export const getSetAvatar = async (username: string | null, setAvatar: (image: ImageBuffer) => void) => {
+	const response = await api.get(`/users/${username}/avatar`);
+	if (response) {
+		setAvatar(response.data.avatar);
 	}
 }
 

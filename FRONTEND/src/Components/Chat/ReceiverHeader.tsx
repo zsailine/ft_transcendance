@@ -7,7 +7,9 @@ import { useAuth } from "../../Providers/AuthProvider";
 import { generateRoom } from "../../Utils/tools";
 import { useNavigate } from "react-router-dom";
 import { BsBoxArrowInRight } from "react-icons/bs";
-import { getRelationship } from "../../Utils/getter";
+import { getRelationship, getSetAvatar } from "../../Utils/getter";
+import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { useSocket } from "../../Providers/SocketProvider";
 
 interface ReceiverHeaderProps {
 	click: () => void
@@ -15,11 +17,13 @@ interface ReceiverHeaderProps {
 
 function ReceiverHeader({click}: ReceiverHeaderProps) {
 	const { socket, user, onlineUsers } = useAuth();
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
 	const navigate = useNavigate();
 	const { selectedUser, setSelectedUser } = useChat();
 	const [relation, setRelation] = useState<string | null>("");
 	const [join, setJoin] = useState(false);
 	const [link, setLink] = useState("");
+	const { socketUser } = useSocket();
 
 	function invite() {
 		if (!user || !socket || !selectedUser || relation === "blocked") return;
@@ -33,6 +37,19 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 		if (!link) return;
 		navigate(`/dashboard/play/online?mode=invite&link=${link}`);
 	}
+
+	useEffect(()=> {
+		if (selectedUser)
+			setAvatar(selectedUser?.avatar);
+	}, [selectedUser]);
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (selectedUser?.username === data.whoChanged) {
+				getSetAvatar(data.whoChanged, setAvatar);
+			}
+		});
+	}, [socketUser, selectedUser]);
 
 	useEffect(() => {
 		if (!socket || !selectedUser) return;
@@ -73,7 +90,7 @@ function ReceiverHeader({click}: ReceiverHeaderProps) {
 
 			{selectedUser && <div id="friends-avatar" className="relative w-12 h-12 md:w-15 md:h-15" onClick={click}>
 				<img alt={selectedUser?.username?.at(0)?.toUpperCase()}
-					src={selectedUser?.avatar ? getImageUrlFromBlob(selectedUser.avatar.data)?.toString() : "/images/avatar.jpg"}
+					src={avatar ? getImageUrlFromBlob(avatar.data)?.toString() : "/images/avatar.jpg"}
 					className="w-full h-full rounded-full object-cover border border-cyan-500/20" />
 				<span className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-[#101728] ${onlineUsers.includes(selectedUser.username) ? "bg-green-400" : ""} rounded-full border-2 border-gray-600`}></span>
 			</div>}

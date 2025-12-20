@@ -8,44 +8,58 @@ interface SocketProviderProps {
 
 interface SocketInterface {
 	socketFriend: Socket | null,
-	setSocketFriend: (s: Socket | null) => void
+	setSocketFriend: (s: Socket | null) => void,
+	socketUser: Socket | null,
+	setSocketUser: (s: Socket | null) => void,
 }
 
 const SocketContext = createContext<SocketInterface | null>(null);
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {
 	
-	const [socketFriend, setSocketFriend] = useState<Socket | null>(null);
+	const [ socketFriend, setSocketFriend ] = useState<Socket | null>(null);
+	const [ socketUser, setSocketUser ] = useState<Socket | null>(null);
 	const { user } = useAuth();
 
 	const connectSocket = () => {
-		if (!user || socketFriend?.connected) return ;
+		if (!user || socketFriend?.connected || socketUser?.connected) return ;
 
-		const newSocket = io("http://localhost:3000", {
+		const newSocketFriend = io("http://localhost:3000", {
 			withCredentials: true,
 			path: "/friend/socket.io",
 			transports: ["websocket"],
 			reconnection: false
 		});
-		setSocketFriend(newSocket);
+		const newSocketUser = io("http://localhost:3000", {
+			withCredentials: true,
+			path: "/users/socket.io",
+			transports: ["websocket"],
+			reconnection: false
+		});
+		setSocketFriend(newSocketFriend);
+		setSocketUser(newSocketUser);
 	}
 
 	const disconnectSocket = () => {
 		if (socketFriend?.connected) {
 			socketFriend.disconnect();
 		}
+		if (socketUser?.connected) {
+			socketFriend?.disconnect();
+		}
 	}
 
 	useEffect(() => {
 		if (user) {
 			connectSocket();
-		} else if (!user && socketFriend?.connected) {
+		} else if (!user && socketFriend?.connected && socketUser?.connected) {
 			disconnectSocket();
 		}
 	}, [user]);
 
 	const value = {
-		socketFriend, setSocketFriend
+		socketFriend, setSocketFriend,
+		socketUser, setSocketUser
 	};
 
 	return (

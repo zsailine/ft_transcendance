@@ -9,19 +9,56 @@ import { FaUserSlash } from "react-icons/fa";
 import { useFriend } from "../../Providers/FriendProvider";
 import FriendProfil from "../Profil/FriendProfil";
 import { useSocket } from "../../Providers/SocketProvider";
-import { getRelationship } from "../../Utils/getter";
+import { getRelationship, getSetAvatar } from "../../Utils/getter";
+import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { useChat } from "../../Providers/ChatProvider";
 
 function FriendTabSwitch() {
 	const [ tabSelected, setTabSelected ] = useState<string>("friends");
 	const [ previewProfil, setPreviewProfil ] = useState<boolean>(false);
 	const [ relation, setRelation ] = useState<string | null>("");
 	const [ type, setType ] = useState<string>("");
-	const { selectedUserProfil } = useFriend();
-	const { socketFriend } = useSocket();
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
+	const [ whoChanged, setWhoChanged ] = useState<string>("");
+	const { selectedUserProfil, blockedUsers, setBlockedUsers, friendRequests, setFriendRequests } = useFriend();
+	const { socketFriend, socketUser } = useSocket();
+	const { friendsList, setFriendsList } = useChat();
 
 	const clickProfil = () => {
 		setPreviewProfil(prev => !prev);
 	}
+
+	useEffect(() => {
+		setBlockedUsers(blockedUsers.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+		setFriendRequests(friendRequests.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+		setFriendsList(friendsList.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+	}, [avatar, whoChanged]);
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (blockedUsers.some(f => f.username === data.whoChanged) ||
+				friendRequests.some(f => f.username === data.whoChanged) ||
+				friendsList.some(f => f.username === data.whoChanged)) {
+				getSetAvatar(data.whoChanged, setAvatar);
+				setWhoChanged(data.whoChanged);
+			}
+		});
+	}, [socketUser, blockedUsers, friendRequests, blockedUsers]);
 
 	const [ selectedTab , setSelectedTab ] = useState<React.ReactElement>(<Friends click={clickProfil}/>);
 

@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { type UserInterface } from "../../Providers/ChatProvider";
+import { useChat, type UserInterface } from "../../Providers/ChatProvider";
 import { getImageUrlFromBlob } from "../../Utils/blob";
 import { useNavigate } from "react-router-dom";
 import { AddFriendButton, MessageFriendButton } from "../../Pages/Chat/ListUtils";
 import { NoContacts, NotFound } from "../../Pages/Friend/NoContacts";
 import { useAuth } from "../../Providers/AuthProvider";
+import { useSocket } from "../../Providers/SocketProvider";
+import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { getSetAvatar } from "../../Utils/getter";
 
 interface FriendsListProps {
 	friendsList: UserInterface[],
@@ -12,13 +15,17 @@ interface FriendsListProps {
 	message: string,
 	setSelectedUser: (user: UserInterface) => void,
 	setSelectedUserProfil: (user: UserInterface) => void,
+	setFriendsList: (user: UserInterface[]) => void,
 	click: (() => void) | undefined
 }
 
-function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSelectedUserProfil, click }: FriendsListProps) {
+function FriendsList({ friendsList, setFriendsList, searchValue, setSelectedUser, message, setSelectedUserProfil, click }: FriendsListProps) {
 	const { onlineUsers } = useAuth();
 	const [filteredFriends, setFilteredFriends] = useState<UserInterface[]>([]);
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
+	const [ whoChanged, setWhoChanged ] = useState<string>("");
 	const navigate = useNavigate();
+	const { socketUser } = useSocket();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
 
@@ -26,6 +33,24 @@ function FriendsList({ friendsList, searchValue, setSelectedUser, message, setSe
 		setSelectedUser(friend);
 		navigate("/dashboard/discussion");
 	}
+
+	useEffect(() => {
+		setFriendsList(friendsList.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+	}, [avatar, whoChanged])
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (friendsList.some(f => f.username === data.whoChanged)) {
+				getSetAvatar(data.whoChanged, setAvatar);
+				setWhoChanged(data.whoChanged);
+			}
+		});
+	}, [socketUser, friendsList]);
 
 	useEffect(() => {
 		if (searchValue !== "") {

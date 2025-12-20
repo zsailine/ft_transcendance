@@ -28,5 +28,5 @@ export default async function userRoutes(fastify) {
 
   fastify.post("/users/update" , { handler: updateUser });
 
-  fastify.post("/users/:username/updateColor" , { handler: updateColor });
+  fastify.post("/users/updateColor" , { handler: updateColor });
 }

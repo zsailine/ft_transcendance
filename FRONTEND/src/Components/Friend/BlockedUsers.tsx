@@ -1,12 +1,37 @@
+import { useEffect, useState } from "react";
 import { UnblockButton } from "../../Pages/Chat/ListUtils";
 import { NoBlockedUser } from "../../Pages/Friend/NoFriendRequests";
 import { useFriend } from "../../Providers/FriendProvider"
 import { getImageUrlFromBlob } from "../../Utils/blob";
+import type { ImageBuffer } from "../../Providers/DashboardProvider";
+import { useSocket } from "../../Providers/SocketProvider";
+import { getSetAvatar } from "../../Utils/getter";
 
 function BlockedUsers() {
-	const { blockedUsers } = useFriend();
+	const [ avatar, setAvatar ] = useState<ImageBuffer | null>(null);
+	const [ whoChanged, setWhoChanged ] = useState<string>("");
+	const { blockedUsers, setBlockedUsers } = useFriend();
+	const { socketUser } = useSocket();
 
 	const hoverEffect = "hover:bg-cyan-500/10 transition-colors duration-200";
+
+	useEffect(() => {
+		setBlockedUsers(blockedUsers.map((friend) => 
+			(friend.username === whoChanged) ? {
+				id: friend.id,
+				avatar: avatar,
+				username: friend.username
+			} : friend ));
+	}, [avatar, whoChanged]);
+
+	useEffect(() => {
+		socketUser?.on("user profil updated", (data) => {
+			if (blockedUsers.some(f => f.username === data.whoChanged)) {
+				getSetAvatar(data.whoChanged, setAvatar);
+				setWhoChanged(data.whoChanged);
+			}
+		});
+	}, [socketUser, blockedUsers]);
 
 	if (blockedUsers.length === 0) {
 		return (<NoBlockedUser/>);
