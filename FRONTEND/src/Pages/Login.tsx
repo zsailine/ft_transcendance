@@ -36,6 +36,25 @@ export default function Login() {
   const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
   const [show2FAInput, setShow2FAInput] = useState<boolean>(false);
 
+  const validatePassword = (password: string): { isValid: boolean; message: string } => {
+    if (password.length < 8) {
+      return { isValid: false, message: "Password must be at least 8 characters long" };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { isValid: false, message: "Password must contain at least one uppercase letter" };
+    }
+    if (!/[a-z]/.test(password)) {
+      return { isValid: false, message: "Password must contain at least one lowercase letter" };
+    }
+    if (!/[0-9]/.test(password)) {
+      return { isValid: false, message: "Password must contain at least one number" };
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return { isValid: false, message: "Password must contain at least one special character" };
+    }
+    return { isValid: true, message: "" };
+  };
+
   useEffect(() => {
     if (isLogin) {
       if (formData.username !== "" && formData.password !== "") {
@@ -80,21 +99,39 @@ export default function Login() {
 
     try {
       if (!isLogin) {
-        const { success } = await register(formData.username, formData.password, formData.email!);
-        if (success) {
-          setFormData({
-            username: "",
-            password: "",
-            email: "",
-            confirmPassword: "",
-            totpCode: ""
-          });
-          navigate("/login");
-          toast.success("User created !");
+        const { isValid, message } = validatePassword(formData.password);
+        if (!isValid) {
+          toast.error(message);
+          setIsLoading(false);
+          return;
         }
-        return;
-      }
 
+        try {
+          if (!isLogin) {
+            const result = await register(formData.username, formData.password, formData.email!);
+
+            if (result.success) {
+              setFormData({
+                username: "",
+                password: "",
+                email: "",
+                confirmPassword: "",
+                totpCode: ""
+              });
+              navigate("/login");
+              toast.success("User created!");
+            } else {
+              toast.error("Email or Username already in use. Please try again.");
+            }
+            return;
+          }
+        }
+        catch (error) {
+          toast.error("Registration failed");
+          setIsLoading(false);
+          return;
+        }
+      }
       const { success, requires2FA } = await login(formData.username, formData.password, formData.totpCode);
 
       if (requires2FA && !show2FAInput) {
@@ -146,7 +183,7 @@ export default function Login() {
           </h2>
           <form onSubmit={handleSubmit} className="text-gray-300 dark:text-gray-200">
             <input
-              placeholder="login"
+              placeholder="login/email"
               className="w-full mb-4 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
               type="text"
               name="username"
@@ -158,10 +195,13 @@ export default function Login() {
                 type="Email"
                 name="email"
                 placeholder="Email"
-                className="w-full mb-6 px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                className="w-full  px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
                 onChange={handleChange}
                 value={formData.email}
               />
+            )}
+            {!isLogin && (formData.password.length < 8) && (
+              <small className="text-gray-500">{formData.password.length < 8 && "Password must be at least 8 characters long"}</small>
             )}
             <input
               placeholder="password"
@@ -211,8 +251,8 @@ export default function Login() {
               {isLoading && <ImSpinner9 className="animate-spin inline ml-2" />}
             </button>
             {!isLogin &&
-              <p 
-                className = "underline text-gray-500 text-right mt-2 cursor-pointer hover:text-gray-700"
+              <p
+                className="underline text-gray-500 text-right mt-2 cursor-pointer hover:text-gray-700"
                 onClick={() => navigate('/login')}
               >Back</p>}
           </form>

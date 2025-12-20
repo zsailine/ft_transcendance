@@ -4,18 +4,44 @@ import db from "../migration.js";
 const createUser = async (req, rep) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password)
-        return rep.code(400).send({ error: "username , email and password required" });
+        return rep.code(400).send({ error: "username, email and password required" });
+    
+    if (password.length < 8) {
+        return rep.code(400).send({ error: "Password must be at least 8 characters long" });
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one uppercase letter" });
+    }
+    
+    if (!/[a-z]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one lowercase letter" });
+    }
+    
+    if (!/[0-9]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one number" });
+    }
+    
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one special character" });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp)
-        VALUES (?, 0, 0, 0, 0, 0)`)
+        VALUES (?, 0, 0, 0, 0, 0)`);
         const result = stmt.run(username, email, hashedPassword);
         add.run(username);
-        rep.code(201).send({ id: result.lastInsertRowid, username, email, password: hashedPassword });
+        rep.code(201).send({ id: result.lastInsertRowid, username, email });
     }
     catch (e) {
-        rep.code(400).send({ error: "username and email must be unique" });
+        if (e.message.includes('username')) {
+            return rep.code(400).send({ error: "Username already exists" });
+        } else if (e.message.includes('email')) {
+            return rep.code(400).send({ error: "Email already exists" });
+        }
+        rep.code(400).send({ error: "Username or email already exists" });
     }
 }
 
@@ -27,6 +53,14 @@ const getAllUsers = (req, rep) => {
 const getUserByUsername = (req, rep) => {
     const { username } = req.params;
     const user = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+    if (!user)
+        return rep.code(404).send({ error: "User not found" });
+    rep.send(user);
+}
+
+const getUserByEmail = (req,rep) => {
+    const { email } = req.params;
+    const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
     if (!user)
         return rep.code(404).send({ error: "User not found" });
     rep.send(user);
@@ -158,5 +192,6 @@ export {
     getAvatar,
     getId,
     getBanner,
-    getUserInfo
+    getUserInfo,
+    getUserByEmail
 };
