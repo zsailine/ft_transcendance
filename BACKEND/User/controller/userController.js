@@ -75,23 +75,57 @@ const updateUser = async (req, rep) => {
 
         let avatarBuffer = null;
         let coverImageBuffer = null;
+        let hasAvatar = false;
+        let hasCoverImage = false;
 
         if (avatar && avatar.type === 'file') {
             try {
                 avatarBuffer = await avatar.toBuffer();
+                hasAvatar = true;
             } catch (error) {
+                console.error("Error processing avatar:", error);
             }
         }
 
         if (cover_image && cover_image.type === 'file') {
             try {
                 coverImageBuffer = await cover_image.toBuffer();
+                hasCoverImage = true;
             } catch (error) {
+                console.error("Error processing cover image:", error);
             }
         }
 
-        const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
-        const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
+        let updates = [];
+        let params = [];
+
+        if (nicknameValue) {
+            updates.push('nickname = ?');
+            params.push(nicknameValue);
+        }
+
+        if (hasAvatar) {
+            updates.push('avatar = ?');
+            params.push(avatarBuffer);
+        }
+
+        if (hasCoverImage) {
+            updates.push('cover_image = ?');
+            params.push(coverImageBuffer);
+        }
+
+        if (updates.length === 0) {
+            return rep.code(200).send({
+                message: "No changes to update",
+                changes: 0
+            });
+        }
+
+        params.push(usernameValue);
+
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE username = ?`;
+        const stmt = db.prepare(query);
+        const result = stmt.run(...params);
 
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });
@@ -100,8 +134,9 @@ const updateUser = async (req, rep) => {
         rep.code(200).send({
             message: "Success",
             changes: result.changes,
-            avatarUpdated: !!avatarBuffer,
-            coverImageUpdated: !!coverImageBuffer
+            avatarUpdated: hasAvatar,
+            coverImageUpdated: hasCoverImage,
+            nicknameUpdated: !!nicknameValue
         });
 
     } catch (error) {
