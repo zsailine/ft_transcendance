@@ -37,10 +37,10 @@ function App() {
               <FriendProvider>
                 <Router>
                   <Routes>
-                    <Route path="/" element={<Menu />} />
+                    <Route path="/menu" element={<Menu />} />
                     <Route path="/pong" element={<PongGame />} />
                     <Route path="/tournament" element={<PongTournament />} />
-                    <Route path="/login" element={<Login />} />
+                    <Route path="/" element={<Login />} />
                     <Route path="/register" element={<Login />} />
                     <Route
                       path="/dashboard"

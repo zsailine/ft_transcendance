@@ -28,7 +28,7 @@ fastify.register(fastifyJwt,
 
 fastify.decorate("authenticate", async function (request, reply) {
   try {
-    if (request.url === "/auth/login" || request.url === "/users/register" ||
+    if (request.url === "/auth/" || request.url === "/users/register" ||
       request.url.startsWith("/socket.io")) {
       return;
     }

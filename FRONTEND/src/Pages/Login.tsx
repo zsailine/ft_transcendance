@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 export default function Login() {
   const location = useLocation();
-  const isLogin = location.pathname === '/login';
+  const isLogin = location.pathname === '/';
 
   const navigate = useNavigate();
 
@@ -118,7 +118,7 @@ export default function Login() {
                 confirmPassword: "",
                 totpCode: ""
               });
-              navigate("/login");
+              navigate("/");
               toast.success("User created!");
             } else {
               toast.error("Email or Username already in use. Please try again.");
@@ -253,7 +253,7 @@ export default function Login() {
             {!isLogin &&
               <p
                 className="underline text-gray-500 text-right mt-2 cursor-pointer hover:text-gray-700"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/')}
               >Back</p>}
           </form>
           {isLogin && (

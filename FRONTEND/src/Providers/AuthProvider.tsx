@@ -64,7 +64,7 @@ const AuthProvider = ({ children }: any) => {
 				totpCode: totpCode
 			}
 
-			const { data } = await api.post("/auth/login", postData);
+			const { data } = await api.post("/auth/", postData);
 
 			if (data.requires2FA) {
 				return { success: false, requires2FA: true };
