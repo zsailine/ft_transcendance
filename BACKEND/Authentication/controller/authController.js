@@ -25,9 +25,6 @@ const loggedUser = async (req, rep) => {
     if (!user.data)
         return rep.code(404).send({ error: "user not found" });
 
-    if (!user.data)
-        return rep.code(404).send({ error: "user not found" });
-
     const validMdp = await bcrypt.compare(password, user.data.password);
 
     if (!validMdp)
