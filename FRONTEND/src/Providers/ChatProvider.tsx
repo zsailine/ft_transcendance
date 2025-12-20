@@ -63,7 +63,6 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 				setFriendsList(response.data);
 			}
 		} catch (error) {
-			console.log("Error in fetching friends:", error);
 		}
 	}
 
@@ -74,7 +73,6 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 				setMessages(response.data);
 			}
 		} catch (error) {
-			console.log("Error in fetching messages:", error);
 		}
 	}
 
@@ -83,7 +81,6 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 			await api.post(`/message/send/${selectedUser?.username}`, messageData);
 		} catch (error) {
 			toast.error("Something went wrong while sending message");
-			console.log(error);
 		}
 	}
 
@@ -91,7 +88,6 @@ export const ChatProvider = ({ children }: ChatProviderProps) => {
 		try {
 			await api.put(`/message/${messageId}/read`);
 		} catch(error) {
-			console.log(error);
 		}
 	}
 

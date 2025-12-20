@@ -5,18 +5,44 @@ import { getReceiverSocket, fastify } from "../server.js";
 const createUser = async (req, rep) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password)
-        return rep.code(400).send({ error: "username , email and password required" });
+        return rep.code(400).send({ error: "username, email and password required" });
+    
+    if (password.length < 8) {
+        return rep.code(400).send({ error: "Password must be at least 8 characters long" });
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one uppercase letter" });
+    }
+    
+    if (!/[a-z]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one lowercase letter" });
+    }
+    
+    if (!/[0-9]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one number" });
+    }
+    
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        return rep.code(400).send({ error: "Password must contain at least one special character" });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp)
-        VALUES (?, 0, 0, 0, 0, 0)`)
+        const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp, returned, streak, max_streak, maxCombo)
+        VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0)`)
         const result = stmt.run(username, email, hashedPassword);
         add.run(username);
-        rep.code(201).send({ id: result.lastInsertRowid, username, email, password: hashedPassword });
+        rep.code(201).send({ id: result.lastInsertRowid, username, email });
     }
     catch (e) {
-        rep.code(400).send({ error: "username and email must be unique" });
+        if (e.message.includes('username')) {
+            return rep.code(400).send({ error: "Username already exists" });
+        } else if (e.message.includes('email')) {
+            return rep.code(400).send({ error: "Email already exists" });
+        }
+        rep.code(400).send({ error: "Username or email already exists" });
     }
 }
 
@@ -33,6 +59,14 @@ const getUserByUsername = (req, rep) => {
     rep.send(user);
 }
 
+const getUserByEmail = (req,rep) => {
+    const { email } = req.params;
+    const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+    if (!user)
+        return rep.code(404).send({ error: "User not found" });
+    rep.send(user);
+}
+
 const updateUser = async (req, rep) => {
     try {
         const { username, avatar, cover_image, nickname } = req.body;
@@ -42,24 +76,58 @@ const updateUser = async (req, rep) => {
 
         let avatarBuffer = null;
         let coverImageBuffer = null;
+        let hasAvatar = false;
+        let hasCoverImage = false;
 
         if (avatar && avatar.type === 'file') {
             try {
                 avatarBuffer = await avatar.toBuffer();
+                hasAvatar = true;
             } catch (error) {
+                console.error("Error processing avatar:", error);
             }
         }
 
         if (cover_image && cover_image.type === 'file') {
             try {
                 coverImageBuffer = await cover_image.toBuffer();
+                hasCoverImage = true;
             } catch (error) {
+                console.error("Error processing cover image:", error);
             }
         }
-        
-        const stmt = db.prepare("UPDATE users SET avatar = ?, cover_image = ?, nickname = ? WHERE username = ?");
-        const result = stmt.run(avatarBuffer, coverImageBuffer, nicknameValue, usernameValue);
-        
+
+        let updates = [];
+        let params = [];
+
+        if (nicknameValue) {
+            updates.push('nickname = ?');
+            params.push(nicknameValue);
+        }
+
+        if (hasAvatar) {
+            updates.push('avatar = ?');
+            params.push(avatarBuffer);
+        }
+
+        if (hasCoverImage) {
+            updates.push('cover_image = ?');
+            params.push(coverImageBuffer);
+        }
+
+        if (updates.length === 0) {
+            return rep.code(200).send({
+                message: "No changes to update",
+                changes: 0
+            });
+        }
+
+        params.push(usernameValue);
+
+        const query = `UPDATE users SET ${updates.join(', ')} WHERE username = ?`;
+        const stmt = db.prepare(query);
+        const result = stmt.run(...params);
+
         if (result.changes === 0) {
             return rep.code(404).send({ error: "User not found" });
         }
@@ -69,8 +137,9 @@ const updateUser = async (req, rep) => {
         rep.code(200).send({
             message: "Success",
             changes: result.changes,
-            avatarUpdated: !!avatarBuffer,
-            coverImageUpdated: !!coverImageBuffer
+            avatarUpdated: hasAvatar,
+            coverImageUpdated: hasCoverImage,
+            nicknameUpdated: !!nicknameValue
         });
 
     } catch (error) {
@@ -166,5 +235,6 @@ export {
     getAvatar,
     getId,
     getBanner,
-    getUserInfo
+    getUserInfo,
+    getUserByEmail
 };

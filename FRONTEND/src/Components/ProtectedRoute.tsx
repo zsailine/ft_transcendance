@@ -22,7 +22,6 @@ const ProtectedRoute = ({ children }: PropsWithChildren<{}>): React.ReactElement
         }
         catch(e)
         {
-            console.log(e)
         }
         finally
         {
@@ -43,7 +42,7 @@ const ProtectedRoute = ({ children }: PropsWithChildren<{}>): React.ReactElement
     }
 
     if (!isAuthenticated)
-        return (<Navigate to="/login"/>)
+        return (<Navigate to="/"/>)
 
     return (
         <>

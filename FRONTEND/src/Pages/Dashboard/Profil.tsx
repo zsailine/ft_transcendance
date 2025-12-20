@@ -6,15 +6,8 @@ import Story from "../../Components/Profil/Story";
 import OverlayMatch from "../../Components/Profil/OverlayMatch";
 import api from "../../Utils/axios";
 import WinLossChart from "../../Components/Profil/DonutGraph";
-import Achievements from "../../Components/Home/Achievements";
-
-export interface statInterface {
-    total_matches: number;
-    total_losses: number;
-    total_wins: number;
-    xp: number;
-}
-
+import { Achievements, type PlayerStatsInterface } from "../../Components/Home/Achievements";
+import OverlayAchievements from "../../Components/Profil/OverlayAchievement";
 
 interface ProfilInterface {
     username: string | null,
@@ -24,12 +17,18 @@ interface ProfilInterface {
 }
 
 const Profil = () => {
-
-    const defaultStats: statInterface = {
+    const defaultStats: PlayerStatsInterface = {
         total_matches: 0,
-        total_losses: 0,
         total_wins: 0,
-        xp: 0
+        total_losses: 0,
+        xp: 0,
+        streak: 0,
+        total_duration: 0,
+        returned: 0,
+        max_streak: 0,
+        maxCombo: 0,
+        total_xp: 0,
+        winning: 0,
     };
     const defaultProfil: ProfilInterface = {
         username: null,
@@ -44,9 +43,10 @@ const Profil = () => {
     const [profile, setProfile] = useState<ProfilInterface>(defaultProfil);
     const [avatarURL, setAvatarURL] = useState<string | null>(null);
     const [coverURL, setCoverURL] = useState<string | null>(null);
-    const [stats, setStats] = useState<statInterface>(defaultStats);
+    const [stats, setStats] = useState<PlayerStatsInterface>(defaultStats);
     const [matches, setMatches] = useState<any>(null);
     const [rank, setRank] = useState<any>(null);
+    const [page, setPage] = useState(0);
 
     async function getLeaderBoard() {
         const response = await api.get(`/matches/rank/${profile.username}`);
@@ -192,9 +192,14 @@ const Profil = () => {
                                     <h1 className="text-4xl mt-12 mb-4">Win/Loss</h1>
                                     <WinLossChart wins={stats?.total_wins} losses={stats.total_losses} />
                                 </div>
-                                <div className="shadow-amber-400 shadow-md p-5 mt-2 rounded-lg  h-fit">
-                                    <Achievements viewAchievements={() => console.log('yo')} />
-                                </div>
+                                <Achievements
+                                    type={0}
+                                    show={1}
+                                    buttonText={<>View All &rarr;</>}
+                                    PlayerStats={stats}
+                                    viewAchievements={() => setPage(1)}
+                                />
+
                             </div>
                         </div>
                     </div>
@@ -205,6 +210,14 @@ const Profil = () => {
                             </div>
                         )
                     }
+                    {(page === 1 && username) && (
+                        <>
+                            <div className="fixed inset-0 z-20 bg-black/30 backdrop-blur-lg w-full h-full blur-2xl"></div>
+                            <div className="fixed inset-0 z-20 w-full h-full">
+                                <OverlayAchievements quit={() => setPage(0)} username={username} />
+                            </div>
+                        </>
+                    )}
                 </> :
                 <div className="flex flex-1 items-center justify-center min-h-[60vh]">
                     <div className="flex justify-center text-white items-center flex-col">

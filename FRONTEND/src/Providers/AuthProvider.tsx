@@ -5,7 +5,7 @@ import { io, Socket } from "socket.io-client";
 
 interface AuthInterface {
 	user: string | null,
-	login: (username: string, password: string, totpCode?:string) => any,
+	login: (username: string, password: string, totpCode?: string) => any,
 	register: (username: string, password: string, email: string) => any,
 	logout: () => void,
 	setUser: (username: string | null) => void,
@@ -64,7 +64,7 @@ const AuthProvider = ({ children }: any) => {
 				totpCode: totpCode
 			}
 
-			const { data } = await api.post("/auth/login", postData);
+			const { data } = await api.post("/auth/", postData);
 
 			if (data.requires2FA) {
 				return { success: false, requires2FA: true };
@@ -92,18 +92,19 @@ const AuthProvider = ({ children }: any) => {
 
 	const register = async (username: string, password: string, email: string) => {
 		try {
-			const postData = {
-				username: username,
-				password: password,
-				email: email
+			const response = await api.post('/api/users', {
+				username,
+				password,
+				email
+			});
+			return { success: true, data: response.data };
+		} catch (error: any) {
+			if (error.response?.data?.error) {
+				return { success: false, error: error.response.data.error };
 			}
-			await api.post("/users/register", postData)
-			return ({ success: true })
+			return { success: false, error: "Registration failed" };
 		}
-		catch (err: any) {
-			return ({ success: false, error: err.message })
-		}
-	}
+	};
 
 	const logout = async () => {
 		try {
