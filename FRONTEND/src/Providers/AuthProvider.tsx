@@ -92,7 +92,7 @@ const AuthProvider = ({ children }: any) => {
 
 	const register = async (username: string, password: string, email: string) => {
 		try {
-			const response = await api.post('/api/users', {
+			const response = await api.post('/users/register', {
 				username,
 				password,
 				email

@@ -195,13 +195,13 @@ export default function Login() {
                 type="Email"
                 name="email"
                 placeholder="Email"
-                className="w-full  px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
+                className="w-full mb-2  px-4 py-2 border border-gray-300 rounded shadow-sm focus:ring-2 focus:ring-blue-400"
                 onChange={handleChange}
                 value={formData.email}
               />
             )}
-            {!isLogin && (formData.password.length < 8) && (
-              <small className="text-gray-500">{formData.password.length < 8 && "Password must be at least 8 characters long"}</small>
+            {!isLogin && (
+              <small className="text-gray-500">{formData.password.length < 8 && "Please choose a stronger password"}</small>
             )}
             <input
               placeholder="password"
