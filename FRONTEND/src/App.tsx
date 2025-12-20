@@ -51,9 +51,7 @@ function App() {
                           </Suspense>
                         </ProtectedRoute>
                       }>
-                      <Route index element={<Home
-                        onViewAllAchievements={() => console.log('achievements')}
-                      />} />
+                      <Route index element={<Home/>} />
                       <Route path="profile" element={<Profil />} />
                       <Route path="privacy-policy" element={<PrivacyPolicy />} />
                       <Route path="terms-of-service" element={<TermsOfService />} />

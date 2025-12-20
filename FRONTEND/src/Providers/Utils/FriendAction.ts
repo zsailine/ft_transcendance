@@ -19,7 +19,6 @@ export const useFriendAction = ({
 				setFriendRequests(response.data);
 			}
 		} catch(error) {
-			console.log("Error in fetching friend requests", error);
 			toast.error(`Something went wrong`);
 		}
 	}
@@ -31,7 +30,6 @@ export const useFriendAction = ({
 				setUnknowns(response.data);
 			}
 		} catch(error) {
-			console.log("Error in fetching not friends", error);
 			toast.error("Something went wrong");
 		}
 	}
@@ -43,7 +41,6 @@ export const useFriendAction = ({
 				setBlockedUsers(response.data);
 			}
 		} catch(error) {
-			console.log("Error in fetchin blocked users", error);
 			toast.error("Something went wrong");
 		}
 	}
@@ -66,7 +63,6 @@ export const useFriendAction = ({
 			toast("Friend request declined");
 		})
 		.catch((err) => {
-			console.log(err);
 			toast.error("Something went wrong");
 			const filtered = friendRequests.filter((f) => f.username !== friend.username);
 			setFriendRequests(filtered);

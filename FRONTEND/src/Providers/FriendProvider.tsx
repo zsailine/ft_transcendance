@@ -122,11 +122,9 @@ export const FriendProvider = ({children}: FriendProviderProps) => {
 			if (friendship.user_a === user) {
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_b));
 			} else if (friendship.user_b === user) {
-				console.log(unknowns.filter(u => u.username !== friendship.user_a));
 				setUnknowns(prev => prev.filter(u => u.username !== friendship.user_a));
 			}
 		});
-
 		socketFriend?.on("friend unblocked", (friendship) => {
 			if (friendship.blocked_by === user) {
 				const toDeleteUser = (user === friendship.user_a) ? friendship.user_b : friendship.user_a;

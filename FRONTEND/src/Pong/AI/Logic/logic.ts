@@ -38,7 +38,6 @@ export const movePlayerPaddle = (
 	paddle1: Paddle,
 	paddle2: Paddle) => {
 	if (paddle1.Direction !== 0) {
-		console.log()
 		let newY = paddle1.y + paddleSpeed * paddle1.Direction;
 		paddle1.y = Math.max(0, Math.min(newY, board.height - paddle1.height));
 	}

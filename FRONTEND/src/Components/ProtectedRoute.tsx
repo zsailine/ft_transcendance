@@ -22,7 +22,6 @@ const ProtectedRoute = ({ children }: PropsWithChildren<{}>): React.ReactElement
         }
         catch(e)
         {
-            console.log(e)
         }
         finally
         {

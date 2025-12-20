@@ -8,8 +8,8 @@ const createUser = async (req, rep) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp)
-        VALUES (?, 0, 0, 0, 0, 0)`)
+        const add = db.prepare(`INSERT INTO user_stats (username, total_matches, total_wins, total_losses, total_duration, xp, returned, streak, max_streak, maxCombo)
+        VALUES (?, 0, 0, 0, 0, 0, 0, 0, 0, 0)`)
         const result = stmt.run(username, email, hashedPassword);
         add.run(username);
         rep.code(201).send({ id: result.lastInsertRowid, username, email, password: hashedPassword });

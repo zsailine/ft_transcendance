@@ -24,7 +24,6 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
         const fetch2FAStatus = async () => {
             try {
                 const res = await api.get('/auth/me');
-                console.log("2FA status response:", res.data);
                 setChecked(res.data.enabled2FA === 1);
             } catch (error) {
                 console.error("Error fetching 2FA status:", error);
@@ -58,7 +57,6 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
             const res = await api.get('/users/2fa/setup');
             setDataURL(res.data.qrCode);
             setQrCodeVisible(true);
-            console.log("Received QR code:", res.data.qrCode);
         } catch (error) {
             console.error("Error fetching 2FA setup:", error);
             setQrCodeVisible(false);
@@ -75,7 +73,6 @@ export default function Profil({ handleSubmit, hoverEffect }: ProfilProps) {
             const res = await api.post('/users/2fa/verify', {
                 token: inputCode
             });
-            console.log("2FA verification response:", res.data);
             if (res.data.success) {
                 toast.success("2FA activated successfully!");
                 setQrCodeVisible(false);
