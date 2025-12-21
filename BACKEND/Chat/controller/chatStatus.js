@@ -1,6 +1,7 @@
 import { getUsername } from "../controller/chatController.js";
 import db from "../migration.js";
 import { getReceiverSocket, fastify } from "../server.js";
+import axios from "axios";
 
 const statusRead = async (req, rep) => {
 	const id  = parseInt(req.params.id);
@@ -21,6 +22,19 @@ const statusRead = async (req, rep) => {
 	return rep.status(200).send({statsu: "success"});
 }
 
+const usersExist = async (user_1, user_2) => {
+	try {
+		const all = await axios.get("http://localhost:3001/users/all");
+		const usernames = all.data.map(user => user.username);
+		if (usernames.includes(user_1) && usernames.includes(user_2))
+			return true;
+		return false;
+	} catch(error) {
+		return false;
+	}
+}
+
 export {
-	statusRead
+	statusRead,
+	usersExist
 }

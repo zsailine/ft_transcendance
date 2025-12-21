@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import axios from "axios";
 
 dotenv.config();
 
@@ -41,3 +42,15 @@ export const socketAuth = async (socket, next) => {
 		return next(new Error("Unauthorized"));
 	}
 };
+
+export const usersExist = async (user_1, user_2) => {
+	try {
+		const all = await axios.get("http://localhost:3001/users/all");
+		const usernames = all.data.map(user => user.username);
+		if (usernames.includes(user_1) && usernames.includes(user_2))
+			return true;
+		return false;
+	} catch(error) {
+		return false;
+	}
+}

@@ -33,6 +33,10 @@ export default function LeaderBoard({click, setter} : {click: () => void, setter
 	}, [username]);
 
 	useEffect(() => {
+		console.log(leaderBoard);
+	}, [leaderBoard]);
+
+	useEffect(() => {
 		setLeaderBoard(leaderBoard.map((rank) => (rank.username === whoChanged) ? {
 			...rank,
 			avatar: avatar

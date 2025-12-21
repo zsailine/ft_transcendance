@@ -1,6 +1,7 @@
 import db from "../migration.js";
 import { fastify, getReceiverSocket } from "../server.js";
 import { insertBlockedUser } from "./nonFriendController.js";
+import { usersExist } from "./socketController.js";
 import { deleteBlockedUsers, friendsList, getUsername, getWhat, isBlocked, isFriend, thoseWhoSentMe, whatToEmit } from "./verify.js";
 
 const AUTH_URL = "http://localhost:3002/auth/me";
@@ -12,6 +13,9 @@ const sendFriendRequest = async (req, rep) => {
 		if (loggedInUsername === receiverUsername) {
 			return rep.status(400).send({ error: "Can't send friend request to yourself" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const answer = await usersExist(loggedInUsername, receiverUsername);
+		if (!answer)
+			return rep.status(400).send({ error: "Users don't exist in database" });
 		const newFriendship = db.prepare(`INSERT INTO friendship (user_a, user_b, status, sender, is_friend)
 			VALUES (?, ?, ?, ?, ?)`).run(user_a, user_b, 'pending', loggedInUsername, 0);
 		const friendship = db.prepare(`SELECT * FROM friendship WHERE id=?`).get(newFriendship.lastInsertRowid);
@@ -154,8 +158,11 @@ const blockUser = async (req, rep) => {
 		const loggedInUsername = await getUsername(req, rep, AUTH_URL);
 		const receiverUsername = req.params.username;
 		if (loggedInUsername === receiverUsername) {
-			rep.status(400).send({ error: "Can't block yourself" }); }
+			return rep.status(400).send({ error: "Can't block yourself" }); }
 		const [user_a, user_b] = [loggedInUsername, receiverUsername].sort();
+		const answer = await usersExist(loggedInUsername, receiverUsername);
+		if (!answer)
+			return rep.status(400).send({ error: "Users don't exist in database" });
 		insertBlockedUser([user_a, user_b], loggedInUsername);
 		const request = db.prepare(`UPDATE friendship SET status='blocked',blocked_by=? WHERE (user_a=? AND user_b=?)`)
 			.run(loggedInUsername, user_a, user_b);

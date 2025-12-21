@@ -1,6 +1,7 @@
 import db from "../migration.js";
 import axios from "axios"
 import { fastify, getReceiverSocket, userSocketMap } from "../server.js";
+import { usersExist } from "./chatStatus.js";
 
 const USER_URL = "http://localhost:3001/users";
 
@@ -82,12 +83,17 @@ const sendMessage = async (req, rep) => {
 		const { text, image } = req.body;
 
 		if (!text && !image) {
-			rep.status(400).send({ error: "Need to have a text or an image" });
+			return rep.status(400).send({ error: "Need to have a text or an image" });
 		}
 
 		let imageUrl = null;
 		if (image) {
 			imageUrl = Buffer.from(image);
+		}
+
+		const answer = await usersExist(senderUsername, receiverUsername);
+		if (!answer){
+			return rep.status(400).send({ error: "Users don't exist in database" });
 		}
 		
 		const message = db.prepare(`INSERT INTO message (sender_username, receiver_username, text, image)

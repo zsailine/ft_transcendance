@@ -34,11 +34,11 @@ export default async function friendRoutes(fastify) {
 
 	fastify.post("/friend/request/:username", { handler: sendFriendRequest });
 
-	fastify.put("/friend/request/:username/accept", { handler: acceptRequest });
+	fastify.post("/friend/request/:username/accept", { handler: acceptRequest });
 
-	fastify.put("/friend/request/:username/decline", { handler: declineRequest });
+	fastify.post("/friend/request/:username/decline", { handler: declineRequest });
 
-	fastify.put("/friend/request/:username/block", { handler: blockUser });
+	fastify.post("/friend/request/:username/block", { handler: blockUser });
 
-	fastify.put("/friend/request/:username/unblock", { handler: unblockUser });
+	fastify.post("/friend/request/:username/unblock", { handler: unblockUser });
 }
